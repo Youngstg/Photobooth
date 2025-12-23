@@ -37,13 +37,14 @@
     <!-- Screen 2: Camera Capture -->
     <div id="screen-camera" class="screen">
         <div class="container">
-            <h2>Ambil Foto <span id="current-photo">1</span> dari <span id="total-photos">4</span></h2>
+            <h2>Foto ke-<span id="current-photo">1</span> dari <span id="total-photos">4</span></h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Tekan tombol sekali, foto akan diambil otomatis setiap 5 detik</p>
             <div class="camera-container">
                 <video id="video" autoplay playsinline></video>
                 <canvas id="canvas" style="display: none;"></canvas>
             </div>
             <div class="countdown" id="countdown"></div>
-            <button id="btn-capture" class="btn-primary">Ambil Foto</button>
+            <button id="btn-capture" class="btn-primary">Mulai Ambil Foto</button>
         </div>
     </div>
 

@@ -81,7 +81,12 @@ async function startCamera() {
         const video = document.getElementById('video');
         video.srcObject = state.stream;
 
-        updatePhotoCounter();
+        // Reset counter display
+        document.getElementById('current-photo').textContent = '1';
+        const btnCapture = document.getElementById('btn-capture');
+        btnCapture.disabled = false;
+        btnCapture.style.display = 'block'; // Pastikan tombol terlihat
+        btnCapture.textContent = 'Mulai Ambil Foto';
     } catch (error) {
         alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin kamera.');
         showScreen('screen-count-selection');
@@ -89,30 +94,71 @@ async function startCamera() {
 }
 
 function updatePhotoCounter() {
+    // Tampilkan index + 1 agar dimulai dari 1 bukan 0
     document.getElementById('current-photo').textContent = state.currentPhotoIndex + 1;
 }
 
 document.getElementById('btn-capture').addEventListener('click', () => {
+    startAutomaticCapture();
+});
+
+function startAutomaticCapture() {
     const countdownEl = document.getElementById('countdown');
     const btnCapture = document.getElementById('btn-capture');
 
-    btnCapture.disabled = true;
+    btnCapture.style.display = 'none'; // Sembunyikan tombol
 
-    let count = 3;
-    countdownEl.textContent = count;
+    console.log(`Mulai ambil ${state.totalCaptureCount} foto untuk ${state.requiredPhotoCount} slot frame`);
 
-    const countdownInterval = setInterval(() => {
-        count--;
-        if (count > 0) {
+    // Fungsi untuk countdown dan ambil 1 foto
+    function takeOnePhoto(photoIndex) {
+        return new Promise((resolve) => {
+            let count = 5;
             countdownEl.textContent = count;
-        } else {
-            clearInterval(countdownInterval);
-            countdownEl.textContent = '';
-            capturePhoto();
-            btnCapture.disabled = false;
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    countdownEl.textContent = '📸';
+
+                    // Ambil foto setelah 300ms
+                    setTimeout(() => {
+                        capturePhoto();
+                        console.log(`Foto ${photoIndex + 1}/${state.totalCaptureCount} diambil`);
+                        resolve();
+                    }, 300);
+                }
+            }, 1000);
+        });
+    }
+
+    // Ambil semua foto secara berurutan
+    async function takeAllPhotos() {
+        for (let i = 0; i < state.totalCaptureCount; i++) {
+            await takeOnePhoto(i);
+
+            // Delay 500ms sebelum foto berikutnya (kecuali foto terakhir)
+            if (i < state.totalCaptureCount - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
         }
-    }, 1000);
-});
+
+        // Selesai semua foto
+        countdownEl.textContent = '✅ Selesai!';
+        console.log(`Total foto tersimpan: ${state.capturedPhotos.length}`);
+
+        setTimeout(() => {
+            stopCamera();
+            showReviewScreen();
+        }, 1000);
+    }
+
+    // Mulai proses
+    takeAllPhotos();
+}
 
 function capturePhoto() {
     const video = document.getElementById('video');
@@ -131,13 +177,9 @@ function capturePhoto() {
     state.capturedPhotos.push(photoDataUrl);
 
     state.currentPhotoIndex++;
+    updatePhotoCounter();
 
-    if (state.currentPhotoIndex < state.totalCaptureCount) {
-        updatePhotoCounter();
-    } else {
-        stopCamera();
-        showReviewScreen();
-    }
+    console.log(`Foto ${state.currentPhotoIndex} tersimpan. Total foto sekarang: ${state.capturedPhotos.length}`);
 }
 
 function stopCamera() {
@@ -150,6 +192,16 @@ function stopCamera() {
 // Screen 3: Photo Review
 function showReviewScreen() {
     showScreen('screen-review');
+
+    console.log(`Menampilkan ${state.capturedPhotos.length} foto. User harus pilih ${state.requiredPhotoCount} foto.`);
+
+    // Validasi state
+    if (!state.requiredPhotoCount || state.requiredPhotoCount <= 0) {
+        console.error('Error: requiredPhotoCount tidak valid:', state.requiredPhotoCount);
+        alert('Terjadi kesalahan. Silakan mulai ulang dari awal.');
+        showScreen('screen-count-selection');
+        return;
+    }
 
     // Update instruction text
     const reviewTitle = document.querySelector('#screen-review h2');
