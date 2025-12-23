@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Photobooth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Screen 1: Photo Count Selection -->
+    <div id="screen-count-selection" class="screen active">
+        <div class="container">
+            <h1>Selamat Datang di Photobooth</h1>
+            <p>Pilih jumlah foto untuk frame Anda:</p>
+            <p style="font-size: 14px; color: #999;">*Sistem akan mengambil 4x lipat foto agar Anda bisa memilih foto terbaik</p>
+            <div class="count-options">
+                <button class="count-btn" data-count="1">
+                    <div>1 Foto</div>
+                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 4 foto</small>
+                </button>
+                <button class="count-btn" data-count="2">
+                    <div>2 Foto</div>
+                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 8 foto</small>
+                </button>
+                <button class="count-btn" data-count="3">
+                    <div>3 Foto</div>
+                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 12 foto</small>
+                </button>
+                <button class="count-btn" data-count="4">
+                    <div>4 Foto</div>
+                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 16 foto</small>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Camera Capture -->
+    <div id="screen-camera" class="screen">
+        <div class="container">
+            <h2>Ambil Foto <span id="current-photo">1</span> dari <span id="total-photos">4</span></h2>
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            <div class="countdown" id="countdown"></div>
+            <button id="btn-capture" class="btn-primary">Ambil Foto</button>
+        </div>
+    </div>
+
+    <!-- Screen 3: Photo Review & Selection -->
+    <div id="screen-review" class="screen">
+        <div class="container">
+            <h2>Pilih Foto yang Diinginkan</h2>
+            <p>Klik foto untuk memilih/batal pilih (minimal 1 foto)</p>
+            <div id="photo-grid" class="photo-grid"></div>
+            <div class="action-buttons">
+                <button id="btn-retake" class="btn-secondary">Ambil Ulang</button>
+                <button id="btn-continue-to-frame" class="btn-primary">Lanjut Pilih Frame</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 4: Frame Selection -->
+    <div id="screen-frame-selection" class="screen">
+        <div class="container">
+            <h2>Pilih Frame</h2>
+            <div id="frame-grid" class="frame-grid">
+                <!-- Frame options will be generated here -->
+            </div>
+            <button id="btn-back-to-review" class="btn-secondary">Kembali</button>
+        </div>
+    </div>
+
+    <!-- Screen 5: Final Composition -->
+    <div id="screen-composition" class="screen">
+        <div class="container">
+            <h2>Hasil Foto Anda</h2>
+            <canvas id="final-canvas"></canvas>
+            <div class="action-buttons">
+                <button id="btn-download" class="btn-primary">Download Foto</button>
+                <button id="btn-restart" class="btn-secondary">Mulai Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
