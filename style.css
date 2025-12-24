@@ -567,14 +567,18 @@ p {
 .stat-fill {
     height: 100%;
     background: #7BC4A8;
-    transition: width 0.3s ease;
+    transition: width 1s ease;
 }
 
-.stat-fill.cpu {
+.stat-fill.hour {
+    background: #7BC4A8;
+}
+
+.stat-fill.min {
     background: #A8D5BA;
 }
 
-.stat-fill.ram {
+.stat-fill.sec {
     background: #E8A5A5;
 }
 

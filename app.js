@@ -107,8 +107,7 @@ function updateSessionCount() {
 
 // Initialize decorations
 updateClock();
-setInterval(updateClock, 1000);
-setInterval(updateSystemStats, 3000); // Update stats every 3 seconds
+setInterval(updateClock, 1000); // Update clock and time bars every second
 updateSessionCount();
 
 // Frame Templates (akan dikembangkan lebih lanjut)
