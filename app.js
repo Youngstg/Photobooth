@@ -7,8 +7,109 @@ const state = {
     capturedPhotos: [],
     selectedPhotos: [],
     selectedFrame: null,
-    stream: null
+    stream: null,
+    sessionPhotoCount: 0
 };
+
+// Motivational quotes array
+const motivationalQuotes = [
+    "Smile! You're creating memories!",
+    "Every photo tells a story",
+    "Be yourself, everyone else is taken",
+    "Life is like a camera, focus on what's important",
+    "Capture the moment, cherish forever",
+    "Beauty begins the moment you decide to be yourself",
+    "Strike a pose! Work it!",
+    "Keep calm and say cheese!",
+    "Life is short, make every selfie count!",
+    "Photobooth: Where awkward is awesome!",
+    "Your vibe attracts your tribe",
+    "Good vibes only!",
+    "Make today so awesome, yesterday gets jealous!",
+    "Confidence is your best outfit!",
+    "Life isn't perfect but your photos can be!"
+];
+
+let currentQuoteIndex = 0;
+
+// Update clock widget with AM/PM and time bars
+function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const minutesStr = String(minutes).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+    const hoursStr = String(hours).padStart(2, '0');
+
+    const clockTime = document.getElementById('clock-time');
+    if (clockTime) {
+        clockTime.textContent = `${hoursStr}:${minutesStr} ${ampm}`;
+    }
+
+    // Update time bars
+    const hourBar = document.getElementById('hour-bar');
+    const minBar = document.getElementById('min-bar');
+    const secBar = document.getElementById('sec-bar');
+
+    if (hourBar) {
+        // 12 hours = 100%, so current hour / 12 * 100
+        const hourPercent = (hours / 12) * 100;
+        hourBar.style.width = `${hourPercent}%`;
+    }
+
+    if (minBar) {
+        // 60 minutes = 100%, so current minute / 60 * 100
+        const minPercent = (minutes / 60) * 100;
+        minBar.style.width = `${minPercent}%`;
+    }
+
+    if (secBar) {
+        // 60 seconds = 100%, so current second / 60 * 100
+        const secPercent = (seconds / 60) * 100;
+        secBar.style.width = `${secPercent}%`;
+    }
+}
+
+// Change motivational quote
+function changeQuote() {
+    currentQuoteIndex = (currentQuoteIndex + 1) % motivationalQuotes.length;
+    const quoteEl = document.getElementById('motivational-quote');
+    if (quoteEl) {
+        quoteEl.style.opacity = '0';
+        setTimeout(() => {
+            quoteEl.textContent = motivationalQuotes[currentQuoteIndex];
+            quoteEl.style.opacity = '1';
+        }, 200);
+    }
+}
+
+// Add click event to quote
+document.addEventListener('DOMContentLoaded', () => {
+    const quoteEl = document.getElementById('motivational-quote');
+    if (quoteEl) {
+        quoteEl.addEventListener('click', changeQuote);
+        // Set initial quote
+        quoteEl.textContent = motivationalQuotes[0];
+    }
+});
+
+// Update session photo count
+function updateSessionCount() {
+    const countWidget = document.getElementById('session-count');
+    if (countWidget) {
+        countWidget.textContent = `${state.sessionPhotoCount} Photos`;
+    }
+}
+
+// Initialize decorations
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(updateSystemStats, 3000); // Update stats every 3 seconds
+updateSessionCount();
 
 // Frame Templates (akan dikembangkan lebih lanjut)
 const frameTemplates = [
@@ -149,6 +250,10 @@ function startAutomaticCapture() {
         // Selesai semua foto
         countdownEl.textContent = '✅ Selesai!';
         console.log(`Total foto tersimpan: ${state.capturedPhotos.length}`);
+
+        // Update session count
+        state.sessionPhotoCount += state.capturedPhotos.length;
+        updateSessionCount();
 
         setTimeout(() => {
             stopCamera();
