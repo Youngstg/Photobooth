@@ -85,11 +85,14 @@ body::after {
     padding: 0;
     max-width: 900px;
     width: 100%;
+    max-height: 90vh;
     box-shadow:
         8px 8px 0px #3D3427,
         12px 12px 20px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .container-header {
@@ -141,6 +144,28 @@ body::after {
 
 .container-body {
     padding: 40px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(90vh - 60px);
+}
+
+/* Custom scrollbar for retro theme */
+.container-body::-webkit-scrollbar {
+    width: 12px;
+}
+
+.container-body::-webkit-scrollbar-track {
+    background: #EDD9C3;
+    border-left: 2px solid #2C2416;
+}
+
+.container-body::-webkit-scrollbar-thumb {
+    background: #7BC4A8;
+    border: 2px solid #2C2416;
+}
+
+.container-body::-webkit-scrollbar-thumb:hover {
+    background: #A8D5BA;
 }
 
 /* Retro corner decoration */
@@ -333,8 +358,9 @@ p {
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    gap: 30px;
     margin-bottom: 30px;
+    padding: 10px;
 }
 
 .photo-item {
@@ -390,9 +416,10 @@ p {
 /* Frame Grid */
 .frame-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
     margin-bottom: 30px;
+    padding: 10px;
 }
 
 .frame-item {
@@ -403,6 +430,7 @@ p {
     transition: all 0.2s;
     background: #EDD9C3;
     box-shadow: 4px 4px 0px #3D3427;
+    position: relative;
 }
 
 .frame-item:hover {
@@ -423,17 +451,21 @@ p {
     display: block;
     border-radius: 2px;
     border: 2px solid #2C2416;
+    background: #FFFFFF;
 }
 
 .frame-item .frame-name {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 12px;
     font-weight: bold;
     font-family: 'Courier New', Courier, monospace;
     color: #2C2416;
     text-transform: uppercase;
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 1px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
 }
 
 /* Final Canvas */
@@ -441,7 +473,7 @@ p {
     display: block;
     max-width: 100%;
     height: auto;
-    margin: 0 auto 30px;
+    margin: 20px auto 40px;
     border-radius: 4px;
     border: 4px solid #2C2416;
     box-shadow: 8px 8px 0px #3D3427;
@@ -449,9 +481,11 @@ p {
 
 .action-buttons {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 30px;
+    padding: 20px 0;
 }
 
 .action-buttons button {
