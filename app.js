@@ -11,6 +11,60 @@ const state = {
     sessionPhotoCount: 0
 };
 
+// Asset Images Cache
+const assetImages = {};
+const assetPaths = {
+    heart: 'Assets/heart.png',
+    play: 'Assets/play.png',
+    next: 'Assets/next-button.png',
+    replay: 'Assets/replay.png',
+    home: 'Assets/home%20(1).png',
+    search: 'Assets/search%20(1).png',
+    add: 'Assets/add.png',
+    saveInstagram: 'Assets/save-instagram.png',
+    user: 'Assets/user%20(1).png',
+    chat: 'Assets/chat.png',
+    send: 'Assets/send.png',
+    smiley: 'Assets/smiley.png',
+    clip: 'Assets/clip.png',
+    speechBubble: 'Assets/speech-bubble.png',
+    record: 'Assets/record.png',
+    responsive: 'Assets/responsive.png',
+    windows: 'Assets/windows.png'
+};
+
+// Load all asset images
+function loadAssets() {
+    return Promise.all(
+        Object.entries(assetPaths).map(([key, path]) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    assetImages[key] = img;
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.warn(`Failed to load asset: ${path}`);
+                    resolve(); // Continue even if one fails
+                };
+                img.src = path;
+            });
+        })
+    );
+}
+
+// Helper to draw asset image
+function drawAsset(ctx, assetKey, x, y, width, height) {
+    if (assetImages[assetKey]) {
+        ctx.drawImage(assetImages[assetKey], x, y, width, height);
+    }
+}
+
+// Initialize assets on page load
+loadAssets().then(() => {
+    console.log('Assets loaded');
+});
+
 // Motivational quotes array
 const motivationalQuotes = [
     "Smile! You're creating memories!",
@@ -717,11 +771,9 @@ function renderSpotifyFrame(ctx, photos, photoCount) {
     if (photoCount === 1) {
         drawImageCover(ctx, photos[0], photoX, photoY, photoSize, photoSize);
     } else if (photoCount === 2) {
-        drawImageCover(ctx, photos[0], photoX, photoY, photoSize / 2 - 5, photoSize / 2 - 5);
-        drawImageCover(ctx, photos[1], photoX + photoSize / 2 + 5, photoY, photoSize / 2 - 5, photoSize / 2 - 5);
-        // Bottom half with pattern
-        ctx.fillStyle = '#1DB954';
-        ctx.fillRect(photoX, photoY + photoSize / 2 + 5, photoSize, photoSize / 2 - 5);
+        // 2 foto kanan kiri saja, tanpa hijau di bawah
+        drawImageCover(ctx, photos[0], photoX, photoY, photoSize / 2 - 5, photoSize);
+        drawImageCover(ctx, photos[1], photoX + photoSize / 2 + 5, photoY, photoSize / 2 - 5, photoSize);
     } else if (photoCount === 3) {
         drawImageCover(ctx, photos[0], photoX, photoY, photoSize, photoSize / 2 - 5);
         drawImageCover(ctx, photos[1], photoX, photoY + photoSize / 2 + 5, photoSize / 2 - 5, photoSize / 2 - 5);
@@ -734,10 +786,8 @@ function renderSpotifyFrame(ctx, photos, photoCount) {
         }
     }
 
-    // Heart icon below album
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '32px Courier New';
-    ctx.fillText('♡', 100, photoY + photoSize + 60);
+    // Heart icon below album - using asset
+    drawAsset(ctx, 'heart', 100, photoY + photoSize + 30, 32, 32);
 
     // Time and progress bar
     const progressY = photoY + photoSize + 110;
@@ -752,22 +802,26 @@ function renderSpotifyFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(100, progressY + 10, (w - 200) * 0.3, 4);
 
-    // Control buttons (shuffle, prev, play, next, repeat)
+    // Control buttons - using assets
     const controlY = progressY + 60;
-    const controls = [
-        { icon: '⇄', x: 150 },
-        { icon: '⏮', x: 260 },
-        { icon: '▶', x: 400, large: true },
-        { icon: '⏭', x: 540 },
-        { icon: '🔁', x: 650 }
-    ];
 
-    controls.forEach(ctrl => {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = ctrl.large ? 'bold 48px Courier New' : 'bold 32px Courier New';
-        ctx.textAlign = 'center';
-        ctx.fillText(ctrl.icon, ctrl.x, controlY);
-    });
+    // Shuffle icon (keep as text)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 24px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText('⇄', 150, controlY);
+
+    // Previous button (keep as text)
+    ctx.fillText('⏮', 260, controlY);
+
+    // Play button - using asset
+    drawAsset(ctx, 'play', 400 - 24, controlY - 32, 48, 48);
+
+    // Next button - using asset
+    drawAsset(ctx, 'next', 540 - 16, controlY - 24, 32, 32);
+
+    // Repeat icon (keep as text)
+    ctx.fillText('🔁', 650, controlY);
 
     // Bottom icons
     ctx.font = '24px Courier New';
@@ -808,40 +862,28 @@ function distributePhotosInGrid(ctx, photos, photoCount, x, y, totalWidth, total
 function renderLaptopFrame(ctx, photos, photoCount) {
     const w = 900, h = 700;
 
-    // Wooden desk background
-    ctx.fillStyle = '#8B7355';
-    ctx.fillRect(0, 0, w, h);
-
-    // Laptop base/keyboard
-    ctx.fillStyle = '#2C2416';
-    ctx.fillRect(50, h - 120, w - 100, 100);
-
-    // Laptop screen frame
-    ctx.fillStyle = '#1A1A1A';
-    ctx.fillRect(80, 40, w - 160, h - 180);
-
-    // Windows 95 desktop background (teal)
+    // Windows 95 desktop background (teal) - full screen
     ctx.fillStyle = '#008080';
-    ctx.fillRect(95, 55, w - 190, h - 210);
+    ctx.fillRect(0, 0, w, h);
 
     // Windows 95 title bar
     ctx.fillStyle = '#000080';
-    ctx.fillRect(120, 80, w - 240, 25);
+    ctx.fillRect(40, 30, w - 80, 25);
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 14px Courier New';
-    ctx.fillText('My Photos', 130, 98);
+    ctx.fillText('My Photos', 50, 48);
 
     // Window close button
     ctx.fillStyle = '#C0C0C0';
-    ctx.fillRect(w - 150, 82, 20, 20);
+    ctx.fillRect(w - 70, 32, 20, 20);
     ctx.fillStyle = '#000000';
-    ctx.fillText('×', w - 145, 97);
+    ctx.fillText('×', w - 65, 47);
 
     // Photo display area inside window
-    const photoX = 120;
-    const photoY = 110;
-    const photoW = w - 240;
-    const photoH = h - 340;
+    const photoX = 40;
+    const photoY = 60;
+    const photoW = w - 80;
+    const photoH = h - 130;
 
     // White window content area
     ctx.fillStyle = '#FFFFFF';
@@ -850,41 +892,42 @@ function renderLaptopFrame(ctx, photos, photoCount) {
     distributePhotosInGrid(ctx, photos, photoCount, photoX + 10, photoY + 10, photoW - 20, photoH - 20, 10);
 
     // Desktop icons on the right side
-    const iconX = w - 150;
+    const iconX = w - 70;
     const icons = ['📁', '💻', '🎮', '🖼️', '📄'];
     const iconLabels = ['Folder', 'MyPC', 'Game', 'Pics', 'File'];
 
     icons.forEach((icon, i) => {
-        const iconY = 80 + i * 70;
+        const iconY = 100 + i * 70;
         ctx.font = '32px Courier New';
-        ctx.fillText(icon, iconX, iconY);
         ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(icon, iconX, iconY);
         ctx.font = '12px Courier New';
         ctx.fillText(iconLabels[i], iconX - 5, iconY + 20);
     });
 
-    // Windows taskbar
+    // Windows taskbar at bottom
     ctx.fillStyle = '#C0C0C0';
-    ctx.fillRect(95, h - 165, w - 190, 25);
+    ctx.fillRect(0, h - 30, w, 30);
 
-    // Start button
+    // Start button with Windows logo
     ctx.fillStyle = '#DFDFDF';
-    ctx.fillRect(100, h - 163, 60, 21);
+    ctx.fillRect(5, h - 28, 70, 26);
+
+    // Windows logo asset
+    drawAsset(ctx, 'windows', 10, h - 24, 18, 18);
+
+    // Start text
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 12px Courier New';
-    ctx.fillText('Start', 108, h - 148);
+    ctx.fillText('Start', 32, h - 11);
 
-    // Keyboard keys
-    ctx.fillStyle = '#3D3427';
-    for(let row = 0; row < 3; row++) {
-        for(let col = 0; col < 15; col++) {
-            ctx.fillRect(70 + col * 50, h - 105 + row * 25, 40, 18);
-        }
-    }
-
-    // Trackpad
-    ctx.fillStyle = '#4A4A4A';
-    ctx.fillRect(w / 2 - 80, h - 50, 160, 35);
+    // Taskbar clock
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(w - 80, h - 28, 75, 26);
+    ctx.fillStyle = '#000000';
+    ctx.font = '11px Courier New';
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    ctx.fillText(time, w - 70, h - 11);
 }
 
 function renderPolaroidFrame(ctx, photos, photoCount) {
@@ -967,13 +1010,11 @@ function renderPhoneChatFrame(ctx, photos, photoCount) {
     ctx.font = '14px Courier New';
     ctx.fillText('Type a message...', 95, inputBoxY + 35);
 
-    // Emoji button
-    ctx.fillStyle = '#7F8C8D';
-    ctx.font = '24px Courier New';
-    ctx.fillText('😊', w - 200, inputBoxY + 38);
+    // Emoji button - using asset
+    drawAsset(ctx, 'smiley', w - 200, inputBoxY + 14, 24, 24);
 
-    // Attach button
-    ctx.fillText('📎', w - 160, inputBoxY + 38);
+    // Attach button - using asset
+    drawAsset(ctx, 'clip', w - 160, inputBoxY + 14, 24, 24);
 
     // Send button (green circle)
     ctx.fillStyle = '#25D366';
@@ -981,10 +1022,8 @@ function renderPhoneChatFrame(ctx, photos, photoCount) {
     ctx.arc(w - 110, inputBoxY + 30, 22, 0, Math.PI * 2);
     ctx.fill();
 
-    // Send icon (white arrow)
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 18px Courier New';
-    ctx.fillText('➤', w - 120, inputBoxY + 36);
+    // Send icon - using asset
+    drawAsset(ctx, 'send', w - 122, inputBoxY + 18, 24, 24);
 }
 
 function renderSplitScreenFrame(ctx, photos, photoCount) {
@@ -1045,9 +1084,10 @@ function renderInstagramFrame(ctx, photos, photoCount) {
     ctx.fillText('📷', 30, 42); // Camera icon
     ctx.font = 'bold 28px Courier New';
     ctx.fillText('Instagram', 90, 40);
-    ctx.font = '24px Courier New';
-    ctx.fillText('📧', w - 140, 40); // Messenger icon
-    ctx.fillText('✈', w - 70, 40); // Send icon
+
+    // Messenger and send icons - using assets
+    drawAsset(ctx, 'chat', w - 140, 20, 24, 24);
+    drawAsset(ctx, 'send', w - 70, 20, 24, 24);
 
     // Profile section
     const profileY = 80;
@@ -1084,24 +1124,27 @@ function renderInstagramFrame(ctx, photos, photoCount) {
         drawImageCover(ctx, photos[3], w / 2 + 2.5, photoAreaY + h1 + 5, w / 2 - 2.5, h1);
     }
 
-    // Action icons below photos
+    // Action icons below photos - using assets
     const actionY = h - 100;
     ctx.fillStyle = '#262626';
-    ctx.font = '28px Courier New';
-    ctx.fillText('♡', 30, actionY);
-    ctx.fillText('💬', 90, actionY);
-    ctx.fillText('✈', 150, actionY);
-    ctx.fillText('🔖', w - 60, actionY);
+
+    // Heart, chat, send icons with assets
+    drawAsset(ctx, 'heart', 30, actionY - 24, 28, 28);
+    drawAsset(ctx, 'chat', 90, actionY - 24, 28, 28);
+    drawAsset(ctx, 'send', 150, actionY - 24, 28, 28);
+    drawAsset(ctx, 'saveInstagram', w - 60, actionY - 24, 28, 28);
 
     // Bottom navigation bar
     ctx.fillStyle = '#FAFAFA';
     ctx.fillRect(0, h - 60, w, 60);
     ctx.fillStyle = '#262626';
-    ctx.font = '28px Courier New';
-    const navIcons = ['🏠', '🔍', '➕', '♡', '👤'];
-    navIcons.forEach((icon, i) => {
-        ctx.fillText(icon, 100 + i * 180, h - 22);
-    });
+
+    // Home, search, add, heart, user - using assets
+    drawAsset(ctx, 'home', 100, h - 50, 28, 28);
+    drawAsset(ctx, 'search', 280, h - 50, 28, 28);
+    drawAsset(ctx, 'add', 460, h - 50, 28, 28);
+    drawAsset(ctx, 'heart', 640, h - 50, 28, 28);
+    drawAsset(ctx, 'user', 820, h - 50, 28, 28);
 }
 
 function renderPolaroidStackFrame(ctx, photos, photoCount) {
@@ -1320,24 +1363,32 @@ function renderVideoCallFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#1C1C1C';
     ctx.fillRect(0, h - 70, w, 70);
 
-    // Control buttons
+    // Control buttons with assets
     const controls = [
-        { icon: '🎤', label: 'Mute' },
-        { icon: '🎥', label: 'Stop Video' },
-        { icon: '👥', label: 'Participants' },
-        { icon: '💬', label: 'Chat' },
-        { icon: '🎬', label: 'Record' },
-        { icon: '😊', label: 'Reactions' }
+        { asset: null, icon: '🎤', label: 'Mute' },
+        { asset: 'responsive', icon: null, label: 'Stop Video' },
+        { asset: null, icon: '👥', label: 'Participants' },
+        { asset: 'chat', icon: null, label: 'Chat' },
+        { asset: 'record', icon: null, label: 'Record' },
+        { asset: 'smiley', icon: null, label: 'Reactions' }
     ];
 
     const btnSpacing = (w - 200) / controls.length;
     controls.forEach((ctrl, i) => {
         const btnX = 100 + i * btnSpacing;
-        ctx.font = '28px Courier New';
+
+        if (ctrl.asset) {
+            drawAsset(ctx, ctrl.asset, btnX - 14, h - 49, 28, 28);
+        } else {
+            ctx.font = '28px Courier New';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.textAlign = 'center';
+            ctx.fillText(ctrl.icon, btnX, h - 35);
+        }
+
+        ctx.font = '12px Courier New';
         ctx.fillStyle = '#FFFFFF';
         ctx.textAlign = 'center';
-        ctx.fillText(ctrl.icon, btnX, h - 35);
-        ctx.font = '12px Courier New';
         ctx.fillText(ctrl.label, btnX, h - 12);
     });
 

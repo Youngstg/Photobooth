@@ -124,7 +124,16 @@
             previewGrid.innerHTML = '';
             generatedImages.length = 0;
 
-            statusDiv.innerHTML = 'Generating templates...';
+            statusDiv.innerHTML = 'Loading assets...';
+
+            // Wait for assets to load first
+            try {
+                await loadAssets();
+                statusDiv.innerHTML = 'Assets loaded! Generating templates...';
+            } catch (error) {
+                console.error('Error loading assets:', error);
+                statusDiv.innerHTML = 'Warning: Some assets failed to load. Continuing with generation...';
+            }
 
             const allThemes = [
                 { id: 'spotify-player', name: 'Spotify Player' },
