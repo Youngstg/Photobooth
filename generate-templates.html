@@ -169,45 +169,58 @@
                 }));
 
                 for (const theme of allThemes) {
-                    const canvas = document.getElementById('tempCanvas');
-                    const ctx = canvas.getContext('2d');
+                    try {
+                        const canvas = document.getElementById('tempCanvas');
+                        const ctx = canvas.getContext('2d');
 
-                    // Get frame config
-                    const frameConfig = frameTemplates[photoCount].find(f => f.themeId === theme.id);
-                    if (!frameConfig) continue;
+                        // Get frame config
+                        const frameConfig = frameTemplates[photoCount].find(f => f.themeId === theme.id);
+                        if (!frameConfig) {
+                            console.warn(`Frame config not found for ${theme.id} with ${photoCount} photos`);
+                            continue;
+                        }
 
-                    canvas.width = frameConfig.width;
-                    canvas.height = frameConfig.height;
+                        canvas.width = frameConfig.width;
+                        canvas.height = frameConfig.height;
 
-                    // Render frame
-                    frameConfig.render(ctx, dummyPhotos);
+                        // Clear canvas
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    // Convert to image
-                    const dataUrl = canvas.toDataURL('image/png');
-                    const filename = `${theme.id}_${photoCount}photo.png`;
+                        // Render frame
+                        console.log(`Rendering ${theme.id} with ${photoCount} photos...`);
+                        frameConfig.render(ctx, dummyPhotos);
 
-                    // Store for download
-                    generatedImages.push({
-                        filename: filename,
-                        dataUrl: dataUrl,
-                        themeName: theme.name,
-                        photoCount: photoCount
-                    });
+                        // Convert to image
+                        const dataUrl = canvas.toDataURL('image/png');
+                        const filename = `${theme.id}_${photoCount}photo.png`;
 
-                    // Add preview
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.innerHTML = `
-                        <img src="${dataUrl}" alt="${filename}">
-                        <div class="label">${theme.name} (${photoCount} foto)</div>
-                    `;
-                    previewGrid.appendChild(previewItem);
+                        // Store for download
+                        generatedImages.push({
+                            filename: filename,
+                            dataUrl: dataUrl,
+                            themeName: theme.name,
+                            photoCount: photoCount
+                        });
 
-                    count++;
-                    statusDiv.innerHTML = `Generated ${count}/${total} templates...`;
+                        // Add preview
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${dataUrl}" alt="${filename}">
+                            <div class="label">${theme.name} (${photoCount} foto)</div>
+                        `;
+                        previewGrid.appendChild(previewItem);
 
-                    // Small delay to prevent browser freeze
-                    await new Promise(resolve => setTimeout(resolve, 10));
+                        count++;
+                        statusDiv.innerHTML = `Generated ${count}/${total} templates...`;
+
+                        // Small delay to prevent browser freeze
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    } catch (error) {
+                        console.error(`Error generating ${theme.id} with ${photoCount} photos:`, error);
+                        statusDiv.innerHTML = `Error on ${theme.name} (${photoCount} photos): ${error.message}`;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
                 }
             }
 
@@ -239,9 +252,11 @@
 
         // Auto-generate on page load
         window.addEventListener('load', () => {
+            console.log('Page loaded, waiting for assets...');
             setTimeout(() => {
+                console.log('Starting auto-generate...');
                 generateAllTemplates();
-            }, 500);
+            }, 1000); // Increased delay to ensure assets are ready
         });
     </script>
 </body>

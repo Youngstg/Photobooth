@@ -11,18 +11,21 @@ const state = {
     sessionPhotoCount: 0
 };
 
+// Template generation mode - disable assets to prevent CORS taint
+let isTemplateGenerationMode = false;
+
 // Asset Images Cache
 const assetImages = {};
 const assetPaths = {
     heart: 'Assets/heart.png',
     play: 'Assets/play.png',
-    next: 'Assets/next-button.png',
+    next: 'Assets/nextbutton.png',
     replay: 'Assets/replay.png',
-    home: 'Assets/home%20(1).png',
-    search: 'Assets/search%20(1).png',
+    home: 'Assets/home.png',
+    search: 'Assets/search.png',
     add: 'Assets/add.png',
-    saveInstagram: 'Assets/save-instagram.png',
-    user: 'Assets/user%20(1).png',
+    saveInstagram: 'Assets/saveinstagram.png',
+    user: 'Assets/user.png',
     chat: 'Assets/chat.png',
     send: 'Assets/send.png',
     smiley: 'Assets/smiley.png',
@@ -33,24 +36,51 @@ const assetPaths = {
     windows: 'Assets/windows.png'
 };
 
-// Load all asset images
+// Load all asset images and convert to canvas for CORS-safe usage
 function loadAssets() {
+    console.log('Starting to load assets...');
     return Promise.all(
         Object.entries(assetPaths).map(([key, path]) => {
             return new Promise((resolve) => {
                 const img = new Image();
+
                 img.onload = () => {
-                    assetImages[key] = img;
-                    resolve();
+                    try {
+                        // Convert to canvas to avoid CORS taint
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+
+                        // Create new image from canvas data URL
+                        const safeImg = new Image();
+                        safeImg.onload = () => {
+                            assetImages[key] = safeImg;
+                            console.log(`✓ Loaded asset: ${key} from ${path}`);
+                            resolve();
+                        };
+                        safeImg.src = canvas.toDataURL();
+                    } catch (error) {
+                        console.warn(`✗ Failed to convert asset: ${key} - ${error.message}`);
+                        // Store original image anyway
+                        assetImages[key] = img;
+                        resolve();
+                    }
                 };
+
                 img.onerror = () => {
-                    console.warn(`Failed to load asset: ${path}`);
+                    console.warn(`✗ Failed to load asset: ${key} from ${path}`);
                     resolve(); // Continue even if one fails
                 };
+
                 img.src = path;
             });
         })
-    );
+    ).then(() => {
+        console.log(`All assets loaded: ${Object.keys(assetImages).length}/${Object.keys(assetPaths).length}`);
+        return Promise.resolve();
+    });
 }
 
 // Helper to draw asset image
@@ -172,7 +202,7 @@ const allFrameThemes = [
     { id: 'phone-chat', name: 'Phone Chat', width: 800, height: 1000 },
     { id: 'split-screen', name: 'Split Screen', width: 1000, height: 800 },
     { id: 'filmstrip', name: 'Film Strip', width: 800, height: 1000 },
-    { id: 'instagram-grid', name: 'Instagram Grid', width: 1000, height: 800 },
+    { id: 'instagram-grid', name: 'Instagram Grid', width: 800, height: 1200 },
     { id: 'polaroid-stack', name: 'Polaroid Stack', width: 800, height: 1000 },
     { id: 'comic-strip', name: 'Comic Strip', width: 1200, height: 600 },
     { id: 'photo-grid', name: 'Photo Grid', width: 1000, height: 1000 },
@@ -786,47 +816,47 @@ function renderSpotifyFrame(ctx, photos, photoCount) {
         }
     }
 
-    // Heart icon below album - using asset
-    drawAsset(ctx, 'heart', 100, photoY + photoSize + 30, 32, 32);
+    // Heart icon below album - using asset (BIGGER)
+    drawAsset(ctx, 'heart', 100, photoY + photoSize + 20, 48, 48);
 
     // Time and progress bar
     const progressY = photoY + photoSize + 110;
     ctx.fillStyle = '#B3B3B3';
-    ctx.font = '16px Courier New';
+    ctx.font = '20px Courier New';
     ctx.fillText('0:00', 100, progressY);
-    ctx.fillText('-3:14', w - 130, progressY);
+    ctx.fillText('-3:14', w - 150, progressY);
 
-    // Progress bar
+    // Progress bar (THICKER)
     ctx.fillStyle = '#404040';
-    ctx.fillRect(100, progressY + 10, w - 200, 4);
+    ctx.fillRect(100, progressY + 10, w - 200, 6);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(100, progressY + 10, (w - 200) * 0.3, 4);
+    ctx.fillRect(100, progressY + 10, (w - 200) * 0.3, 6);
 
-    // Control buttons - using assets
-    const controlY = progressY + 60;
+    // Control buttons - using assets (ALL BIGGER)
+    const controlY = progressY + 70;
 
-    // Shuffle icon (keep as text)
+    // Shuffle icon
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 24px Courier New';
+    ctx.font = 'bold 36px Courier New';
     ctx.textAlign = 'center';
     ctx.fillText('⇄', 150, controlY);
 
-    // Previous button (keep as text)
+    // Previous button
     ctx.fillText('⏮', 260, controlY);
 
-    // Play button - using asset
-    drawAsset(ctx, 'play', 400 - 24, controlY - 32, 48, 48);
+    // Play button - using asset (BIGGER)
+    drawAsset(ctx, 'play', 400 - 36, controlY - 48, 72, 72);
 
-    // Next button - using asset
-    drawAsset(ctx, 'next', 540 - 16, controlY - 24, 32, 32);
+    // Next button - using asset (BIGGER)
+    drawAsset(ctx, 'next', 540 - 24, controlY - 36, 48, 48);
 
-    // Repeat icon (keep as text)
+    // Repeat icon
     ctx.fillText('🔁', 650, controlY);
 
-    // Bottom icons
-    ctx.font = '24px Courier New';
-    ctx.fillText('🔊', 100, h - 40);
-    ctx.fillText('📋', w - 100, h - 40);
+    // Bottom icons (BIGGER)
+    ctx.font = '36px Courier New';
+    ctx.fillText('🔊', 100, h - 30);
+    ctx.fillText('📋', w - 120, h - 30);
 
     ctx.textAlign = 'left';
 }
@@ -909,17 +939,17 @@ function renderLaptopFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#C0C0C0';
     ctx.fillRect(0, h - 30, w, 30);
 
-    // Start button with Windows logo
+    // Start button with Windows logo (BIGGER)
     ctx.fillStyle = '#DFDFDF';
-    ctx.fillRect(5, h - 28, 70, 26);
+    ctx.fillRect(5, h - 28, 90, 26);
 
-    // Windows logo asset
-    drawAsset(ctx, 'windows', 10, h - 24, 18, 18);
+    // Windows logo asset (BIGGER)
+    drawAsset(ctx, 'windows', 10, h - 24, 24, 24);
 
-    // Start text
+    // Start text (BIGGER)
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 12px Courier New';
-    ctx.fillText('Start', 32, h - 11);
+    ctx.font = 'bold 14px Courier New';
+    ctx.fillText('Start', 40, h - 10);
 
     // Taskbar clock
     ctx.fillStyle = '#FFFFFF';
@@ -963,16 +993,16 @@ function renderPhoneChatFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#E5DDD5';
     ctx.fillRect(60, 120, w - 120, h - 260);
 
-    // WhatsApp header
+    // WhatsApp header (BIGGER)
     ctx.fillStyle = '#075E54';
-    ctx.fillRect(60, 50, w - 120, 70);
+    ctx.fillRect(60, 50, w - 120, 80);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 24px Courier New';
-    ctx.fillText('Chat Group', 80, 90);
+    ctx.font = 'bold 32px Courier New';
+    ctx.fillText('Chat Group', 80, 100);
 
-    // Three dots menu
-    ctx.font = '28px Courier New';
-    ctx.fillText('⋮', w - 100, 90);
+    // Three dots menu (BIGGER)
+    ctx.font = '40px Courier New';
+    ctx.fillText('⋮', w - 110, 100);
 
     // Draw photo bubbles only (no text messages)
     const availableHeight = h - 260; // Total height minus header and input box
@@ -1005,25 +1035,25 @@ function renderPhoneChatFrame(ctx, photos, photoCount) {
     ctx.roundRect(75, inputBoxY + 10, w - 240, 40, 20);
     ctx.fill();
 
-    // Placeholder text
+    // Placeholder text (BIGGER)
     ctx.fillStyle = '#999999';
-    ctx.font = '14px Courier New';
-    ctx.fillText('Type a message...', 95, inputBoxY + 35);
+    ctx.font = '18px Courier New';
+    ctx.fillText('Type a message...', 95, inputBoxY + 37);
 
-    // Emoji button - using asset
-    drawAsset(ctx, 'smiley', w - 200, inputBoxY + 14, 24, 24);
+    // Emoji button - using asset (BIGGER)
+    drawAsset(ctx, 'smiley', w - 220, inputBoxY + 10, 36, 36);
 
-    // Attach button - using asset
-    drawAsset(ctx, 'clip', w - 160, inputBoxY + 14, 24, 24);
+    // Attach button - using asset (BIGGER)
+    drawAsset(ctx, 'clip', w - 170, inputBoxY + 10, 36, 36);
 
-    // Send button (green circle)
+    // Send button (green circle) (BIGGER)
     ctx.fillStyle = '#25D366';
     ctx.beginPath();
-    ctx.arc(w - 110, inputBoxY + 30, 22, 0, Math.PI * 2);
+    ctx.arc(w - 110, inputBoxY + 30, 28, 0, Math.PI * 2);
     ctx.fill();
 
-    // Send icon - using asset
-    drawAsset(ctx, 'send', w - 122, inputBoxY + 18, 24, 24);
+    // Send icon - using asset (BIGGER)
+    drawAsset(ctx, 'send', w - 128, inputBoxY + 12, 36, 36);
 }
 
 function renderSplitScreenFrame(ctx, photos, photoCount) {
@@ -1051,24 +1081,40 @@ function renderFilmstripFrame(ctx, photos, photoCount) {
     const w = 800, h = 1000;
     ctx.fillStyle = '#1A1A1A';
     ctx.fillRect(0, 0, w, h);
+
+    // Film strip holes on sides
     ctx.fillStyle = '#000000';
     for(let i = 0; i < 20; i++) {
         ctx.fillRect(20, 30 + i * 48, 30, 35);
         ctx.fillRect(w - 50, 30 + i * 48, 30, 35);
     }
 
-    const frameH = (h - 200) / photoCount;
+    // Fixed aspect ratio for all frames - width:height = 4:3
+    const photoWidth = w - 140; // 660px
+    const photoHeight = photoWidth * 0.75; // 495px (4:3 ratio)
+    const gap = 20; // Gap between photos
+
+    // Calculate total height needed
+    const totalPhotoHeight = photoCount * photoHeight + (photoCount - 1) * gap;
+
+    // Center photos vertically
+    const startY = (h - totalPhotoHeight) / 2;
+
     photos.forEach((photo, i) => {
-        const y = 100 + i * frameH;
-        drawImageCover(ctx, photo, 70, y, w - 140, frameH - 20);
+        const y = startY + i * (photoHeight + gap);
+
+        // Draw photo
+        drawImageCover(ctx, photo, 70, y, photoWidth, photoHeight);
+
+        // Frame border
         ctx.strokeStyle = '#7BC4A8';
         ctx.lineWidth = 3;
-        ctx.strokeRect(70, y, w - 140, frameH - 20);
+        ctx.strokeRect(70, y, photoWidth, photoHeight);
     });
 }
 
 function renderInstagramFrame(ctx, photos, photoCount) {
-    const w = 1000, h = 800;
+    const w = 800, h = 1200;
 
     // White background
     ctx.fillStyle = '#FFFFFF';
@@ -1078,30 +1124,32 @@ function renderInstagramFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#FAFAFA';
     ctx.fillRect(0, 0, w, 60);
 
-    // Header icons and text
+    // Header icons and text (BIGGER)
     ctx.fillStyle = '#262626';
+    ctx.font = 'bold 40px Courier New';
+    ctx.fillText('📷', 30, 45); // Camera icon
     ctx.font = 'bold 32px Courier New';
-    ctx.fillText('📷', 30, 42); // Camera icon
-    ctx.font = 'bold 28px Courier New';
-    ctx.fillText('Instagram', 90, 40);
+    ctx.fillText('Instagram', 100, 42);
 
-    // Messenger and send icons - using assets
-    drawAsset(ctx, 'chat', w - 140, 20, 24, 24);
-    drawAsset(ctx, 'send', w - 70, 20, 24, 24);
+    // Messenger and send icons - using assets (BIGGER)
+    drawAsset(ctx, 'chat', w - 110, 15, 36, 36);
+    drawAsset(ctx, 'send', w - 60, 15, 36, 36);
 
-    // Profile section
+    // Profile section (BIGGER)
     const profileY = 80;
     ctx.fillStyle = '#262626';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(70, profileY + 30, 25, 0, Math.PI * 2);
+    ctx.arc(70, profileY + 35, 35, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.font = '18px Courier New';
-    ctx.fillText('photobooth', 110, profileY + 35);
-    ctx.fillText('⋯', w - 50, profileY + 35); // Three dots menu
+    ctx.font = '24px Courier New';
+    ctx.fillText('photobooth', 120, profileY + 40);
+    ctx.font = '32px Courier New';
+    ctx.fillText('⋯', w - 50, profileY + 40); // Three dots menu
 
     // Main photo area
-    const photoAreaY = profileY + 70;
-    const photoAreaH = h - photoAreaY - 120;
+    const photoAreaY = profileY + 80;
+    const photoAreaH = h - photoAreaY - 180;
 
     if (photoCount === 1) {
         drawImageCover(ctx, photos[0], 0, photoAreaY, w, photoAreaH);
@@ -1124,27 +1172,37 @@ function renderInstagramFrame(ctx, photos, photoCount) {
         drawImageCover(ctx, photos[3], w / 2 + 2.5, photoAreaY + h1 + 5, w / 2 - 2.5, h1);
     }
 
-    // Action icons below photos - using assets
-    const actionY = h - 100;
+    // Action icons below photos - using assets (BIGGER)
+    const actionY = h - 120;
     ctx.fillStyle = '#262626';
 
-    // Heart, chat, send icons with assets
-    drawAsset(ctx, 'heart', 30, actionY - 24, 28, 28);
-    drawAsset(ctx, 'chat', 90, actionY - 24, 28, 28);
-    drawAsset(ctx, 'send', 150, actionY - 24, 28, 28);
-    drawAsset(ctx, 'saveInstagram', w - 60, actionY - 24, 28, 28);
+    // Heart, chat, send icons with assets (BIGGER)
+    drawAsset(ctx, 'heart', 30, actionY - 20, 40, 40);
+    drawAsset(ctx, 'chat', 100, actionY - 20, 40, 40);
+    drawAsset(ctx, 'send', 170, actionY - 20, 40, 40);
+    drawAsset(ctx, 'saveInstagram', w - 70, actionY - 20, 40, 40);
+
+    // Likes text (BIGGER)
+    ctx.font = '18px Courier New';
+    ctx.fillText('1,234 likes', 30, actionY + 35);
+    ctx.fillText('photobooth Great memories!', 30, actionY + 60);
 
     // Bottom navigation bar
     ctx.fillStyle = '#FAFAFA';
-    ctx.fillRect(0, h - 60, w, 60);
+    ctx.fillRect(0, h - 70, w, 70);
     ctx.fillStyle = '#262626';
 
-    // Home, search, add, heart, user - using assets
-    drawAsset(ctx, 'home', 100, h - 50, 28, 28);
-    drawAsset(ctx, 'search', 280, h - 50, 28, 28);
-    drawAsset(ctx, 'add', 460, h - 50, 28, 28);
-    drawAsset(ctx, 'heart', 640, h - 50, 28, 28);
-    drawAsset(ctx, 'user', 820, h - 50, 28, 28);
+    // Home, search, add, heart, user - using assets (BIGGER & CENTERED)
+    const navY = h - 50;
+    const navIconCount = 5;
+    const navSpacing = (w - 80) / (navIconCount - 1); // Spread evenly with margin
+    const navStartX = 40; // Start margin
+
+    drawAsset(ctx, 'home', navStartX + navSpacing * 0 - 20, navY, 40, 40);
+    drawAsset(ctx, 'search', navStartX + navSpacing * 1 - 20, navY, 40, 40);
+    drawAsset(ctx, 'add', navStartX + navSpacing * 2 - 20, navY, 40, 40);
+    drawAsset(ctx, 'heart', navStartX + navSpacing * 3 - 20, navY, 40, 40);
+    drawAsset(ctx, 'user', navStartX + navSpacing * 4 - 20, navY, 40, 40);
 }
 
 function renderPolaroidStackFrame(ctx, photos, photoCount) {
@@ -1363,7 +1421,7 @@ function renderVideoCallFrame(ctx, photos, photoCount) {
     ctx.fillStyle = '#1C1C1C';
     ctx.fillRect(0, h - 70, w, 70);
 
-    // Control buttons with assets
+    // Control buttons with assets (BIGGER)
     const controls = [
         { asset: null, icon: '🎤', label: 'Mute' },
         { asset: 'responsive', icon: null, label: 'Stop Video' },
@@ -1378,18 +1436,18 @@ function renderVideoCallFrame(ctx, photos, photoCount) {
         const btnX = 100 + i * btnSpacing;
 
         if (ctrl.asset) {
-            drawAsset(ctx, ctrl.asset, btnX - 14, h - 49, 28, 28);
+            drawAsset(ctx, ctrl.asset, btnX - 20, h - 55, 40, 40);
         } else {
-            ctx.font = '28px Courier New';
+            ctx.font = '40px Courier New';
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
-            ctx.fillText(ctrl.icon, btnX, h - 35);
+            ctx.fillText(ctrl.icon, btnX, h - 30);
         }
 
-        ctx.font = '12px Courier New';
+        ctx.font = '14px Courier New';
         ctx.fillStyle = '#FFFFFF';
         ctx.textAlign = 'center';
-        ctx.fillText(ctrl.label, btnX, h - 12);
+        ctx.fillText(ctrl.label, btnX, h - 8);
     });
 
     // Leave button (red)
