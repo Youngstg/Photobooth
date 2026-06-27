@@ -88,8 +88,12 @@
 
     <canvas id="tempCanvas"></canvas>
 
-    <script src="app.js"></script>
-    <script>
+    <script type="module">
+        import { frameTemplates } from './js/templates.js';
+        
+        window.generateAllTemplates = generateAllTemplates;
+        window.downloadAllAsZip = downloadAllAsZip;
+
         const generatedImages = [];
 
         // Create dummy photos for preview

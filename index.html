@@ -147,6 +147,32 @@
         </div>
     </div>
 
+    <!-- Screen 3.5: Filter Selection -->
+    <div id="screen-filter-selection" class="screen">
+        <div class="container">
+            <div class="container-header">
+                <div class="header-dots">
+                    <div class="header-dot red"></div>
+                    <div class="header-dot yellow"></div>
+                    <div class="header-dot green"></div>
+                </div>
+                <div class="breadcrumb">
+                    <span class="breadcrumb-path">home\start\capture\review\</span>filter
+                </div>
+            </div>
+            <div class="container-body">
+            <h2>Pilih Filter Foto</h2>
+            <div id="filter-grid" class="frame-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                <!-- Filters will be generated here -->
+            </div>
+            <div class="action-buttons" style="margin-top: 20px;">
+                <button id="btn-back-to-review-from-filter" class="btn-secondary">Kembali</button>
+                <button id="btn-apply-filter" class="btn-primary">Lanjut Pilih Frame</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Screen 4: Frame Selection -->
     <div id="screen-frame-selection" class="screen">
         <div class="container">
@@ -194,6 +220,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
