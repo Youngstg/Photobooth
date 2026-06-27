@@ -77,9 +77,11 @@ export function changeQuote() {
 
 // Update session photo count
 export function updateSessionCount() {
-    const countWidget = document.getElementById('session-count');
-    if (countWidget) {
-        countWidget.textContent = `${state.sessionPhotoCount} Photos`;
+    const el = document.getElementById('session-count');
+    if (el) {
+        // Just show current session photos instead of accumulating forever
+        const count = state.capturedPhotos ? state.capturedPhotos.length : 0;
+        el.textContent = `${count} Photos`;
     }
 }
 
@@ -97,5 +99,32 @@ export function setupUIListeners() {
         quoteEl.addEventListener('click', changeQuote);
         // Set initial quote
         quoteEl.textContent = motivationalQuotes[0];
+    }
+    
+    initTheme();
+    
+    // Setup Theme Switcher Slider
+    const themeInput = document.getElementById('theme-slider-input');
+    if (themeInput) {
+        themeInput.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                document.body.classList.remove('theme-retro');
+                document.body.classList.add('theme-y2k');
+                localStorage.setItem('photobooth_theme', 'theme-y2k');
+            } else {
+                document.body.classList.remove('theme-y2k');
+                document.body.classList.add('theme-retro');
+                localStorage.setItem('photobooth_theme', 'theme-retro');
+            }
+        });
+    }
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('photobooth_theme') || 'theme-y2k';
+    document.body.className = savedTheme;
+    const themeInput = document.getElementById('theme-slider-input');
+    if (themeInput) {
+        themeInput.checked = savedTheme === 'theme-y2k';
     }
 }

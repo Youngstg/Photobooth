@@ -1,69 +1,103 @@
 import { state } from './state.js';
-import { showScreen, updateSessionCount } from './ui.js';
-import { showReviewScreen } from './main.js'; // Will export showReviewScreen from main.js
+import { updateSessionCount } from './ui.js';
+import { showReviewScreen } from './main.js';
 
-// Screen 2: Camera
 export async function startCamera() {
-    // Validasi state sebelum memulai kamera
-    if (!state.photoCount || !state.requiredPhotoCount || !state.totalCaptureCount) {
-        console.error('Error: State tidak valid saat memulai kamera');
-        console.error('State:', state);
-        alert('Terjadi kesalahan. Silakan pilih jumlah foto kembali.');
-        showScreen('screen-count-selection');
-        return;
-    }
-
-    showScreen('screen-camera');
-
+    const video = document.getElementById('video');
     try {
-        state.stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: 'user',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                facingMode: "user"
             }
         });
+        video.srcObject = stream;
+        state.stream = stream;
 
-        const video = document.getElementById('video');
-        video.srcObject = state.stream;
+        // Start session timer when camera starts
+        startSessionTimer();
 
-        // Reset counter display
-        document.getElementById('current-photo').textContent = '1';
-        document.getElementById('total-photos').textContent = state.totalCaptureCount;
+        // Show camera screen
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+        document.getElementById('screen-camera').classList.add('active');
 
-        const btnCapture = document.getElementById('btn-capture');
-        btnCapture.disabled = false;
-        btnCapture.style.display = 'block';
-        btnCapture.textContent = 'Mulai Ambil Foto';
-
-        console.log('Kamera siap. Akan mengambil', state.totalCaptureCount, 'foto');
-    } catch (error) {
-        console.error('Error akses kamera:', error);
-        alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin kamera.');
-        showScreen('screen-count-selection');
+    } catch (err) {
+        console.error("Error accessing camera:", err);
+        alert("Tidak dapat mengakses kamera. Pastikan memberikan izin kamera.");
     }
 }
 
-export function updatePhotoCounter() {
-    // Tampilkan index + 1 agar dimulai dari 1 bukan 0
-    document.getElementById('current-photo').textContent = state.currentPhotoIndex + 1;
+export function startSessionTimer() {
+    const timerEl = document.getElementById('global-timer');
+    if (!timerEl) return;
+    
+    // reset state
+    state.isSessionActive = true;
+    let timeLeft = state.sessionTimeLimit; // 90 seconds
+    
+    const updateDisplay = (secs) => {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+    updateDisplay(timeLeft);
+    
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    
+    state.timerInterval = setInterval(() => {
+        if (!state.isSessionActive) {
+            clearInterval(state.timerInterval);
+            return;
+        }
+        
+        timeLeft--;
+        updateDisplay(timeLeft);
+        
+        if (timeLeft <= 0) {
+            clearInterval(state.timerInterval);
+            state.isSessionActive = false;
+            state.isCapturing = false;
+            
+            // Time is up!
+            updateSessionCount();
+            stopCamera();
+            showReviewScreen();
+        }
+    }, 1000);
+}
+
+function updatePhotoCounter() {
+    const counter = document.getElementById('photo-counter');
+    if (counter) {
+        counter.textContent = `${state.capturedPhotos.length} Foto Diambil`;
+    }
 }
 
 export function startAutomaticCapture() {
-    const countdownEl = document.getElementById('countdown');
-    const btnCapture = document.getElementById('btn-capture');
+    if (state.isCapturing || !state.isSessionActive) return;
+    state.isCapturing = true;
 
-    btnCapture.style.display = 'none'; // Sembunyikan tombol
+    const countdownEl = document.getElementById('countdown-overlay');
+    countdownEl.style.display = 'flex';
 
-    console.log(`Mulai ambil ${state.totalCaptureCount} foto untuk ${state.requiredPhotoCount} slot frame`);
-
-    // Fungsi untuk countdown dan ambil 1 foto
-    function takeOnePhoto(photoIndex) {
+    // Fungsi delay yang bisa di-await
+    function takeOnePhoto() {
         return new Promise((resolve) => {
-            let count = 5;
+            let count = 3;
             countdownEl.textContent = count;
-
+            
             const interval = setInterval(() => {
+                // Berhenti jika sesi habis
+                if (!state.isSessionActive) {
+                    clearInterval(interval);
+                    countdownEl.style.display = 'none';
+                    resolve();
+                    return;
+                }
+                
                 count--;
                 if (count > 0) {
                     countdownEl.textContent = count;
@@ -73,8 +107,9 @@ export function startAutomaticCapture() {
 
                     // Ambil foto setelah 300ms
                     setTimeout(() => {
-                        capturePhoto();
-                        console.log(`Foto ${photoIndex + 1}/${state.totalCaptureCount} diambil`);
+                        if (state.isSessionActive) {
+                            capturePhoto();
+                        }
                         resolve();
                     }, 300);
                 }
@@ -82,33 +117,21 @@ export function startAutomaticCapture() {
         });
     }
 
-    // Ambil semua foto secara berurutan
-    async function takeAllPhotos() {
-        for (let i = 0; i < state.totalCaptureCount; i++) {
-            await takeOnePhoto(i);
-
-            // Delay 500ms sebelum foto berikutnya (kecuali foto terakhir)
-            if (i < state.totalCaptureCount - 1) {
+    // Ambil foto terus menerus sampai isSessionActive false
+    async function takeContinuousPhotos() {
+        while (state.isSessionActive && state.isCapturing) {
+            await takeOnePhoto();
+            
+            if (state.isSessionActive && state.isCapturing) {
+                // Delay 500ms sebelum foto berikutnya
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
         }
-
-        // Selesai semua foto
-        countdownEl.textContent = '✅ Selesai!';
-        console.log(`Total foto tersimpan: ${state.capturedPhotos.length}`);
-
-        // Update session count
-        state.sessionPhotoCount += state.capturedPhotos.length;
-        updateSessionCount();
-
-        setTimeout(() => {
-            stopCamera();
-            showReviewScreen();
-        }, 1000);
+        countdownEl.style.display = 'none';
+        state.isCapturing = false;
     }
 
-    // Mulai proses
-    takeAllPhotos();
+    takeContinuousPhotos();
 }
 
 export function capturePhoto() {
@@ -127,10 +150,8 @@ export function capturePhoto() {
     const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
     state.capturedPhotos.push(photoDataUrl);
 
-    state.currentPhotoIndex++;
     updatePhotoCounter();
-
-    console.log(`Foto ${state.currentPhotoIndex} tersimpan. Total foto sekarang: ${state.capturedPhotos.length}`);
+    console.log(`Foto tersimpan. Total foto sekarang: ${state.capturedPhotos.length}`);
 }
 
 export function stopCamera() {

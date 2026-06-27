@@ -5,9 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Photobooth</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%237BC4A8'/><rect x='15' y='15' width='70' height='70' fill='%23F5E6D3' stroke='%232C2416' stroke-width='3'/><circle cx='50' cy='45' r='15' fill='%232C2416'/><circle cx='50' cy='45' r='8' fill='%237BC4A8'/><rect x='20' y='70' width='60' height='8' fill='%232C2416'/></svg>">
-    <link rel="stylesheet" href="style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=17">
 </head>
-<body>
+<body class="theme-y2k">
+
+    <!-- Theme Switcher Slider -->
+    <div class="theme-switcher-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 30px; border: 3px solid #111; box-shadow: 4px 4px 0px #111; font-family: 'Fredoka One', cursive;">
+        <span style="font-size: 14px;">🎨</span>
+        <label class="theme-switch" style="position: relative; display: inline-block; width: 50px; height: 24px;">
+            <input type="checkbox" id="theme-slider-input" style="opacity: 0; width: 0; height: 0;">
+            <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;">
+                <span class="slider-ball" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+            </span>
+        </label>
+        <span style="font-size: 14px;">✨</span>
+    </div>
+    
+    <!-- Y2K Ornaments -->
+    
+    
+    
+    
+
     <!-- Wave decorations at bottom -->
     <div class="wave-decoration-bottom"></div>
 
@@ -57,8 +79,8 @@
         <div class="photo-count-widget" id="session-count">0 Photos</div>
     </div>
 
-    <!-- Screen 1: Photo Count Selection -->
-    <div id="screen-count-selection" class="screen active">
+    <!-- Screen 1: Welcome Screen -->
+    <div id="screen-welcome" class="screen active">
         <div class="container">
             <div class="container-header">
                 <div class="header-dots">
@@ -70,28 +92,13 @@
                     <span class="breadcrumb-path">home\</span>start
                 </div>
             </div>
-            <div class="container-body">
-                <h1>Selamat Datang di Photobooth</h1>
-                <p>Pilih jumlah foto untuk frame Anda:</p>
-                <p style="font-size: 14px; color: #999;">*Sistem akan mengambil 4x lipat foto agar Anda bisa memilih foto terbaik</p>
-            <div class="count-options">
-                <button class="count-btn" data-count="1">
-                    <div>1 Foto</div>
-                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 4 foto</small>
-                </button>
-                <button class="count-btn" data-count="2">
-                    <div>2 Foto</div>
-                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 8 foto</small>
-                </button>
-                <button class="count-btn" data-count="3">
-                    <div>3 Foto</div>
-                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 12 foto</small>
-                </button>
-                <button class="count-btn" data-count="4">
-                    <div>4 Foto</div>
-                    <small style="font-size: 14px; opacity: 0.8;">akan ambil 16 foto</small>
-                </button>
-            </div>
+            <div class="container-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%;">
+                <div class="y2k-skewed-banner" style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="text-align: left;">Welcome to</span>
+                    <span style="text-align: right;">Cute Snaps!</span>
+                </div>
+                <p style="margin-top: 50px; margin-bottom: 15px; font-weight: bold; border: none; background: transparent; font-size: 26px; font-family: 'Comic Sans MS', sans-serif !important;">Tap Button to Start</p>
+                <button id="btn-start-now" class="btn-primary" style="font-size: 32px; padding: 25px 60px; border-radius: 20px; max-width: 400px; background-color: #8370F5; color: white;">Start Now</button>
             </div>
         </div>
     </div>
@@ -113,6 +120,12 @@
             <h2>Foto ke-<span id="current-photo">1</span> dari <span id="total-photos">4</span></h2>
             <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Tekan tombol sekali, foto akan diambil otomatis setiap 5 detik</p>
             <div class="camera-container">
+
+                <!-- Global 90s Timer -->
+                <div id="global-timer" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; font-size: 24px; font-weight: bold; border-radius: 10px; font-family: 'Courier New', monospace; z-index: 100;">
+                    01:30
+                </div>
+
                 <video id="video" autoplay playsinline></video>
                 <canvas id="canvas" style="display: none;"></canvas>
             </div>
@@ -220,6 +233,6 @@
         </div>
     </div>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>

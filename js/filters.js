@@ -38,6 +38,7 @@ export async function applyFilterToImages(imageUrls, filterId) {
             filteredUrls.push(data.image);
         } catch (error) {
             console.error("Error processing filter on backend:", error);
+            alert(`Gagal terhubung ke server Python untuk memproses filter: ${error.message}\n(Apakah server Python sedang berjalan?)`);
             // Fallback to original image if processing fails
             filteredUrls.push(url);
         }

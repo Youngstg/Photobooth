@@ -1,12 +1,13 @@
 import { state } from './state.js';
 import { loadAssets } from './assets.js';
-import { updateClock, updateSessionCount, showScreen, setupUIListeners } from './ui.js';
+import { updateClock, updateSessionCount, showScreen, setupUIListeners } from './ui.js?v=2';
 import { startCamera, startAutomaticCapture } from './camera.js';
-import { frameTemplates } from './templates.js';
+import { allFrameThemes, fetchTemplates } from './templates.js';
 import { availableFilters, applyFilterToImages } from './filters.js';
 
 // Setup basic decorations and UI
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchTemplates();
     loadAssets().then(() => {
         console.log('Assets loaded from main');
     });
@@ -20,21 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupButtonListeners() {
-    // Screen 1: Count Selection
-    document.querySelectorAll('.count-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const button = e.currentTarget;
-            state.photoCount = parseInt(button.dataset.count);
-            state.requiredPhotoCount = state.photoCount;
-            state.totalCaptureCount = state.photoCount * 4;
+    // Screen 1: Welcome Screen
+    const startBtn = document.getElementById('btn-start-now');
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
             state.currentPhotoIndex = 0;
             state.capturedPhotos = [];
             state.selectedPhotos = [];
-
-            document.getElementById('total-photos').textContent = state.totalCaptureCount;
             startCamera();
         });
-    });
+    }
 
     // Screen 2: Capture button
     document.getElementById('btn-capture').addEventListener('click', () => {
@@ -108,11 +104,7 @@ function setupButtonListeners() {
 export function showReviewScreen() {
     showScreen('screen-review');
 
-    if (!state.requiredPhotoCount || state.requiredPhotoCount <= 0) {
-        alert('Terjadi kesalahan saat memuat foto. Silakan mulai ulang dari awal.');
-        showScreen('screen-count-selection');
-        return;
-    }
+    
     if (!state.capturedPhotos || state.capturedPhotos.length === 0) {
         alert('Tidak ada foto yang tertangkap. Silakan mulai ulang.');
         showScreen('screen-count-selection');
@@ -120,10 +112,10 @@ export function showReviewScreen() {
     }
 
     const reviewTitle = document.querySelector('#screen-review h2');
-    reviewTitle.textContent = `Pilih ${state.requiredPhotoCount} Foto Terbaik`;
+    reviewTitle.textContent = `Pilih 1 sampai 4 Foto Terbaik`;
 
     const reviewInstruction = document.querySelector('#screen-review p');
-    reviewInstruction.textContent = `Klik foto untuk memilih/batal pilih (pilih tepat ${state.requiredPhotoCount} foto)`;
+    reviewInstruction.textContent = `Klik foto untuk memilih/batal pilih (Maksimal 4 foto)`;
 
     const photoGrid = document.getElementById('photo-grid');
     photoGrid.innerHTML = '';
@@ -142,10 +134,10 @@ export function showReviewScreen() {
             if (photoItem.classList.contains('selected')) {
                 photoItem.classList.remove('selected');
             } else {
-                if (currentSelected < state.requiredPhotoCount) {
+                if (currentSelected < 4) {
                     photoItem.classList.add('selected');
                 } else {
-                    alert(`Anda hanya bisa memilih ${state.requiredPhotoCount} foto!`);
+                    alert(`Maksimal 4 foto yang bisa dipilih!`);
                 }
             }
             updateSelectedPhotos();
@@ -164,11 +156,11 @@ function updateSelectedPhotos() {
     });
 
     const btnContinue = document.getElementById('btn-continue-to-frame');
-    btnContinue.disabled = state.selectedPhotos.length !== state.requiredPhotoCount;
-    if (state.selectedPhotos.length === state.requiredPhotoCount) {
+    btnContinue.disabled = state.selectedPhotos.length < 1 || state.selectedPhotos.length > 4;
+    if (state.selectedPhotos.length >= 1 && state.selectedPhotos.length <= 4) {
         btnContinue.textContent = 'Lanjut Pilih Frame';
     } else {
-        btnContinue.textContent = `Pilih ${state.requiredPhotoCount - state.selectedPhotos.length} foto lagi`;
+        btnContinue.textContent = `Pilih foto (Maks. 4)`;
     }
 }
 
@@ -190,18 +182,69 @@ export async function showFilterSelection() {
             <div class="frame-name">${filter.name}</div>
         `;
 
-        filterItem.addEventListener('click', () => {
+        filterItem.addEventListener('click', async () => {
             // Remove selected class from all
             document.querySelectorAll('#filter-grid .frame-item').forEach(el => el.classList.remove('selected'));
             filterItem.classList.add('selected');
             state.selectedFilter = filter.id;
+            
+            // Auto advance
+            const btn = document.getElementById('btn-apply-filter');
+            btn.textContent = 'Memproses...';
+            btn.disabled = true;
+            
+            try {
+                state.filteredPhotos = await applyFilterToImages(state.selectedPhotos, state.selectedFilter);
+                showFrameSelection();
+            } catch(e) {
+                console.error('Error applying filter', e);
+                alert('Gagal menerapkan filter!');
+            } finally {
+                btn.textContent = 'Lanjut Pilih Frame';
+                btn.disabled = false;
+            }
         });
 
         filterGrid.appendChild(filterItem);
     });
 }
 
-// Helper to give CSS preview before canvas processing
+export async function showFrameSelection() {
+    showScreen('screen-frames');
+    const frameGrid = document.getElementById('frame-grid');
+    frameGrid.innerHTML = '';
+
+    // Filter templates by photoCount
+    const availableFrames = allFrameThemes.filter(t => t.photoCount === state.photoCount);
+
+    if (availableFrames.length === 0) {
+        frameGrid.innerHTML = `<p style="color:white; text-align:center; width:100%;">Tidak ada template dengan ${state.photoCount} foto. Silakan buat di menu Admin.</p>`;
+    }
+
+    availableFrames.forEach((frame, index) => {
+        const div = document.createElement('div');
+        div.className = 'frame-item' + (index === 0 ? ' selected' : '');
+        div.innerHTML = `
+            <div class="frame-preview-box">
+                <img src="${frame.url}" style="width:100%; height:100%; object-fit:contain;">
+            </div>
+            <div class="frame-name">${frame.name}</div>
+        `;
+        
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.frame-item').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            state.selectedFrame = frame;
+        });
+
+        frameGrid.appendChild(div);
+        
+        if (index === 0) {
+            state.selectedFrame = frame;
+        }
+    });
+}
+
 function getCSSFilterForPreview(filterId) {
     if (filterId === 'grayscale') return 'grayscale(100%)';
     if (filterId === 'sepia') return 'sepia(100%)';
@@ -210,55 +253,26 @@ function getCSSFilterForPreview(filterId) {
     return 'none';
 }
 
-async function showFrameSelection() {
-    showScreen('screen-frame-selection');
-    const frameGrid = document.getElementById('frame-grid');
-    frameGrid.innerHTML = '<div style="text-align: center; padding: 20px; font-family: Courier New;">Loading previews...</div>';
 
-    const availableFrames = frameTemplates[state.photoCount] || [];
-    // USE FILTERED PHOTOS INSTEAD OF RAW SELECTED PHOTOS
-    const photosToUse = state.filteredPhotos && state.filteredPhotos.length > 0 ? state.filteredPhotos : state.selectedPhotos;
-    const photoImages = await Promise.all(photosToUse.map(loadImage));
-
-    frameGrid.innerHTML = '';
-    availableFrames.forEach(frame => {
-        const frameItem = document.createElement('div');
-        frameItem.className = 'frame-item';
-        
-        const previewCanvas = document.createElement('canvas');
-        const scale = 300 / Math.max(frame.width, frame.height);
-        previewCanvas.width = frame.width * scale;
-        previewCanvas.height = frame.height * scale;
-        
-        const ctx = previewCanvas.getContext('2d');
-        ctx.save();
-        ctx.scale(scale, scale);
-        frame.render(ctx, photoImages);
-        ctx.restore();
-
-        frameItem.innerHTML = `
-            <img src="${previewCanvas.toDataURL()}" alt="${frame.name}">
-            <div class="frame-name">${frame.name}</div>
-        `;
-        frameItem.addEventListener('click', () => {
-            state.selectedFrame = frame;
-            createFinalComposition();
-        });
-        frameGrid.appendChild(frameItem);
-    });
-}
 
 async function createFinalComposition() {
     showScreen('screen-composition');
     const canvas = document.getElementById('final-canvas');
     const ctx = canvas.getContext('2d');
     const frame = state.selectedFrame;
-    canvas.width = frame.width;
-    canvas.height = frame.height;
+    
+    // HD SCALING: Multiply resolution by 3 for crisp text and images
+    const HD_SCALE = 3;
+    canvas.width = frame.width * HD_SCALE;
+    canvas.height = frame.height * HD_SCALE;
+    
+    ctx.save();
+    ctx.scale(HD_SCALE, HD_SCALE);
     
     const photosToUse = state.filteredPhotos && state.filteredPhotos.length > 0 ? state.filteredPhotos : state.selectedPhotos;
     const photos = await Promise.all(photosToUse.map(loadImage));
-    frame.render(ctx, photos);
+    await frame.render(ctx, photos);
+    ctx.restore();
 }
 
 function loadImage(src) {

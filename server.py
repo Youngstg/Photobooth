@@ -1,10 +1,15 @@
 import os
+import json
 import base64
 import numpy as np
 import cv2
+from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+TEMPLATES_FILE = 'templates.json'
 
 @app.route('/')
 def index():
@@ -98,6 +103,46 @@ def apply_filter():
     except Exception as e:
         print(f"Error processing image: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/upload-template', methods=['POST'])
+def upload_template():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file and file.filename.endswith('.png'):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        return jsonify({'url': f'/uploads/{filename}'})
+    return jsonify({'error': 'Invalid file type, must be PNG'}), 400
+
+@app.route('/api/templates', methods=['GET'])
+def get_templates():
+    if not os.path.exists(TEMPLATES_FILE):
+        return jsonify([])
+    with open(TEMPLATES_FILE, 'r') as f:
+        return jsonify(json.load(f))
+
+@app.route('/api/admin/save-config', methods=['POST'])
+def save_config():
+    data = request.json
+    templates = []
+    if os.path.exists(TEMPLATES_FILE):
+        with open(TEMPLATES_FILE, 'r') as f:
+            templates = json.load(f)
+    
+    # Check if template with this id exists, if so update it
+    existing = next((t for t in templates if t['id'] == data['id']), None)
+    if existing:
+        existing.update(data)
+    else:
+        templates.append(data)
+        
+    with open(TEMPLATES_FILE, 'w') as f:
+        json.dump(templates, f, indent=4)
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     print("============================================")

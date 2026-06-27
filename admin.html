@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth Admin - Template Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Courier Prime', monospace;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: #00ffcc; }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        .left-panel { flex: 1; }
+        .right-panel { flex: 2; display: flex; flex-direction: column; align-items: center; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; }
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%; padding: 8px; box-sizing: border-box;
+            background: #333; border: 1px solid #555; color: white;
+            font-family: inherit;
+        }
+        button {
+            background: #00ffcc; color: #000; border: none;
+            padding: 10px 15px; cursor: pointer; font-family: inherit;
+            font-weight: bold; border-radius: 5px; width: 100%; margin-bottom: 10px;
+        }
+        button:hover { background: #00ccaa; }
+        
+        .slot-editor {
+            background: #333; padding: 10px; margin-bottom: 10px; border-left: 4px solid #00ffcc;
+        }
+        .slot-editor h4 { margin: 0 0 10px 0; }
+        .slot-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .slot-row input { flex: 1; }
+        
+        #preview-container {
+            position: relative;
+            background: #000 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/ENAEwwGjBqBgQJAYYygcYKj5BQCMHQsM2X8/QwAAAABJRU5ErkJggg==');
+            /* Checkerboard for transparency */
+            max-width: 100%;
+            border: 2px dashed #666;
+        }
+        #preview-image {
+            display: block; max-width: 100%; height: auto;
+            opacity: 0.8; /* Make it slightly transparent so we can see slots */
+        }
+        .slot-overlay {
+            position: absolute;
+            background: rgba(255, 0, 100, 0.5);
+            border: 2px solid #ff0066;
+            color: white; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; /* Let clicks pass through */
+        }
+    </style>
+</head>
+<body>
+    <h1>🛠️ Admin Template Editor</h1>
+    <div class="container">
+        <div class="panel left-panel">
+            <h3>1. Upload Template PNG</h3>
+            <div class="form-group">
+                <input type="file" id="template-file" accept="image/png">
+            </div>
+            <button id="btn-upload">Upload & Preview</button>
+            <hr style="border-color: #444; margin: 20px 0;">
+            
+            <h3>2. Konfigurasi Template</h3>
+            <div class="form-group">
+                <label>Nama Template (Misal: Summer Vibes)</label>
+                <input type="text" id="template-name" placeholder="Nama Template">
+            </div>
+            
+            <div id="slots-container">
+                <!-- Slots added here dynamically -->
+            </div>
+            <button id="btn-add-slot" style="background: #444; color: white;">+ Tambah Slot Foto</button>
+            
+            <hr style="border-color: #444; margin: 20px 0;">
+            <button id="btn-save" style="background: #ff0066; color: white;">💾 Simpan Template</button>
+        </div>
+        
+        <div class="panel right-panel">
+            <h3>Live Preview</h3>
+            <p style="color: #888; font-size: 12px; margin-top:0;">*Slot foto berada di BAWAH template PNG (di Photobooth)</p>
+            <div id="preview-container">
+                <img id="preview-image" src="" style="display:none;">
+                <div id="overlays-container"></div>
+            </div>
+            <p id="dimensions-info" style="color: #00ffcc; margin-top: 10px;"></p>
+        </div>
+    </div>
+    
+    <script src="js/admin.js"></script>
+</body>
+</html>

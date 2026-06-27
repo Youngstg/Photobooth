@@ -1,15 +1,16 @@
 // Global State
 export const state = {
-    photoCount: 0, // Jumlah foto yang akan digunakan di frame
-    requiredPhotoCount: 0, // Jumlah foto yang wajib dipilih
-    totalCaptureCount: 0, // Total foto yang akan diambil (4x lipat)
+    sessionTimeLimit: 90, // 90 seconds
+    timerInterval: null,
     currentPhotoIndex: 0,
     capturedPhotos: [],
     selectedPhotos: [],
     selectedFilter: 'normal',
     selectedFrame: null,
     stream: null,
-    sessionPhotoCount: 0
+    sessionPhotoCount: 0,
+    isCapturing: false,
+    isSessionActive: false
 };
 
 // Template generation mode - disable assets to prevent CORS taint
