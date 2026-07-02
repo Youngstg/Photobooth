@@ -8,20 +8,20 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=52">
+    <!-- MediaPipe Tasks Vision -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
 </head>
 <body class="theme-y2k">
 
-    <!-- Theme Switcher Slider -->
-    <div class="theme-switcher-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 30px; border: 3px solid #111; box-shadow: 4px 4px 0px #111; font-family: 'Fredoka One', cursive;">
-        <span style="font-size: 14px;">🎨</span>
-        <label class="theme-switch" style="position: relative; display: inline-block; width: 50px; height: 24px;">
-            <input type="checkbox" id="theme-slider-input" style="opacity: 0; width: 0; height: 0;">
-            <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;">
-                <span class="slider-ball" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
-            </span>
-        </label>
-        <span style="font-size: 14px;">✨</span>
+    
+    <!-- Theme Toggle Button (Mobile Only) -->
+    <div id="theme-toggle-btn" class="theme-toggle-btn">🎨 Tema</div>
+    <!-- Theme Switcher -->
+    <div class="theme-switcher-container">
+
+        <div id="btn-theme-retro" class="theme-btn" style="display: flex; justify-content: center; align-items: center;">RETRO</div>
+        <div id="btn-theme-y2k" class="theme-btn" style="display: flex; justify-content: center; align-items: center;">Y2K</div>
     </div>
     
     <!-- Y2K Ornaments -->
@@ -105,7 +105,8 @@
 
     <!-- Screen 2: Camera Capture -->
     <div id="screen-camera" class="screen">
-        <div class="container">
+        <!-- RETRO LAYOUT -->
+        <div id="camera-layout-retro" class="container">
             <div class="container-header">
                 <div class="header-dots">
                     <div class="header-dot red"></div>
@@ -117,22 +118,69 @@
                 </div>
             </div>
             <div class="container-body">
-            <h2>Foto ke-<span id="current-photo">1</span> dari <span id="total-photos">4</span></h2>
-            <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Tekan tombol sekali, foto akan diambil otomatis setiap 5 detik</p>
+            
+            
             <div class="camera-container">
 
                 <!-- Global 90s Timer -->
-                <div id="global-timer" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; font-size: 24px; font-weight: bold; border-radius: 10px; font-family: 'Courier New', monospace; z-index: 100;">
+                <div id="global-timer-retro" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; font-size: 24px; font-weight: bold; border-radius: 10px; font-family: 'Courier New', monospace; z-index: 100;">
                     01:30
                 </div>
 
-                <video id="video" autoplay playsinline></video>
-                <canvas id="canvas" style="display: none;"></canvas>
+                <video id="video-retro" autoplay playsinline></video>
+                <canvas id="ar-overlay-retro" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1);"></canvas>
+                <div class="countdown" id="countdown-retro"></div>
             </div>
-            <div class="countdown" id="countdown"></div>
-            <button id="btn-capture" class="btn-primary">Mulai Ambil Foto</button>
+            <button id="btn-capture-retro" class="btn-primary" style="margin-bottom: 15px;">Mulai Ambil Foto</button>
+                <div class="ar-filter-box">
+                    <button class="ar-btn" data-filter="none">🚫</button>
+                    <button class="ar-btn" data-filter="crown">👑</button>
+                    <button class="ar-btn" data-filter="cat">🐱</button>
+                    <button class="ar-btn" data-filter="glasses">🕶️</button>
+                    <button class="ar-btn" data-filter="star">🤩</button>
+                    <button class="ar-btn" data-filter="bunny">🐰</button>
+                </div>
             </div>
         </div>
+
+        <!-- Y2K LAYOUT -->
+        <div id="camera-layout-y2k" style="display: none; width: 100%; max-width: 800px; margin: 0 auto; position: relative; padding: 20px; box-sizing: border-box; align-items: center; justify-content: flex-start; flex-direction: column;">
+            
+            <div class="y2k-timer-box">
+                <span class="y2k-arrow">◀</span>
+                <div class="y2k-timer-inner">
+                    <div id="global-timer-y2k" class="y2k-timer-text">01:30</div>
+                    <div class="y2k-timer-label">Capture Time</div>
+                </div>
+                <span class="y2k-arrow">▶</span>
+            </div>
+
+            <div class="y2k-camera-wrapper">
+                <div class="y2k-camera-header">Capture Time!</div>
+                <div class="y2k-video-container">
+                    <video id="video-y2k" autoplay playsinline></video>
+                    <canvas id="ar-overlay-y2k" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1);"></canvas>
+                    <div class="y2k-countdown-huge" id="countdown-y2k"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
+                <button id="btn-capture-y2k" class="y2k-btn-capture" style="margin-bottom: 15px;">MULAI AMBIL FOTO</button>
+                    <div class="ar-filter-box">
+                        <button class="ar-btn" data-filter="none">🚫</button>
+                    <button class="ar-btn" data-filter="crown">👑</button>
+                    <button class="ar-btn" data-filter="cat">🐱</button>
+                    <button class="ar-btn" data-filter="glasses">🕶️</button>
+                    <button class="ar-btn" data-filter="star">🤩</button>
+                    <button class="ar-btn" data-filter="bunny">🐰</button>
+                    </div>
+                
+            </div>
+
+            <!-- Floating Ornaments Removed -->
+        </div>
+
+        <canvas id="canvas" style="display: none;"></canvas>
     </div>
 
     <!-- Screen 3: Photo Review & Selection -->
@@ -233,6 +281,17 @@
         </div>
     </div>
 
-    <script type="module" src="js/main.js?v=5"></script>
+
+    
+    <!-- Y2K Stickers Decorations -->
+    <div id="y2k-decorations">
+        <img src="Assets/emoji/download__1_-removebg-preview.png" class="y2k-sticker sticker-2" alt="Y2K Sticker 2">
+        <img src="Assets/emoji/download__2_-removebg-preview.png" class="y2k-sticker sticker-3" alt="Y2K Sticker 3">
+        <img src="Assets/emoji/gv-removebg-preview.png" class="y2k-sticker sticker-4" alt="Y2K Sticker 4">
+        <img src="Assets/emoji/smile-removebg-preview.png" class="y2k-sticker sticker-5" alt="Y2K Sticker 5">
+    </div>
+
+
+    <script type="module" src="js/main.js?v=31"></script>
 </body>
 </html>

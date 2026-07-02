@@ -1,9 +1,11 @@
+import { initAR, startARLoop, stopARLoop, applyARToCapture } from './ar-filters.js';
 import { state } from './state.js';
 import { updateSessionCount } from './ui.js';
 import { showReviewScreen } from './main.js';
 
 export async function startCamera() {
-    const video = document.getElementById('video');
+    const videoRetro = document.getElementById('video-retro');
+    const videoY2k = document.getElementById('video-y2k');
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
@@ -12,7 +14,8 @@ export async function startCamera() {
                 facingMode: "user"
             }
         });
-        video.srcObject = stream;
+        if(videoRetro) videoRetro.srcObject = stream;
+        if(videoY2k) videoY2k.srcObject = stream;
         state.stream = stream;
 
         // Start session timer when camera starts
@@ -31,8 +34,8 @@ export async function startCamera() {
 }
 
 export function startSessionTimer() {
-    const timerEl = document.getElementById('global-timer');
-    if (!timerEl) return;
+    const timerElRetro = document.getElementById('global-timer-retro');
+    const timerElY2k = document.getElementById('global-timer-y2k');
     
     // reset state
     state.isSessionActive = true;
@@ -41,7 +44,9 @@ export function startSessionTimer() {
     const updateDisplay = (secs) => {
         const m = Math.floor(secs / 60);
         const s = secs % 60;
-        timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        if(timerElRetro) timerElRetro.textContent = text;
+        if(timerElY2k) timerElY2k.textContent = text;
     };
     updateDisplay(timeLeft);
     
@@ -80,30 +85,36 @@ export function startAutomaticCapture() {
     if (state.isCapturing || !state.isSessionActive) return;
     state.isCapturing = true;
 
-    const countdownEl = document.getElementById('countdown-overlay');
-    countdownEl.style.display = 'flex';
+    const countdownElRetro = document.getElementById('countdown-retro');
+    const countdownElY2k = document.getElementById('countdown-y2k');
+    if(state.theme === 'y2k' && countdownElY2k) countdownElY2k.style.display = 'flex';
+    else if(countdownElRetro) countdownElRetro.style.display = 'flex';
 
     // Fungsi delay yang bisa di-await
     function takeOnePhoto() {
         return new Promise((resolve) => {
             let count = 3;
-            countdownEl.textContent = count;
+            if (countdownElRetro) countdownElRetro.textContent = count;
+            if (countdownElY2k) countdownElY2k.textContent = count;
             
             const interval = setInterval(() => {
                 // Berhenti jika sesi habis
                 if (!state.isSessionActive) {
                     clearInterval(interval);
-                    countdownEl.style.display = 'none';
+                    if (countdownElRetro) countdownElRetro.style.display = 'none';
+                    if (countdownElY2k) countdownElY2k.style.display = 'none';
                     resolve();
                     return;
                 }
                 
                 count--;
                 if (count > 0) {
-                    countdownEl.textContent = count;
+                    if (countdownElRetro) countdownElRetro.textContent = count;
+            if (countdownElY2k) countdownElY2k.textContent = count;
                 } else {
                     clearInterval(interval);
-                    countdownEl.textContent = '📸';
+                    if (countdownElRetro) countdownElRetro.textContent = '📸';
+                    if (countdownElY2k) countdownElY2k.textContent = '📸';
 
                     // Ambil foto setelah 300ms
                     setTimeout(() => {
@@ -117,25 +128,32 @@ export function startAutomaticCapture() {
         });
     }
 
-    // Ambil foto terus menerus sampai isSessionActive false
-    async function takeContinuousPhotos() {
-        while (state.isSessionActive && state.isCapturing) {
-            await takeOnePhoto();
-            
-            if (state.isSessionActive && state.isCapturing) {
-                // Delay 500ms sebelum foto berikutnya
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
+    async function takeSinglePhoto() {
+        if (state.capturedPhotos.length >= state.totalPhotos) {
+            stopCamera();
+            showReviewScreen();
+            return;
         }
-        countdownEl.style.display = 'none';
+
+        await takeOnePhoto();
+        
+        if (countdownElRetro) countdownElRetro.style.display = 'none';
+        if (countdownElY2k) countdownElY2k.style.display = 'none';
         state.isCapturing = false;
+
+        if (state.capturedPhotos.length >= state.totalPhotos) {
+            setTimeout(() => {
+                stopCamera();
+                showReviewScreen();
+            }, 500); // short delay so user sees the flash before screen transitions
+        }
     }
 
-    takeContinuousPhotos();
+    takeSinglePhoto();
 }
 
 export function capturePhoto() {
-    const video = document.getElementById('video');
+    const video = state.theme === 'y2k' ? document.getElementById('video-y2k') : document.getElementById('video-retro');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 

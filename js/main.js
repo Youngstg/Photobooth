@@ -1,3 +1,4 @@
+import { initAR } from './ar-filters.js';
 import { state } from './state.js';
 import { loadAssets } from './assets.js';
 import { updateClock, updateSessionCount, showScreen, setupUIListeners } from './ui.js?v=2';
@@ -7,6 +8,8 @@ import { availableFilters, applyFilterToImages } from './filters.js';
 
 // Setup basic decorations and UI
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize AR Face Filters (MediaPipe)
+    initAR();
     await fetchTemplates();
     loadAssets().then(() => {
         console.log('Assets loaded from main');
@@ -33,9 +36,9 @@ function setupButtonListeners() {
     }
 
     // Screen 2: Capture button
-    document.getElementById('btn-capture').addEventListener('click', () => {
-        startAutomaticCapture();
-    });
+    const startCaptureHandler = () => { startAutomaticCapture(); };
+    if(document.getElementById('btn-capture-retro')) document.getElementById('btn-capture-retro').addEventListener('click', startCaptureHandler);
+    if(document.getElementById('btn-capture-y2k')) document.getElementById('btn-capture-y2k').addEventListener('click', startCaptureHandler);
 
     // Screen 3: Review buttons
     document.getElementById('btn-retake').addEventListener('click', () => {
@@ -210,7 +213,7 @@ export async function showFilterSelection() {
 }
 
 export async function showFrameSelection() {
-    showScreen('screen-frames');
+    showScreen('screen-frame-selection');
     const frameGrid = document.getElementById('frame-grid');
     frameGrid.innerHTML = '';
 

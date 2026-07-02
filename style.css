@@ -271,7 +271,7 @@ p {
     box-shadow: 6px 6px 0px #3D3427;
 }
 
-#video {
+#video, #video-retro {
     width: 100%;
     height: auto;
     display: block;
@@ -948,4 +948,614 @@ body.theme-y2k #screen-welcome,
 body.theme-y2k #screen-welcome button,
 body.theme-y2k #screen-welcome .y2k-skewed-banner {
     font-family: 'Titan One', cursive !important;
+}
+
+/* =========================================
+   Y2K CAMERA LAYOUT SPECIFIC STYLES
+   ========================================= */
+
+body.theme-retro #camera-layout-y2k {
+    display: none !important;
+}
+
+body.theme-y2k #camera-layout-retro {
+    display: none !important;
+}
+
+body.theme-y2k #camera-layout-y2k {
+    display: flex !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.y2k-timer-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    z-index: 10;
+}
+
+.y2k-arrow {
+    font-size: 24px;
+    color: #111;
+}
+
+.y2k-timer-inner {
+    background: #fff;
+    border: 3px solid #111;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0px #111;
+    text-align: center;
+    min-width: 150px;
+    position: relative;
+    padding: 0;
+}
+
+.y2k-timer-text {
+    background: #111;
+    color: #FF5252;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 24px;
+    padding: 5px 15px;
+    border-radius: 4px;
+    margin: -10px 10px 5px 10px;
+    border: 2px solid #fff;
+    display: inline-block;
+    position: relative;
+    top: -10px;
+}
+
+.y2k-timer-label {
+    font-family: 'Titan One', cursive;
+    font-size: 16px;
+    padding-bottom: 5px;
+    color: #111;
+}
+
+.y2k-camera-wrapper {
+    width: 90vw;
+    max-width: 800px;
+    border:   4px solid #111;
+    background: #80DEEA;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 10;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.y2k-camera-header {
+    padding: 5px 20px;
+    transform: rotate(3deg) translateY(-15px); /* Miring lebih tajam */
+    background: #30D1A4;
+    color: #fff;
+    font-family: 'Titan One', cursive;
+    font-size: 42px;
+    text-align: center;
+    
+    border: 4px solid #111;
+    -webkit-text-stroke: 1px #111;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: -20px;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0px #111;
+    position: relative;
+    z-index: 12;
+}
+
+.y2k-video-container {
+    position: relative;
+    background: transparent;
+    padding:    0 ;
+}
+
+#video-y2k {
+    width: 100%;
+    display: block;
+    outline: 4px solid #111;
+    background: #000;
+}
+
+.y2k-sticker-slider {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(255,255,255,0.7);
+    padding: 10px;
+    border-radius: 20px;
+    border: 2px solid #ccc;
+}
+
+.y2k-sticker-item {
+    background: #FFF9C4;
+    border: 3px solid #111;
+    border-radius: 8px;
+    padding: 5px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 0px #111;
+    cursor: pointer;
+}
+
+.y2k-countdown-huge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 150px;
+    font-family: 'Titan One', cursive;
+    color: #111;
+    text-shadow: 0 0 20px rgba(0,0,0,0.5);
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.y2k-btn-capture {
+    background: #8370F5;
+    color: white;
+    font-family: 'Titan One', cursive;
+    font-size: 24px;
+    padding: 15px 40px;
+    border: 3px solid #111;
+    border-radius: 25px;
+    box-shadow: 4px 4px 0px #111;
+    cursor: pointer;
+    text-transform: uppercase;
+    -webkit-text-stroke: 1px #111;
+    z-index: 10;
+}
+
+.y2k-ornament-smiley {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #111;
+    background: #FFEB3B;
+    box-shadow: 4px 4px 0px #111;
+    object-fit: cover;
+    z-index: 20;
+}
+
+.y2k-ornament-goodvibes {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #00BFA5;
+    color: #fff;
+    font-family: 'Titan One', cursive;
+    padding: 5px 15px;
+    border-radius: 8px;
+    border: 3px solid #fff;
+    transform: rotate(-10deg);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    z-index: 5;
+}
+
+.y2k-ornament-star1 {
+    position: absolute;
+    bottom: 100px;
+    left: 40px;
+    color: #FFCA28;
+    font-size: 30px;
+    text-shadow: 1px 1px 0 #fff;
+}
+.y2k-ornament-star2 {
+    position: absolute;
+    top: 150px;
+    right: 30px;
+    color: #FFCA28;
+    font-size: 40px;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+/* Hide Retro corner decorations when on Y2K theme */
+body.theme-y2k .corner-decoration {
+    display: none !important;
+}
+
+/* AR Filter Box UI */
+.ar-filter-box {
+    position: relative;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    padding: 10px;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.ar-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: 3px solid #111;
+    background: #FFF59D;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #111;
+    transition: transform 0.1s;
+}
+
+.ar-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px #111;
+}
+
+.ar-btn.active {
+    background: #FFF;
+    border-color: #30D1A4;
+}
+
+#camera-layout-retro .camera-container #countdown-retro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #FFF;
+    -webkit-text-stroke: 3px #111;
+    text-shadow: 0 0 20px rgba(0,0,0,0.8);
+    z-index: 999;
+    pointer-events: none;
+}
+
+/* Background khusus untuk layar sesi foto Y2K */
+body.theme-y2k:has(#screen-camera.active) {
+    background: url('Assets/BGY2K_2.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+.theme-switcher-container {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 20px;
+    border: 4px solid #111;
+    box-shadow: 4px 4px 0px #111;
+    gap: 15px;
+}
+
+.theme-btn {
+    text-align: center;
+    padding: 15px 25px;
+    font-family: 'Titan One', cursive;
+    font-size: 20px;
+    border: 3px solid #111;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #ccc;
+    color: #fff;
+    -webkit-text-stroke: 1px #111;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.theme-btn.active {
+    background: #8370F5; /* Active color */
+    box-shadow: 4px 4px 0px #111;
+    transform: translateY(-2px);
+}
+
+/* Background khusus untuk layar sesi foto Retro */
+body.theme-retro:has(#screen-camera.active) {
+    background: url('Assets/RETROBG.png') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+/* Sembunyikan dekorasi gelombang hijau di bawah layar kamera tema Retro */
+body.theme-retro:has(#screen-camera.active) .wave-decoration-bottom {
+    display: none !important;
+}
+
+/* Sembunyikan dekorasi gelombang hijau di semua layar secara permanen */
+.wave-decoration-bottom {
+    display: none !important;
+}
+
+/* Sembunyikan grid/jaring-jaring pada saat sesi foto (kamera aktif) di tema Retro */
+body.theme-retro:has(#screen-camera.active) .grid-overlay {
+    display: none !important;
+}
+
+/* Sembunyikan jaring-jaring bawaan (body::before) pada saat sesi foto di tema Retro */
+body.theme-retro:has(#screen-camera.active)::before {
+    display: none !important;
+}
+
+
+/* --- RESPONSIVE FIXES --- */
+@media (max-width: 768px) {
+    /* 1. Theme Switcher at bottom */
+    .theme-switcher-container {
+        top: auto;
+        bottom: 10px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        flex-direction: row;
+        width: 90%;
+        padding: 10px;
+        gap: 10px;
+        z-index: 99999;
+    }
+    
+    .theme-btn {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    /* 2. Container sizing */
+    .container {
+        padding: 15px;
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    body.theme-y2k .container {
+        padding: 15px !important;
+    }
+    
+    /* 3. Camera specific layout adjustments */
+    .camera-container {
+        margin-bottom: 10px;
+    }
+    
+    /* 4. AR filters box flex wrapping */
+    .ar-filter-box {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .ar-btn {
+        padding: 8px;
+        font-size: 20px;
+    }
+    
+    /* 5. Typography */
+    .countdown, #countdown-retro, #countdown-y2k {
+        font-size: 80px !important;
+    }
+    
+    .btn-primary, .btn-secondary {
+        font-size: 16px;
+        padding: 12px 20px;
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* Background khusus mobile untuk layar sesi foto Retro */
+@media (max-width: 768px) {
+    body.theme-retro:has(#screen-camera.active) {
+        background: url('Assets/RETROBG_mobile.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+}
+
+/* Sembunyikan cahaya hijau (body::after radial gradient) pada saat sesi foto di tema Retro */
+body.theme-retro:has(#screen-camera.active)::after {
+    display: none !important;
+}
+
+/* Y2K Stickers Styles */
+#y2k-decorations {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50; /* Above background, below main content */
+    overflow: hidden;
+}
+
+body.theme-y2k #y2k-decorations {
+    display: block;
+}
+
+.y2k-sticker {
+    position: absolute;
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.2));
+    animation: float-sticker 6s ease-in-out infinite;
+    max-width: 150px;
+    height: auto;
+}
+
+/* Individual Sticker Positions & Rotations */
+.sticker-1 { top: 5%; left: 5%; transform: rotate(-15deg); animation-delay: 0s; max-width: 120px; }
+.sticker-2 { top: 10%; right: 8%; transform: rotate(20deg); animation-delay: 1s; }
+.sticker-3 { top: 40%; left: -2%; transform: rotate(-5deg); animation-delay: 2s; max-width: 180px; }
+.sticker-4 { bottom: 20%; right: 5%; transform: rotate(12deg); animation-delay: 0.5s; max-width: 160px; }
+.sticker-5 { bottom: 5%; left: 10%; transform: rotate(-25deg); animation-delay: 1.5s; }
+.sticker-6 { top: 45%; right: -5%; transform: rotate(30deg); animation-delay: 2.5s; max-width: 140px; }
+
+@keyframes float-sticker {
+    0% { margin-top: 0px; }
+    50% { margin-top: -15px; }
+    100% { margin-top: 0px; }
+}
+
+@media (max-width: 768px) {
+    .y2k-sticker { max-width: 100px; }
+    .sticker-3 { left: -10%; max-width: 120px; }
+    .sticker-6 { right: -10%; max-width: 100px; }
+}
+
+/* === TAMBAHAN CSS MOBILE KHUSUS UNTUK PERBAIKAN LAYOUT === */
+@media (max-width: 768px) {
+    /* 1. Welcome Screen Tweaks */
+    .y2k-skewed-banner {
+        font-size: clamp(24px, 6vw, 40px) !important;
+        padding: 10px !important;
+    }
+    #screen-welcome p {
+        font-size: 16px !important;
+        margin-top: 20px !important;
+    }
+    #btn-start-now {
+        font-size: 20px !important;
+        padding: 15px 30px !important;
+        max-width: 250px !important;
+    }
+
+    /* 2. Container & Layout Tweaks */
+    body.theme-retro .container, 
+    body.theme-y2k .container {
+        padding: 10px !important;
+        border-width: 2px !important;
+        width: 95% !important;
+        margin: 5px auto !important;
+    }
+
+    /* 3. Y2K Specific Elements */
+    .y2k-timer-box {
+        transform: scale(0.7) !important;
+        margin-bottom: 0px !important;
+        margin-top: -10px !important;
+    }
+    .y2k-camera-wrapper {
+        padding: 10px !important;
+        border-width: 2px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 10px !important;
+    }
+    .y2k-camera-header {
+        font-size: 20px !important;
+        top: -15px !important;
+        padding: 5px 15px !important;
+    }
+
+    /* 4. Camera Video "Petak Tengah" (Square) */
+    .camera-container, .y2k-video-container {
+        position: relative !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+        border-radius: 8px !important;
+    }
+    video#video-retro, video#video-y2k, 
+    canvas#ar-overlay-retro, canvas#ar-overlay-y2k {
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        width: 100% !important;
+        max-width: 400px !important;
+        height: auto !important;
+    }
+    
+    /* 5. Buttons & AR Filters */
+    .y2k-btn-capture, #btn-capture-retro {
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        margin-bottom: 10px !important;
+        max-width: 90% !important;
+    }
+    .ar-filter-box {
+        padding: 10px !important;
+        gap: 5px !important;
+        border-radius: 15px !important;
+    }
+    .ar-btn {
+        width: 45px !important;
+        height: 45px !important;
+        padding: 0 !important;
+        font-size: 20px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+}
+
+/* === MOBILE THEME TOGGLE MENU === */
+.theme-toggle-btn {
+    display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 768px) {
+    .theme-toggle-btn {
+        display: flex;
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        background: #8370F5;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-family: 'Titan One', cursive;
+        font-size: 16px;
+        z-index: 100000;
+        box-shadow: 3px 3px 0px #111;
+        border: 2px solid #111;
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    
+    .theme-toggle-btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px #111;
+    }
+
+    /* Override the previous mobile theme switcher positioning */
+    .theme-switcher-container {
+        top: auto !important;
+        bottom: 60px !important;
+        left: auto !important;
+        right: 15px !important;
+        transform: translateX(120%) !important; /* Hidden off-screen by default */
+        flex-direction: column !important;
+        width: auto !important;
+        padding: 10px !important;
+        border-radius: 15px !important;
+        transition: transform 0.3s ease-in-out !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid #111 !important;
+        box-shadow: 4px 4px 0px rgba(0,0,0,0.2) !important;
+    }
+
+    .theme-switcher-container.open {
+        transform: translateX(0) !important; /* Slide in when open */
+    }
+    
+    .theme-btn {
+        width: 100px !important;
+        padding: 8px !important;
+    }
 }
