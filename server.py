@@ -3,12 +3,44 @@ import json
 import base64
 import numpy as np
 import cv2
+import uuid
+import datetime
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
+
+# Firebase imports
+import firebase_admin
+from firebase_admin import credentials, firestore, storage
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# ----------------- FIREBASE SETUP -----------------
+FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS')
+FIREBASE_STORAGE_BUCKET = os.environ.get('FIREBASE_STORAGE_BUCKET')
+
+firebase_initialized = False
+db = None
+bucket = None
+
+if FIREBASE_CREDENTIALS_JSON and FIREBASE_STORAGE_BUCKET:
+    try:
+        cred_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred, {
+            'storageBucket': FIREBASE_STORAGE_BUCKET
+        })
+        db = firestore.client()
+        bucket = storage.bucket()
+        firebase_initialized = True
+        print("✅ Firebase initialized successfully!")
+    except Exception as e:
+        print(f"❌ Error initializing Firebase: {e}")
+else:
+    print("⚠️ WARNING: FIREBASE_CREDENTIALS or FIREBASE_STORAGE_BUCKET not set. Falling back to LOCAL storage.")
+# --------------------------------------------------
+
 TEMPLATES_FILE = 'templates.json'
 
 @app.route('/')
@@ -25,11 +57,9 @@ def apply_filter():
         if not image_data:
             return jsonify({'error': 'No image provided'}), 400
 
-        # Remove "data:image/jpeg;base64," prefix if present
         if ',' in image_data:
             image_data = image_data.split(',')[1]
 
-        # Decode base64 to OpenCV image
         img_bytes = base64.b64decode(image_data)
         np_arr = np.frombuffer(img_bytes, np.uint8)
         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
@@ -37,14 +67,12 @@ def apply_filter():
         if img is None:
             return jsonify({'error': 'Failed to decode image'}), 400
 
-        # Apply filter
         processed_img = img
         if filter_type == 'grayscale':
             processed_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            processed_img = cv2.cvtColor(processed_img, cv2.COLOR_GRAY2BGR) # Keep 3 channels
+            processed_img = cv2.cvtColor(processed_img, cv2.COLOR_GRAY2BGR)
             
         elif filter_type == 'sepia':
-            # Sepia matrix for BGR
             sepia_filter = np.array([[0.272, 0.534, 0.131],
                                      [0.349, 0.686, 0.168],
                                      [0.393, 0.769, 0.189]])
@@ -52,7 +80,6 @@ def apply_filter():
             processed_img = np.clip(processed_img, 0, 255).astype(np.uint8)
             
         elif filter_type == 'retro':
-            # Increase contrast, reduce blue, increase red/green
             processed_img = cv2.convertScaleAbs(img, alpha=1.2, beta=20)
             b, g, r = cv2.split(processed_img)
             b = cv2.convertScaleAbs(b, alpha=0.8, beta=-10)
@@ -60,40 +87,27 @@ def apply_filter():
             processed_img = cv2.merge((b, g, r))
             
         elif filter_type == 'frog':
-            # Frog Face (Bulge effect) using remap
             h, w = img.shape[:2]
             center_x, center_y = w / 2, h / 2
             radius = min(w, h) * 0.4
-            
-            # Create meshgrid
             x, y = np.meshgrid(np.arange(w), np.arange(h))
-            
             dx = x - center_x
             dy = y - center_y
             distance = np.sqrt(dx**2 + dy**2)
-            
-            # Normalize distance and apply bulge power (0.5)
             r = distance / radius
-            r[r == 0] = 1 # prevent division by zero
-            
+            r[r == 0] = 1
             mask = distance < radius
-            
             new_x = x.copy().astype(np.float32)
             new_y = y.copy().astype(np.float32)
-            
             new_r = r**0.5
-            
             new_x[mask] = (center_x + (dx[mask] / r[mask]) * new_r[mask]).astype(np.float32)
             new_y[mask] = (center_y + (dy[mask] / r[mask]) * new_r[mask]).astype(np.float32)
-            
             processed_img = cv2.remap(img, new_x, new_y, interpolation=cv2.INTER_LINEAR)
             
-            # Add slight green tint for frog
             b, g, r_ch = cv2.split(processed_img)
             g = cv2.convertScaleAbs(g, alpha=1.0, beta=30)
             processed_img = cv2.merge((b, g, r_ch))
 
-        # Encode back to base64
         _, buffer = cv2.imencode('.jpg', processed_img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
         b64_str = base64.b64encode(buffer).decode('utf-8')
         result_data_url = f"data:image/jpeg;base64,{b64_str}"
@@ -111,47 +125,80 @@ def upload_template():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
+        
     if file and file.filename.endswith('.png'):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        return jsonify({'url': f'/uploads/{filename}'})
+        if firebase_initialized:
+            try:
+                # Upload to Firebase Storage
+                unique_filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+                blob = bucket.blob(f"templates/{unique_filename}")
+                blob.upload_from_file(file, content_type='image/png')
+                blob.make_public()
+                return jsonify({'url': blob.public_url})
+            except Exception as e:
+                print(f"Firebase Upload Error: {e}")
+                return jsonify({'error': 'Gagal upload ke Cloud Storage'}), 500
+        else:
+            # Fallback to local storage
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            return jsonify({'url': f'/uploads/{filename}'})
+            
     return jsonify({'error': 'Invalid file type, must be PNG'}), 400
 
 @app.route('/api/templates', methods=['GET'])
 def get_templates():
-    if not os.path.exists(TEMPLATES_FILE):
-        return jsonify([])
-    with open(TEMPLATES_FILE, 'r') as f:
-        return jsonify(json.load(f))
+    if firebase_initialized:
+        try:
+            docs = db.collection('templates').stream()
+            templates = [doc.to_dict() for doc in docs]
+            return jsonify(templates)
+        except Exception as e:
+            print(f"Firebase Read Error: {e}")
+            return jsonify([])
+    else:
+        if not os.path.exists(TEMPLATES_FILE):
+            return jsonify([])
+        with open(TEMPLATES_FILE, 'r') as f:
+            return jsonify(json.load(f))
 
 @app.route('/api/admin/save-config', methods=['POST'])
 def save_config():
     data = request.json
-    templates = []
-    if os.path.exists(TEMPLATES_FILE):
-        with open(TEMPLATES_FILE, 'r') as f:
-            templates = json.load(f)
+    template_id = data.get('id')
     
-    # Check if template with this id exists, if so update it
-    existing = next((t for t in templates if t['id'] == data['id']), None)
-    if existing:
-        existing.update(data)
+    if not template_id:
+         return jsonify({'error': 'Missing template ID'}), 400
+         
+    if firebase_initialized:
+        try:
+            db.collection('templates').document(template_id).set(data)
+            return jsonify({'success': True})
+        except Exception as e:
+            print(f"Firebase Write Error: {e}")
+            return jsonify({'error': str(e)}), 500
     else:
-        templates.append(data)
+        templates = []
+        if os.path.exists(TEMPLATES_FILE):
+            with open(TEMPLATES_FILE, 'r') as f:
+                templates = json.load(f)
         
-    with open(TEMPLATES_FILE, 'w') as f:
-        json.dump(templates, f, indent=4)
-    return jsonify({'success': True})
+        existing = next((t for t in templates if t['id'] == template_id), None)
+        if existing:
+            existing.update(data)
+        else:
+            templates.append(data)
+            
+        with open(TEMPLATES_FILE, 'w') as f:
+            json.dump(templates, f, indent=4)
+        return jsonify({'success': True})
 
 if __name__ == '__main__':
     print("============================================")
     print("  PHOTOBOOTH SERVER (FLASK + OPENCV)")
     print("============================================")
-    print("Starting server on http://localhost:8000")
-    print("Press Ctrl+C to stop the server")
-    print("============================================")
+    print("Starting server...")
     
-    # Get port from environment variable for deployment (e.g., Render, Railway)
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)
