@@ -1,45 +1,58 @@
-# 📸 Photobooth Web App
+# 📸 Cute Snaps Photobooth
 
-![Photobooth Preview](https://img.shields.io/badge/Status-Active-brightgreen) ![Python](https://img.shields.io/badge/Backend-Python_Flask-blue) ![JavaScript](https://img.shields.io/badge/Frontend-Vanilla_JS-yellow)
+A dynamic, web-based Photobooth application featuring Face AR Filters, real-time image processing, custom templates, and dual themes (Retro & Y2K). Built with Python (Flask), OpenCV, MediaPipe, and Firebase.
 
-Sebuah aplikasi Photobooth interaktif berbasis web yang modern dan menyenangkan! Aplikasi ini memungkinkan pengguna untuk mengambil foto langsung dari *webcam*, menerapkan berbagai filter unik (termasuk filter "Muka Kodok"), dan menyusun foto-foto tersebut ke dalam berbagai bingkai (frame) estetis yang siap diunduh.
+## ✨ Features
 
-## ✨ Fitur Utama
+- **Dual Themes**: Toggle between a nostalgic 90s Retro style and a vibrant Y2K aesthetic with a single click.
+- **AR Face Filters**: Real-time face tracking using Google's MediaPipe. Try on virtual crowns, emojis, and stickers that follow your face!
+- **Real-time Image Processing**: Backend powered by OpenCV for high-quality filters including Grayscale, Sepia, Retro color grading, and a funny "Frog" bulge effect.
+- **Custom Templates**: Take 4 consecutive photos with a countdown timer, which are automatically stitched into beautiful polaroid-style frames.
+- **Admin Panel**: A dedicated `/admin.html` page to upload and manage custom frames dynamically.
+- **Serverless & Cloud Ready**: Images and templates are Base64 encoded and stored in Firebase Firestore, allowing seamless deployment on serverless platforms like Vercel without data loss.
 
-- **📷 Integrasi Kamera Web (WebRTC)**: Mengambil foto secara *real-time* dengan hitung mundur otomatis.
-- **🎨 Filter Gambar Instan (OpenCV)**: Pemrosesan gambar berkinerja tinggi menggunakan backend Python. Tersedia berbagai filter:
-  - Hitam Putih (Grayscale)
-  - Sepia (Vintage)
-  - Retro
-  - 🐸 **Muka Kodok (Frog Face)**: Filter distorsi lucu berpusat di wajah.
-- **🖼️ Template Frame Beragam**: Beragam pilihan tata letak frame seperti *Spotify Player, Polaroid, Instagram Grid, Film Strip*, dan banyak lagi.
-- **⚡ Arsitektur Modular**: Frontend dikembangkan menggunakan Vanilla ES Modules yang rapi, sementara Backend ditangani secara efisien oleh API Python Flask.
+## 🛠️ Tech Stack
 
-## 🛠️ Teknologi yang Digunakan
+- **Frontend**: HTML5, Vanilla CSS, JavaScript
+- **Computer Vision (Client)**: MediaPipe Face Landmarks
+- **Backend API**: Python 3, Flask, Werkzeug
+- **Image Processing (Server)**: OpenCV (`opencv-python-headless`), NumPy
+- **Database**: Firebase Firestore (NoSQL)
+- **Deployment**: Vercel (Serverless Functions)
 
-- **Frontend**: HTML5, Vanilla CSS, JavaScript (ES Modules), HTML5 Canvas.
-- **Backend**: Python 3, Flask.
-- **Image Processing**: OpenCV (`opencv-python-headless`), NumPy.
-- **Deployment**: Mendukung deployment standar industri menggunakan `gunicorn` (tersedia `Procfile`).
+## 🚀 How to Run Locally
 
-## 🚀 Memulai (Getting Started)
+### Prerequisites
+- Python 3.8+
+- pip
 
-Aplikasi ini sangat mudah dijalankan, baik di komputer lokal Anda untuk keperluan _development_ atau pesta kecil, maupun di-deploy secara online.
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Youngstg/Photobooth.git
+   cd Photobooth
+   ```
+2. Install the required Python packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. *(Optional)* Set up Firebase Credentials if you want to test the Admin Panel with Cloud Database:
+   - Create an environment variable `FIREBASE_CREDENTIALS` containing your Service Account JSON.
+   - *If not set, the app will gracefully fallback to local storage (`templates.json` and `uploads/`).*
 
-**Untuk panduan instalasi lengkap, silakan merujuk ke file [INSTALLATION.md](INSTALLATION.md).**
+4. Run the server:
+   ```bash
+   python server.py
+   ```
+5. Open your browser and navigate to `http://localhost:8000`.
 
-## 📂 Struktur Direktori Utama
+## 🌍 Deployment on Vercel
 
-- `/js` - Berisi semua modul JavaScript (State, UI, Camera, Canvas, Filters).
-- `/Assets` - Menyimpan aset grafis ikon dan elemen antarmuka.
-- `/template` - Menyimpan desain frame dan overlay.
-- `server.py` - *Entry point* backend Flask API.
-- `index.html` - *Entry point* antarmuka utama aplikasi.
+This app is heavily optimized for Vercel deployment.
+1. Import this repository to Vercel.
+2. In the Vercel Dashboard, go to **Settings > Environment Variables**.
+3. Add `FIREBASE_CREDENTIALS` and paste your Firebase Service Account JSON as the value.
+4. Deploy! Vercel will automatically use `vercel.json` to route `/api/*` to the Python Flask backend while serving the static HTML/CSS/JS frontend on its global Edge Network.
 
-## 🤝 Kontribusi
-
-Kontribusi selalu diterima! Jika Anda ingin menambahkan filter baru, mendesain template frame baru, atau meningkatkan performa, silakan *fork* repositori ini dan buat *Pull Request*.
-
-## 📜 Lisensi
-
-Proyek ini bersifat *Open Source*. Silakan gunakan dan modifikasi sesuai kebutuhan Anda!
+---
+*Created with ❤️ for capturing the best moments!*
