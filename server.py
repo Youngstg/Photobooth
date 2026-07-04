@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, send_from_directory
 
 # Firebase imports
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, firestore
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -18,27 +18,24 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # ----------------- FIREBASE SETUP -----------------
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS')
-FIREBASE_STORAGE_BUCKET = os.environ.get('FIREBASE_STORAGE_BUCKET')
-
 firebase_initialized = False
 db = None
-bucket = None
 
-if FIREBASE_CREDENTIALS_JSON and FIREBASE_STORAGE_BUCKET:
+if FIREBASE_CREDENTIALS_JSON:
     try:
         cred_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
         cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'storageBucket': FIREBASE_STORAGE_BUCKET
-        })
+        
+        # Initialize without Storage Bucket
+        firebase_admin.initialize_app(cred)
+        
         db = firestore.client()
-        bucket = storage.bucket()
         firebase_initialized = True
-        print("✅ Firebase initialized successfully!")
+        print("✅ Firebase Firestore initialized successfully!")
     except Exception as e:
         print(f"❌ Error initializing Firebase: {e}")
 else:
-    print("⚠️ WARNING: FIREBASE_CREDENTIALS or FIREBASE_STORAGE_BUCKET not set. Falling back to LOCAL storage.")
+    print("⚠️ WARNING: FIREBASE_CREDENTIALS not set. Falling back to LOCAL storage.")
 # --------------------------------------------------
 
 TEMPLATES_FILE = 'templates.json'
@@ -127,25 +124,26 @@ def upload_template():
         return jsonify({'error': 'No selected file'}), 400
         
     if file and file.filename.endswith('.png'):
+        # Membaca isi gambar
+        file_bytes = file.read()
+        
+        # Mengecek ukuran file (Firestore max 1MB per document, kita batasi 700KB untuk aman)
+        if len(file_bytes) > 700 * 1024:
+            return jsonify({'error': 'Ukuran gambar terlalu besar! Maksimal 700KB.'}), 400
+            
         if firebase_initialized:
-            try:
-                # Upload to Firebase Storage
-                unique_filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-                blob = bucket.blob(f"templates/{unique_filename}")
-                blob.upload_from_file(file, content_type='image/png')
-                blob.make_public()
-                return jsonify({'url': blob.public_url})
-            except Exception as e:
-                print(f"Firebase Upload Error: {e}")
-                return jsonify({'error': 'Gagal upload ke Cloud Storage'}), 500
+            # Mengubah gambar menjadi teks Base64 untuk disimpan langsung ke Firestore Database nantinya
+            b64_str = base64.b64encode(file_bytes).decode('utf-8')
+            return jsonify({'url': f"data:image/png;base64,{b64_str}"})
         else:
-            # Fallback to local storage
+            # Fallback ke penyimpanan lokal jika tidak pakai Firebase
+            file.seek(0)
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             return jsonify({'url': f'/uploads/{filename}'})
             
-    return jsonify({'error': 'Invalid file type, must be PNG'}), 400
+    return jsonify({'error': 'Format salah, harus berupa gambar PNG.'}), 400
 
 @app.route('/api/templates', methods=['GET'])
 def get_templates():
