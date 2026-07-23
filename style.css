@@ -884,22 +884,17 @@ body:has(#screen-welcome.active) .theme-switcher-container {
     display: none !important;
 }
 
-/* Y2K Diagonal Pink & Purple Pop Stripes Background (Pure CSS - Instant Load) */
+/* Y2K Diagonal Pink & White Stripes Background */
 body.theme-y2k {
-    background: 
-        radial-gradient(circle at 20% 20%, rgba(255, 182, 218, 0.8) 0%, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(131, 112, 245, 0.8) 0%, transparent 40%),
-        repeating-linear-gradient(45deg, #ffc0cb, #ffc0cb 25px, #ffa6c9 25px, #ffa6c9 50px) !important;
-    background-attachment: fixed !important;
+    background: url('Assets/BGY2K.png') no-repeat center center fixed !important;
+    background-size: cover !important;
 }
 
 /* Mobile background for Y2K globally */
 @media (max-width: 768px) {
     body.theme-y2k {
-        background: 
-            radial-gradient(circle at 30% 30%, rgba(255, 182, 218, 0.9) 0%, transparent 50%),
-            repeating-linear-gradient(45deg, #ffc0cb, #ffc0cb 20px, #ffa6c9 20px, #ffa6c9 40px) !important;
-        background-attachment: fixed !important;
+        background: url('Assets/BGY2K_mobile.png') no-repeat center center fixed !important;
+        background-size: cover !important;
     }
 }
 
@@ -1228,12 +1223,10 @@ body.theme-y2k .corner-decoration {
     pointer-events: none;
 }
 
-/* Background khusus untuk layar sesi foto Y2K (Pure CSS - Instant Load) */
+/* Background khusus untuk layar sesi foto Y2K */
 body.theme-y2k:has(#screen-camera.active) {
-    background: 
-        radial-gradient(circle at 50% 50%, rgba(255, 154, 162, 0.8) 0%, transparent 60%),
-        repeating-linear-gradient(-45deg, #ffb7b2, #ffb7b2 30px, #ffdac1 30px, #ffdac1 60px) !important;
-    background-attachment: fixed !important;
+    background: url('Assets/BGY2K_2.png') no-repeat center center fixed !important;
+    background-size: cover !important;
 }
 
 .theme-switcher-container {
@@ -1274,12 +1267,10 @@ body.theme-y2k:has(#screen-camera.active) {
     transform: translateY(-2px);
 }
 
-/* Background khusus untuk layar sesi foto Retro (Pure CSS - Instant Load) */
+/* Background khusus untuk layar sesi foto Retro */
 body.theme-retro:has(#screen-camera.active) {
-    background: 
-        radial-gradient(circle at 50% 30%, #F4E8D7 0%, transparent 70%),
-        linear-gradient(135deg, #7BC4A8 0%, #A8D5BA 50%, #EDD9C3 100%) !important;
-    background-attachment: fixed !important;
+    background: url('Assets/RETROBG.png') no-repeat center center fixed !important;
+    background-size: cover !important;
 }
 
 /* Sembunyikan dekorasi gelombang hijau di bawah layar kamera tema Retro */
@@ -1365,13 +1356,11 @@ body.theme-retro:has(#screen-camera.active)::before {
     }
 }
 
-/* Background khusus mobile untuk layar sesi foto Retro (Pure CSS - Instant Load) */
+/* Background khusus mobile untuk layar sesi foto Retro */
 @media (max-width: 768px) {
     body.theme-retro:has(#screen-camera.active) {
-        background: 
-            radial-gradient(circle at 50% 40%, #F4E8D7 0%, transparent 80%),
-            linear-gradient(135deg, #7BC4A8 0%, #EDD9C3 100%) !important;
-        background-attachment: fixed !important;
+        background: url('Assets/RETROBG_mobile.png') no-repeat center center fixed !important;
+        background-size: cover !important;
     }
 }
 
