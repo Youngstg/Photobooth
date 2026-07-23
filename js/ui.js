@@ -112,9 +112,11 @@ export function setupUIListeners() {
         if (document.body.classList.contains('theme-y2k')) {
             btnY2k.classList.add('active');
             btnRetro.classList.remove('active');
+            state.theme = 'y2k';
         } else {
             btnRetro.classList.add('active');
             btnY2k.classList.remove('active');
+            state.theme = 'retro';
         }
     }
 
@@ -123,6 +125,7 @@ export function setupUIListeners() {
             document.body.classList.remove('theme-y2k');
             document.body.classList.add('theme-retro');
             localStorage.setItem('photobooth_theme', 'theme-retro');
+            state.theme = 'retro';
             updateThemeButtons();
         });
         
@@ -130,6 +133,7 @@ export function setupUIListeners() {
             document.body.classList.remove('theme-retro');
             document.body.classList.add('theme-y2k');
             localStorage.setItem('photobooth_theme', 'theme-y2k');
+            state.theme = 'y2k';
             updateThemeButtons();
         });
         
@@ -141,7 +145,7 @@ export function setupUIListeners() {
 function initTheme() {
     const savedTheme = localStorage.getItem('photobooth_theme') || 'theme-y2k';
     document.body.className = savedTheme;
-    // Buttons are updated in the setup block
+    state.theme = savedTheme === 'theme-y2k' ? 'y2k' : 'retro';
 }
 
 // Mobile theme toggle logic

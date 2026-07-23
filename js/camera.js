@@ -85,9 +85,12 @@ export function startAutomaticCapture() {
     if (state.isCapturing || !state.isSessionActive) return;
     state.isCapturing = true;
 
+    const isY2k = document.body.classList.contains('theme-y2k') || state.theme === 'y2k';
+    state.theme = isY2k ? 'y2k' : 'retro';
+
     const countdownElRetro = document.getElementById('countdown-retro');
     const countdownElY2k = document.getElementById('countdown-y2k');
-    if(state.theme === 'y2k' && countdownElY2k) countdownElY2k.style.display = 'flex';
+    if(isY2k && countdownElY2k) countdownElY2k.style.display = 'flex';
     else if(countdownElRetro) countdownElRetro.style.display = 'flex';
 
     // Fungsi delay yang bisa di-await
@@ -103,6 +106,7 @@ export function startAutomaticCapture() {
                     clearInterval(interval);
                     if (countdownElRetro) countdownElRetro.style.display = 'none';
                     if (countdownElY2k) countdownElY2k.style.display = 'none';
+                    state.isCapturing = false;
                     resolve();
                     return;
                 }
@@ -110,7 +114,7 @@ export function startAutomaticCapture() {
                 count--;
                 if (count > 0) {
                     if (countdownElRetro) countdownElRetro.textContent = count;
-            if (countdownElY2k) countdownElY2k.textContent = count;
+                    if (countdownElY2k) countdownElY2k.textContent = count;
                 } else {
                     clearInterval(interval);
                     if (countdownElRetro) countdownElRetro.textContent = '📸';
@@ -129,33 +133,26 @@ export function startAutomaticCapture() {
     }
 
     async function takeSinglePhoto() {
-        if (state.capturedPhotos.length >= state.totalPhotos) {
-            stopCamera();
-            showReviewScreen();
-            return;
-        }
-
         await takeOnePhoto();
         
         if (countdownElRetro) countdownElRetro.style.display = 'none';
         if (countdownElY2k) countdownElY2k.style.display = 'none';
         state.isCapturing = false;
-
-        if (state.capturedPhotos.length >= state.totalPhotos) {
-            setTimeout(() => {
-                stopCamera();
-                showReviewScreen();
-            }, 500); // short delay so user sees the flash before screen transitions
-        }
     }
 
     takeSinglePhoto();
 }
 
 export function capturePhoto() {
-    const video = state.theme === 'y2k' ? document.getElementById('video-y2k') : document.getElementById('video-retro');
+    const isY2k = document.body.classList.contains('theme-y2k') || state.theme === 'y2k';
+    const video = isY2k ? document.getElementById('video-y2k') : document.getElementById('video-retro');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+
+    if (!video || !video.videoWidth) {
+        console.warn('Video stream not ready for capture');
+        return;
+    }
 
     // Set canvas size to match video
     canvas.width = video.videoWidth;

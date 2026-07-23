@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './config.js';
+
 // Filter Definitions and Logic
 
 export const availableFilters = [
@@ -15,7 +17,7 @@ export async function applyFilterToImages(imageUrls, filterId) {
 
     for (const url of imageUrls) {
         try {
-            const response = await fetch('/api/filter', {
+            const response = await fetch(`${API_BASE_URL}/api/filter`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

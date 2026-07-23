@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './config.js';
+
 let currentTemplateUrl = '';
 let templateWidth = 0;
 let templateHeight = 0;
@@ -24,7 +26,7 @@ btnUpload.addEventListener('click', async () => {
     
     try {
         btnUpload.textContent = 'Mengunggah...';
-        const res = await fetch('/api/admin/upload-template', {
+        const res = await fetch(`${API_BASE_URL}/api/admin/upload-template`, {
             method: 'POST',
             body: formData
         });
@@ -132,7 +134,7 @@ btnSave.addEventListener('click', async () => {
     
     try {
         btnSave.textContent = 'Menyimpan...';
-        const res = await fetch('/api/admin/save-config', {
+        const res = await fetch(`${API_BASE_URL}/api/admin/save-config`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(config)

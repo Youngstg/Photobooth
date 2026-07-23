@@ -1,10 +1,11 @@
 import { renderDynamicFrame } from './canvas.js';
+import { API_BASE_URL } from './config.js';
 
 export let allFrameThemes = [];
 
 export async function fetchTemplates() {
     try {
-        const response = await fetch('/api/templates');
+        const response = await fetch(`${API_BASE_URL}/api/templates`);
         const data = await response.json();
         
         allFrameThemes = data.map(t => ({

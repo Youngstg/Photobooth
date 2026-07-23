@@ -7,12 +7,14 @@ import uuid
 import datetime
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 
 # Firebase imports
 import firebase_admin
 from firebase_admin import credentials, firestore
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+CORS(app)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
