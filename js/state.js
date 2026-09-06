@@ -10,7 +10,20 @@ export const state = {
     stream: null,
     sessionPhotoCount: 0,
     isCapturing: false,
-    isSessionActive: false
+    isSessionActive: false,
+    theme: 'y2k',
+    
+    // Multiplayer (Angie-Style) State
+    isMultiplayer: false,
+    roomCode: null,
+    isHost: false,
+    localPlayer: null,
+    remotePlayer: null,
+    peer: null,
+    dataConnection: null,
+    mediaConnection: null,
+    remoteStream: null,
+    filteredPhotos: []
 };
 
 // Template generation mode - disable assets to prevent CORS taint

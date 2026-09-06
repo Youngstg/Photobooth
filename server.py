@@ -33,11 +33,11 @@ if FIREBASE_CREDENTIALS_JSON:
         
         db = firestore.client()
         firebase_initialized = True
-        print("✅ Firebase Firestore initialized successfully!")
+        print("[OK] Firebase Firestore initialized successfully!")
     except Exception as e:
-        print(f"❌ Error initializing Firebase: {e}")
+        print(f"[ERROR] Error initializing Firebase: {e}")
 else:
-    print("⚠️ WARNING: FIREBASE_CREDENTIALS not set. Falling back to LOCAL storage.")
+    print("[INFO] FIREBASE_CREDENTIALS not set. Falling back to LOCAL storage.")
 # --------------------------------------------------
 
 TEMPLATES_FILE = 'templates.json'

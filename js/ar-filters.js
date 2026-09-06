@@ -73,10 +73,11 @@ export function stopARLoop() {
 }
 
 function renderAR() {
-    const isY2k = document.body.classList.contains('theme-y2k') || state.theme === 'y2k';
-    const video = isY2k ? document.getElementById('video-y2k') : document.getElementById('video-retro');
-    const canvas = isY2k ? canvasY2k : canvasRetro;
-    const ctx = isY2k ? ctxY2k : ctxRetro;
+    // Theme is always Y2K
+    const video = document.getElementById('video-y2k');
+    const canvas = canvasY2k;
+    const ctx = ctxY2k;
+
 
     if (!video || !canvas || !ctx || video.videoWidth === 0) {
         trackingLoopId = requestAnimationFrame(renderAR);
@@ -217,8 +218,8 @@ function drawFilter(ctx, landmarks, w, h) {
 }
 
 export function applyARToCapture(canvas, ctx) {
-    const isY2k = document.body.classList.contains('theme-y2k') || state.theme === 'y2k';
-    const overlayCanvas = isY2k ? canvasY2k : canvasRetro;
+    // Theme is always Y2K
+    const overlayCanvas = canvasY2k;
     if (overlayCanvas && activeFilter !== 'none') {
         ctx.save();
         ctx.drawImage(overlayCanvas, 0, 0, canvas.width, canvas.height);

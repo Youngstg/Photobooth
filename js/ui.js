@@ -102,67 +102,12 @@ export function setupUIListeners() {
     }
     
     initTheme();
-    
-    // Setup Theme Switcher Slider
-    const btnRetro = document.getElementById('btn-theme-retro');
-    const btnY2k = document.getElementById('btn-theme-y2k');
-    
-    function updateThemeButtons() {
-        if (!btnRetro || !btnY2k) return;
-        if (document.body.classList.contains('theme-y2k')) {
-            btnY2k.classList.add('active');
-            btnRetro.classList.remove('active');
-            state.theme = 'y2k';
-        } else {
-            btnRetro.classList.add('active');
-            btnY2k.classList.remove('active');
-            state.theme = 'retro';
-        }
-    }
-
-    if (btnRetro && btnY2k) {
-        btnRetro.addEventListener('click', () => {
-            document.body.classList.remove('theme-y2k');
-            document.body.classList.add('theme-retro');
-            localStorage.setItem('photobooth_theme', 'theme-retro');
-            state.theme = 'retro';
-            updateThemeButtons();
-        });
-        
-        btnY2k.addEventListener('click', () => {
-            document.body.classList.remove('theme-retro');
-            document.body.classList.add('theme-y2k');
-            localStorage.setItem('photobooth_theme', 'theme-y2k');
-            state.theme = 'y2k';
-            updateThemeButtons();
-        });
-        
-        // Initial setup
-        updateThemeButtons();
-    }
 }
 
 function initTheme() {
-    const savedTheme = localStorage.getItem('photobooth_theme') || 'theme-y2k';
-    document.body.className = savedTheme;
-    state.theme = savedTheme === 'theme-y2k' ? 'y2k' : 'retro';
+    // Theme locked to Y2K only for optimal performance
+    document.body.classList.add('theme-y2k');
+    localStorage.setItem('photobooth_theme', 'theme-y2k');
+    state.theme = 'y2k';
 }
 
-// Mobile theme toggle logic
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.getElementById('theme-toggle-btn');
-    const switcherContainer = document.querySelector('.theme-switcher-container');
-    
-    if (toggleBtn && switcherContainer) {
-        toggleBtn.addEventListener('click', () => {
-            switcherContainer.classList.toggle('open');
-        });
-        
-        // Close menu if clicked outside
-        document.addEventListener('click', (e) => {
-            if (!toggleBtn.contains(e.target) && !switcherContainer.contains(e.target)) {
-                switcherContainer.classList.remove('open');
-            }
-        });
-    }
-});

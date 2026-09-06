@@ -3,31 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Photobooth</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%237BC4A8'/><rect x='15' y='15' width='70' height='70' fill='%23F5E6D3' stroke='%232C2416' stroke-width='3'/><circle cx='50' cy='45' r='15' fill='%232C2416'/><circle cx='50' cy='45' r='8' fill='%237BC4A8'/><rect x='20' y='70' width='60' height='8' fill='%232C2416'/></svg>">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Web Photobooth - Duo Collab</title>
+    <link rel="icon" type="image/png" href="Assets/ICON.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=52">
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=60">
+    
+    <!-- PeerJS for WebRTC Realtime Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- MediaPipe Tasks Vision -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
 </head>
 <body class="theme-y2k">
 
-    
-    <!-- Theme Toggle Button (Mobile Only) -->
-    <div id="theme-toggle-btn" class="theme-toggle-btn">🎨 Tema</div>
-    <!-- Theme Switcher -->
-    <div class="theme-switcher-container">
-
-        <div id="btn-theme-retro" class="theme-btn" style="display: flex; justify-content: center; align-items: center;">RETRO</div>
-        <div id="btn-theme-y2k" class="theme-btn" style="display: flex; justify-content: center; align-items: center;">Y2K</div>
+    <!-- Duo Room Live Header Bar (Hidden in Solo mode) -->
+    <div id="duo-room-header" class="duo-room-header" style="display: none;">
+        <div class="header-left">
+            <span class="room-pill">Room: <strong id="header-room-code">------</strong></span>
+            <div id="header-partner-info" class="partner-pill">
+                <span class="waiting-indicator"></span>
+                <span>Menunggu partner...</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button id="btn-leave-room" class="btn-leave-room" title="Keluar dari sesi duo">🚪 Keluar</button>
+        </div>
     </div>
-    
-    <!-- Y2K Ornaments -->
-    
-    
-    
     
 
     <!-- Wave decorations at bottom -->
@@ -70,8 +72,8 @@
 
     <div class="corner-decoration bottom-left">
         <div class="info-widget">
-            Photobooth<br>
-            Web App v1.0
+            Photobooth Duo<br>
+            Online Collab v2.0
         </div>
     </div>
 
@@ -93,20 +95,188 @@
                 </div>
             </div>
             <div class="container-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%;">
+                <img src="Assets/ICON.png" alt="Cute Snaps Icon" style="width: 95px; height: 95px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(4px 4px 0px #2C2416); animation: bounceBadge 2.5s infinite ease-in-out;">
                 <div class="y2k-skewed-banner" style="display: flex; flex-direction: column; line-height: 1.1;">
                     <span style="text-align: left;">Welcome to</span>
                     <span style="text-align: right;">Cute Snaps!</span>
                 </div>
-                <p style="margin-top: 50px; margin-bottom: 15px; font-weight: bold; border: none; background: transparent; font-size: 26px; font-family: 'Comic Sans MS', sans-serif !important;">Tap Button to Start</p>
-                <button id="btn-start-now" class="btn-primary" style="font-size: 32px; padding: 25px 60px; border-radius: 20px; max-width: 400px; background-color: #8370F5; color: white;">Start Now</button>
+                <p style="margin-top: 25px; margin-bottom: 20px; font-weight: bold; border: none; background: transparent; font-size: 24px; font-family: 'Comic Sans MS', sans-serif !important;">
+                    📸 Photobooth Online Bersama Teman & Pasangan
+                </p>
+                <button id="btn-start-now" class="btn-primary" style="font-size: 28px; padding: 20px 50px; border-radius: 20px; max-width: 400px; background-color: #8370F5; color: white;">
+                    Start Now ✨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 1.5: Mode & Lobby Selection (Angie-Style 2-Player Collab) -->
+    <div id="screen-lobby" class="screen">
+        <div class="container lobby-container">
+            <div class="container-header">
+                <div class="header-dots">
+                    <div class="header-dot red"></div>
+                    <div class="header-dot yellow"></div>
+                    <div class="header-dot green"></div>
+                </div>
+                <div class="breadcrumb">
+                    <span class="breadcrumb-path">home\start\</span>lobby
+                </div>
+            </div>
+            <div class="container-body lobby-body">
+                <h2>Pilih Mode Photobooth</h2>
+                
+                <!-- Mode Toggle Cards -->
+                <div class="mode-cards-grid">
+                    <div id="btn-mode-solo" class="mode-card">
+                        <div class="mode-icon">👤</div>
+                        <div class="mode-title">Solo Photobooth</div>
+                        <div class="mode-desc">Foto sendiri dengan frame dan filter lucu</div>
+                    </div>
+                    <div id="btn-mode-duo" class="mode-card active">
+                        <div class="mode-badge">POPULAR 💖</div>
+                        <div class="mode-icon">👥</div>
+                        <div class="mode-title">Duo Online Collab</div>
+                        <div class="mode-desc">Foto 2 orang online, live synced cursor & pose bersama!</div>
+                    </div>
+                </div>
+
+                <!-- Duo Online Collab Panel -->
+                <div id="duo-setup-panel" class="duo-setup-box">
+                    
+                    <!-- Player Customization -->
+                    <div class="player-customization-section">
+                        <div class="input-row">
+                            <label for="player-name-input"><strong>Nama / Panggilan:</strong></label>
+                            <input type="text" id="player-name-input" class="y2k-input" placeholder="Masukkan nama kamu..." maxlength="15" value="Cutie">
+                        </div>
+                        <div class="avatar-row">
+                            <span class="avatar-label"><strong>Pilih Avatar Cursor:</strong></span>
+                            <div class="avatar-grid">
+                                <button type="button" class="avatar-option selected" data-avatar="cat" title="Cat">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-7.5-3a7.5 7.5 0 0 0 15 0c0-1.5-.4-2.9-1.2-4.1l1.7-4.4-4.5 1.7A7.47 7.47 0 0 0 12 4.5c-1.5 0-2.9.4-4.1 1.2L3.4 4l1.7 4.5c-.8 1.2-1.2 2.6-1.2 4z"/></svg>
+                                </button>
+                                <button type="button" class="avatar-option" data-avatar="bunny" title="Bunny">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6.5 2C5.1 2 4 3.1 4 4.5v6c0 1.4 1.1 2.5 2.5 2.5h.3A7.5 7.5 0 0 0 12 19.5a7.5 7.5 0 0 0 5.2-6.5h.3c1.4 0 2.5-1.1 2.5-2.5v-6C20 3.1 18.9 2 17.5 2S15 3.1 15 4.5v5.2A7.44 7.44 0 0 0 12 9a7.44 7.44 0 0 0-3-.7V4.5C9 3.1 7.9 2 6.5 2zM12 15a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+                                </button>
+                                <button type="button" class="avatar-option" data-avatar="bear" title="Bear">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.5 4.5a3.5 3.5 0 0 0-3.3 2.3A7.95 7.95 0 0 0 12 6a7.95 7.95 0 0 0-4.2.8A3.5 3.5 0 1 0 4.5 11c0 .2.02.4.05.6A7.98 7.98 0 0 0 12 22a7.98 7.98 0 0 0 7.45-10.4c.03-.2.05-.4.05-.6a3.5 3.5 0 0 0 0-6.5zM9 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-3 6c-1.5 0-2.5-.8-2.5-1.5s1-1.5 2.5-1.5 2.5.8 2.5 1.5-1 1.5-2.5 1.5z"/></svg>
+                                </button>
+                                <button type="button" class="avatar-option" data-avatar="heart" title="Heart">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                </button>
+                                <button type="button" class="avatar-option" data-avatar="star" title="Star">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                </button>
+                                <button type="button" class="avatar-option" data-avatar="camera" title="Camera">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs: Create Room / Join Room -->
+                    <div class="lobby-tab-buttons">
+                        <button id="tab-lobby-create" class="lobby-tab-btn active">🏠 Buat Room Baru</button>
+                        <button id="tab-lobby-join" class="lobby-tab-btn">🚀 Gabung Room Partner</button>
+                    </div>
+
+                    <!-- Panel: Create Room -->
+                    <div id="panel-lobby-create" class="lobby-tab-panel">
+                        <div class="create-room-box">
+                            <div class="room-code-wrapper">
+                                <label>Kode Room Kamu:</label>
+                                <div class="room-code-display-row">
+                                    <input type="text" id="lobby-room-code-display" readonly class="room-code-input" value="">
+                                    <button id="btn-copy-code" class="btn-secondary btn-sm">Salin Kode</button>
+                                </div>
+                            </div>
+
+                            <button id="btn-create-room-action" class="btn-primary btn-large">Buat Room Sekarang ✨</button>
+
+                            <!-- Visible after room created -->
+                            <div id="room-created-info" style="display: none; margin-top: 15px;">
+                                <div class="share-link-wrapper">
+                                    <label>Bagikan Link ke Teman / Pasangan:</label>
+                                    <div class="share-link-row">
+                                        <input type="text" id="share-link-input" readonly class="y2k-input share-url-input" value="">
+                                        <button id="btn-copy-share-link" class="btn-primary btn-sm">Salin Link 📋</button>
+                                    </div>
+                                </div>
+
+                                <div id="lobby-partner-status" class="lobby-status-indicator">
+                                    <span class="pulse-dot"></span> Menunggu partner bergabung...
+                                </div>
+
+                                <button id="btn-start-collab-session" class="btn-primary btn-large disabled" disabled style="margin-top: 15px;">
+                                    Menunggu Partner... ⏳
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Join Room -->
+                    <div id="panel-lobby-join" class="lobby-tab-panel" style="display: none;">
+                        <div class="join-room-box">
+                            <label for="input-join-code">Masukkan Kode Room dari Partner:</label>
+                            <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: CUTE88" maxlength="8">
+                            <button id="btn-join-room-action" class="btn-primary btn-large" style="margin-top: 15px;">
+                                Gabung Room Sekarang 🚀
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Screen 2: Camera Capture -->
     <div id="screen-camera" class="screen">
-        <!-- RETRO LAYOUT -->
-        <div id="camera-layout-retro" class="container">
+        
+        <!-- DUO COLLAB CAMERA LAYOUT (Angie 2-Player Side-by-Side) -->
+        <div id="camera-layout-duo" class="duo-camera-layout" style="display: none;">
+            <div class="duo-timer-bar">
+                <div class="duo-room-tag">👥 DUO PHOTOBOOTH</div>
+                <div id="global-timer-duo" class="duo-timer-display">01:30</div>
+                <div id="duo-photo-count" class="duo-count-tag">0 Foto</div>
+            </div>
+
+            <div id="duo-camera-container" class="duo-camera-split-container">
+                <!-- Local Video Player (Left) -->
+                <div class="duo-video-slot local-slot">
+                    <div id="duo-local-label" class="duo-player-label host-label">You (Host)</div>
+                    <div class="video-crop-wrapper">
+                        <video id="video-duo-local" autoplay playsinline muted></video>
+                    </div>
+                </div>
+
+                <!-- Heart Divider Center -->
+                <div class="duo-center-heart">💖</div>
+
+                <!-- Remote Video Partner (Right) -->
+                <div class="duo-video-slot remote-slot">
+                    <div id="duo-remote-label" class="duo-player-label guest-label">Partner</div>
+                    <div class="video-crop-wrapper">
+                        <video id="video-duo-remote" autoplay playsinline></video>
+                        <div class="waiting-partner-placeholder">
+                            <div class="placeholder-icon">🐰</div>
+                            <p>Menghubungkan kamera partner...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="duo-countdown-overlay" id="countdown-duo"></div>
+            </div>
+
+            <div class="duo-controls-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                <button id="btn-capture-duo" class="btn-capture-sparkle">📸 AMBIL FOTO BERSAMA</button>
+                <button id="btn-finish-duo" class="btn-primary" style="display: none; background: #00D2D3; color: #2C2416; font-size: 18px; padding: 14px 30px; border-radius: 30px;">Selesai & Pilih Foto ✨ ➡️</button>
+            </div>
+        </div>
+
+        <!-- RETRO LAYOUT (Solo) -->
+        <div id="camera-layout-retro" class="container" style="display: none;">
             <div class="container-header">
                 <div class="header-dots">
                     <div class="header-dot red"></div>
@@ -118,20 +288,19 @@
                 </div>
             </div>
             <div class="container-body">
-            
-            
-            <div class="camera-container">
+                <div class="camera-container">
+                    <div id="global-timer-retro" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; font-size: 24px; font-weight: bold; border-radius: 10px; font-family: 'Courier New', monospace; z-index: 100;">
+                        01:30
+                    </div>
 
-                <!-- Global 90s Timer -->
-                <div id="global-timer-retro" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; font-size: 24px; font-weight: bold; border-radius: 10px; font-family: 'Courier New', monospace; z-index: 100;">
-                    01:30
+                    <video id="video-retro" autoplay playsinline></video>
+                    <canvas id="ar-overlay-retro" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1);"></canvas>
+                    <div class="countdown" id="countdown-retro"></div>
                 </div>
-
-                <video id="video-retro" autoplay playsinline></video>
-                <canvas id="ar-overlay-retro" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1);"></canvas>
-                <div class="countdown" id="countdown-retro"></div>
-            </div>
-            <button id="btn-capture-retro" class="btn-primary" style="margin-bottom: 15px;">Mulai Ambil Foto</button>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
+                    <button id="btn-capture-retro" class="btn-primary">Mulai Ambil Foto</button>
+                    <button id="btn-finish-retro" class="btn-secondary" style="display: none;">Selesai & Pilih Foto ✨ ➡️</button>
+                </div>
                 <div class="ar-filter-box">
                     <button class="ar-btn" data-filter="none">🚫</button>
                     <button class="ar-btn" data-filter="crown">👑</button>
@@ -143,9 +312,8 @@
             </div>
         </div>
 
-        <!-- Y2K LAYOUT -->
+        <!-- Y2K LAYOUT (Solo) -->
         <div id="camera-layout-y2k" style="display: none; width: 100%; max-width: 800px; margin: 0 auto; position: relative; padding: 20px; box-sizing: border-box; align-items: center; justify-content: flex-start; flex-direction: column;">
-            
             <div class="y2k-timer-box">
                 <span class="y2k-arrow">◀</span>
                 <div class="y2k-timer-inner">
@@ -165,25 +333,25 @@
             </div>
 
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
-                <button id="btn-capture-y2k" class="y2k-btn-capture" style="margin-bottom: 15px;">MULAI AMBIL FOTO</button>
-                    <div class="ar-filter-box">
-                        <button class="ar-btn" data-filter="none">🚫</button>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
+                    <button id="btn-capture-y2k" class="y2k-btn-capture">MULAI AMBIL FOTO</button>
+                    <button id="btn-finish-y2k" class="btn-secondary" style="display: none; padding: 12px 25px; border-radius: 20px; font-family: 'Titan One', cursive;">Selesai & Pilih Foto ✨ ➡️</button>
+                </div>
+                <div class="ar-filter-box">
+                    <button class="ar-btn" data-filter="none">🚫</button>
                     <button class="ar-btn" data-filter="crown">👑</button>
                     <button class="ar-btn" data-filter="cat">🐱</button>
                     <button class="ar-btn" data-filter="glasses">🕶️</button>
                     <button class="ar-btn" data-filter="star">🤩</button>
                     <button class="ar-btn" data-filter="bunny">🐰</button>
-                    </div>
-                
+                </div>
             </div>
-
-            <!-- Floating Ornaments Removed -->
         </div>
 
         <canvas id="canvas" style="display: none;"></canvas>
     </div>
 
-    <!-- Screen 3: Photo Review & Selection -->
+    <!-- Screen 3: Photo Review & Selection (Collaborative) -->
     <div id="screen-review" class="screen">
         <div class="container">
             <div class="container-header">
@@ -197,18 +365,18 @@
                 </div>
             </div>
             <div class="container-body">
-            <h2>Pilih Foto yang Diinginkan</h2>
-            <p>Klik foto untuk memilih/batal pilih (minimal 1 foto)</p>
-            <div id="photo-grid" class="photo-grid"></div>
-            <div class="action-buttons">
-                <button id="btn-retake" class="btn-secondary">Ambil Ulang</button>
-                <button id="btn-continue-to-frame" class="btn-primary">Lanjut Pilih Frame</button>
-            </div>
+                <h2>Pilih Foto yang Diinginkan</h2>
+                <p>Klik foto bersama partner untuk memilih/batal pilih (minimal 1 foto, maks 4 foto)</p>
+                <div id="photo-grid" class="photo-grid"></div>
+                <div class="action-buttons">
+                    <button id="btn-retake" class="btn-secondary">Ambil Ulang</button>
+                    <button id="btn-continue-to-frame" class="btn-primary">Lanjut Pilih Frame</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Screen 3.5: Filter Selection -->
+    <!-- Screen 3.5: Filter Selection (Collaborative) -->
     <div id="screen-filter-selection" class="screen">
         <div class="container">
             <div class="container-header">
@@ -222,19 +390,19 @@
                 </div>
             </div>
             <div class="container-body">
-            <h2>Pilih Filter Foto</h2>
-            <div id="filter-grid" class="frame-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
-                <!-- Filters will be generated here -->
-            </div>
-            <div class="action-buttons" style="margin-top: 20px;">
-                <button id="btn-back-to-review-from-filter" class="btn-secondary">Kembali</button>
-                <button id="btn-apply-filter" class="btn-primary">Lanjut Pilih Frame</button>
-            </div>
+                <h2>Pilih Filter Foto</h2>
+                <div id="filter-grid" class="frame-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                    <!-- Filters will be generated here -->
+                </div>
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button id="btn-back-to-review-from-filter" class="btn-secondary">Kembali</button>
+                    <button id="btn-apply-filter" class="btn-primary">Lanjut Pilih Frame</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Screen 4: Frame Selection -->
+    <!-- Screen 4: Frame Selection (Collaborative) -->
     <div id="screen-frame-selection" class="screen">
         <div class="container">
             <div class="container-header">
@@ -248,11 +416,13 @@
                 </div>
             </div>
             <div class="container-body">
-            <h2>Pilih Frame</h2>
-            <div id="frame-grid" class="frame-grid">
-                <!-- Frame options will be generated here -->
-            </div>
-            <button id="btn-back-to-review" class="btn-secondary">Kembali</button>
+                <h2>Pilih Frame Bersama</h2>
+                <div id="frame-grid" class="frame-grid">
+                    <!-- Frame options will be generated here -->
+                </div>
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button id="btn-back-to-review" class="btn-secondary">Kembali</button>
+                </div>
             </div>
         </div>
     </div>
@@ -271,18 +441,16 @@
                 </div>
             </div>
             <div class="container-body">
-            <h2>Hasil Foto Anda</h2>
-            <canvas id="final-canvas"></canvas>
-            <div class="action-buttons">
-                <button id="btn-download" class="btn-primary">Download Foto</button>
-                <button id="btn-restart" class="btn-secondary">Mulai Lagi</button>
-            </div>
+                <h2>Hasil Foto Anda & Partner! 🎉</h2>
+                <canvas id="final-canvas"></canvas>
+                <div class="action-buttons">
+                    <button id="btn-download" class="btn-primary">Download Foto 💾</button>
+                    <button id="btn-restart" class="btn-secondary">Mulai Lagi 🔄</button>
+                </div>
             </div>
         </div>
     </div>
 
-
-    
     <!-- Y2K Stickers Decorations -->
     <div id="y2k-decorations">
         <img src="Assets/emoji/download__1_-removebg-preview.png" class="y2k-sticker sticker-2" alt="Y2K Sticker 2">
@@ -291,7 +459,6 @@
         <img src="Assets/emoji/smile-removebg-preview.png" class="y2k-sticker sticker-5" alt="Y2K Sticker 5">
     </div>
 
-
-    <script type="module" src="js/main.js?v=31"></script>
+    <script type="module" src="js/main.js?v=60"></script>
 </body>
 </html>
