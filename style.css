@@ -297,7 +297,10 @@ p {
 
 /* Buttons */
 .btn-primary, .btn-secondary {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: 100%;
     max-width: 300px;
     margin: 10px auto;
@@ -1219,25 +1222,12 @@ body:has(#screen-camera.active) {
 
 
 
-
-
-
-
-
-
 /* Sembunyikan dekorasi gelombang hijau di semua layar secara permanen */
 .wave-decoration-bottom {
     display: none !important;
 }
 
-
-
-
-
-
-
-
-    
+@media (max-width: 768px) {
     /* 2. Container sizing */
     .container {
         padding: 15px;
@@ -1277,11 +1267,6 @@ body:has(#screen-camera.active) {
         width: 100%;
         margin-top: 10px;
     }
-}
-
-
-@media (max-width: 768px) {
-    
 }
 
 
@@ -2252,7 +2237,6 @@ body #y2k-decorations {
     box-shadow: 2px 2px 0px #2C2416;
     z-index: 5;
 }
-
 .frame-item.selected-by-partner {
     border-color: #00D2D3 !important;
     box-shadow: 0 0 15px #00D2D3 !important;
@@ -2304,6 +2288,17 @@ body #y2k-decorations {
         font-size: 18px;
         padding: 12px 25px;
     }
+}
+
+/* ==========================================================================
+   AVATAR, SVG ICONS & TEXT ALIGNMENTS
+   ========================================================================== */
+
+/* Universal SVG Icon Alignment */
+svg {
+    vertical-align: middle;
+}
+
 /* Avatar Selection Grid & Vector Icon Buttons */
 .avatar-row {
     display: flex;
@@ -2349,6 +2344,7 @@ body #y2k-decorations {
 
 .avatar-option svg {
     pointer-events: none;
+    display: block;
 }
 
 .cursor-avatar {
@@ -2358,18 +2354,74 @@ body #y2k-decorations {
     margin-right: 2px;
 }
 
-/* Button & Badge Icon Alignments */
-.btn-primary, .btn-secondary, .btn-large, .btn-sm, .lobby-tab-btn, .btn-leave-room, .btn-capture-sparkle, .room-code-timer-badge {
+/* Button, Pill, Tag & Badge Flex Alignment with SVGs */
+.btn-primary, 
+.btn-secondary, 
+.btn-large, 
+.btn-sm, 
+.lobby-tab-btn, 
+.btn-leave-room, 
+.btn-capture-sparkle, 
+.room-code-timer-badge,
+.room-code-auto-hint,
+.mode-badge,
+.duo-room-tag,
+.partner-pill,
+.room-pill,
+.lobby-status-indicator,
+.y2k-btn-capture,
+.action-buttons button,
+.duo-count-tag,
+.placeholder-icon,
+.partner-selected-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.mode-badge {
+    gap: 4px !important;
+}
+
+.room-code-auto-hint {
+    gap: 6px !important;
+    justify-content: flex-start !important;
+}
+
+.partner-pill, .room-pill {
+    gap: 6px !important;
+}
+
+.room-code-timer-badge {
+    gap: 6px !important;
+}
+
+.btn-primary svg, 
+.btn-secondary svg, 
+.btn-large svg, 
+.btn-sm svg, 
+.lobby-tab-btn svg, 
+.btn-leave-room svg, 
+.btn-capture-sparkle svg,
+.room-code-timer-badge svg,
+.room-code-auto-hint svg,
+.mode-badge svg,
+.duo-room-tag svg,
+.partner-pill svg,
+.room-pill svg,
+.lobby-status-indicator svg,
+.action-buttons button svg,
+.y2k-btn-capture svg,
+.partner-selected-badge svg {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-}
-
-.btn-primary svg, .btn-secondary svg, .btn-large svg, .btn-sm svg, .lobby-tab-btn svg, .btn-leave-room svg, .btn-capture-sparkle svg {
-    display: inline-block;
     vertical-align: middle;
     flex-shrink: 0;
+    pointer-events: none;
 }
 
 /* AR Filter Buttons with SVGs */
@@ -2412,6 +2464,7 @@ body #y2k-decorations {
 
 .ar-btn svg {
     pointer-events: none;
+    display: block;
 }
 
 /* Live Reactions Bar & Floating Animations */
