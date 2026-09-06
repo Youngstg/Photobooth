@@ -99,7 +99,7 @@ function setupMultiplayerEventHandlers() {
                 el.classList.remove('selected', 'selected-by-partner');
             }
         });
-        showToast(`✨ Partner memilih filter: ${data.filterId}`);
+        showToast(`Partner memilih filter: ${data.filterId}`);
     });
 
     // 6. Synchronized Frame Selection
@@ -115,7 +115,7 @@ function setupMultiplayerEventHandlers() {
                     el.classList.remove('selected', 'selected-by-partner');
                 }
             });
-            showToast(`🖼️ Partner memilih frame: ${found.name}`);
+            showToast(`Partner memilih frame: ${found.name}`);
         }
     });
 
@@ -123,7 +123,7 @@ function setupMultiplayerEventHandlers() {
     onMultiplayerMessage('restart_session', () => {
         resetLocalState();
         showScreen('screen-lobby');
-        showToast('🔄 Sesi direset oleh partner.');
+        showToast('Sesi direset oleh partner.');
     });
 }
 
@@ -132,7 +132,7 @@ function addPartnerSelectionBadge(el) {
     if (!badge) {
         badge = document.createElement('div');
         badge.className = 'partner-selected-badge';
-        badge.textContent = `✨ ${state.remotePlayer?.name || 'Partner'}`;
+        badge.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>${state.remotePlayer?.name || 'Partner'}`;
         el.appendChild(badge);
     }
 }
@@ -446,7 +446,7 @@ export async function showFrameSelection(isRemote = false) {
         btnProceed.id = 'btn-proceed-to-composition';
         btnProceed.className = 'btn-primary';
         btnProceed.style.marginTop = '15px';
-        btnProceed.textContent = 'Cetak & Lihat Hasil Foto ✨';
+        btnProceed.textContent = 'Cetak & Lihat Hasil Foto';
         
         const containerBody = document.querySelector('#screen-frame-selection .container-body');
         if (containerBody) {

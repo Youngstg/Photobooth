@@ -27,7 +27,10 @@
             </div>
         </div>
         <div class="header-right">
-            <button id="btn-leave-room" class="btn-leave-room" title="Keluar dari sesi duo">🚪 Keluar</button>
+            <button id="btn-leave-room" class="btn-leave-room" title="Keluar dari sesi duo">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                Keluar
+            </button>
         </div>
     </div>
     
@@ -100,11 +103,12 @@
                     <span style="text-align: left;">Welcome to</span>
                     <span style="text-align: right;">Cute Snaps!</span>
                 </div>
-                <p style="margin-top: 25px; margin-bottom: 20px; font-weight: bold; border: none; background: transparent; font-size: 24px; font-family: 'Comic Sans MS', sans-serif !important;">
-                    📸 Photobooth Online Bersama Teman & Pasangan
+                <p style="margin-top: 25px; margin-bottom: 20px; font-weight: bold; border: none; background: transparent; font-size: 24px; font-family: 'Comic Sans MS', sans-serif !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    Photobooth Online Bersama Teman & Pasangan
                 </p>
                 <button id="btn-start-now" class="btn-primary" style="font-size: 28px; padding: 20px 50px; border-radius: 20px; max-width: 400px; background-color: #8370F5; color: white;">
-                    Start Now ✨
+                    Start Now
                 </button>
             </div>
         </div>
@@ -129,13 +133,20 @@
                 <!-- Mode Toggle Cards -->
                 <div class="mode-cards-grid">
                     <div id="btn-mode-solo" class="mode-card">
-                        <div class="mode-icon">👤</div>
+                        <div class="mode-icon">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
                         <div class="mode-title">Solo Photobooth</div>
                         <div class="mode-desc">Foto sendiri dengan frame dan filter lucu</div>
                     </div>
                     <div id="btn-mode-duo" class="mode-card active">
-                        <div class="mode-badge">POPULAR 💖</div>
-                        <div class="mode-icon">👥</div>
+                        <div class="mode-badge">
+                            POPULAR
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </div>
+                        <div class="mode-icon">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        </div>
                         <div class="mode-title">Duo Online Collab</div>
                         <div class="mode-desc">Foto 2 orang online, live synced cursor & pose bersama!</div>
                     </div>
@@ -177,22 +188,45 @@
 
                     <!-- Tabs: Create Room / Join Room -->
                     <div class="lobby-tab-buttons">
-                        <button id="tab-lobby-create" class="lobby-tab-btn active">🏠 Buat Room Baru</button>
-                        <button id="tab-lobby-join" class="lobby-tab-btn">🚀 Gabung Room Partner</button>
+                        <button id="tab-lobby-create" class="lobby-tab-btn active">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            Buat Room Baru
+                        </button>
+                        <button id="tab-lobby-join" class="lobby-tab-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.5a.75.75 0 0 1 .75.75v3.19l1.72-1.72a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06l1.72 1.72V3.25a.75.75 0 0 1 .75-.75ZM3.75 13a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Zm0 4.5a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z"/></svg>
+                            Gabung Room Partner
+                        </button>
                     </div>
 
                     <!-- Panel: Create Room -->
                     <div id="panel-lobby-create" class="lobby-tab-panel">
                         <div class="create-room-box">
                             <div class="room-code-wrapper">
-                                <label>Kode Room Kamu:</label>
+                                <div class="room-code-header-row">
+                                    <label for="lobby-room-code-display">Kode Room Kamu:</label>
+                                    <div class="room-code-timer-badge" id="room-code-timer-badge" title="Kode otomatis berganti setiap 2 menit">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+                                        <span class="timer-text">Berlaku:</span> <strong id="room-code-countdown">02:00</strong>
+                                    </div>
+                                </div>
                                 <div class="room-code-display-row">
                                     <input type="text" id="lobby-room-code-display" readonly class="room-code-input" value="">
-                                    <button id="btn-copy-code" class="btn-secondary btn-sm">Salin Kode</button>
+                                    <button id="btn-refresh-code" class="btn-secondary btn-sm" title="Generate kode unik baru">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                                        Baru
+                                    </button>
+                                    <button id="btn-copy-code" class="btn-secondary btn-sm">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                        Salin
+                                    </button>
+                                </div>
+                                <div class="room-code-auto-hint">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                                    <span>Kode di-generate otomatis & berganti tiap 2 menit</span>
                                 </div>
                             </div>
 
-                            <button id="btn-create-room-action" class="btn-primary btn-large">Buat Room Sekarang ✨</button>
+                            <button id="btn-create-room-action" class="btn-primary btn-large">Buat Room Sekarang</button>
 
                             <!-- Visible after room created -->
                             <div id="room-created-info" style="display: none; margin-top: 15px;">
@@ -200,7 +234,10 @@
                                     <label>Bagikan Link ke Teman / Pasangan:</label>
                                     <div class="share-link-row">
                                         <input type="text" id="share-link-input" readonly class="y2k-input share-url-input" value="">
-                                        <button id="btn-copy-share-link" class="btn-primary btn-sm">Salin Link 📋</button>
+                                        <button id="btn-copy-share-link" class="btn-primary btn-sm">
+                                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                                            Salin Link
+                                        </button>
                                     </div>
                                 </div>
 
@@ -209,7 +246,7 @@
                                 </div>
 
                                 <button id="btn-start-collab-session" class="btn-primary btn-large disabled" disabled style="margin-top: 15px;">
-                                    Menunggu Partner... ⏳
+                                    Menunggu Partner...
                                 </button>
                             </div>
                         </div>
@@ -221,7 +258,7 @@
                             <label for="input-join-code">Masukkan Kode Room dari Partner:</label>
                             <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: CUTE88" maxlength="8">
                             <button id="btn-join-room-action" class="btn-primary btn-large" style="margin-top: 15px;">
-                                Gabung Room Sekarang 🚀
+                                Gabung Room Sekarang
                             </button>
                         </div>
                     </div>
@@ -237,7 +274,10 @@
         <!-- DUO COLLAB CAMERA LAYOUT (Angie 2-Player Side-by-Side) -->
         <div id="camera-layout-duo" class="duo-camera-layout" style="display: none;">
             <div class="duo-timer-bar">
-                <div class="duo-room-tag">👥 DUO PHOTOBOOTH</div>
+                <div class="duo-room-tag">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    DUO PHOTOBOOTH
+                </div>
                 <div id="global-timer-duo" class="duo-timer-display">01:30</div>
                 <div id="duo-photo-count" class="duo-count-tag">0 Foto</div>
             </div>
@@ -252,7 +292,9 @@
                 </div>
 
                 <!-- Heart Divider Center -->
-                <div class="duo-center-heart">💖</div>
+                <div class="duo-center-heart">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="#FF69B4"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
 
                 <!-- Remote Video Partner (Right) -->
                 <div class="duo-video-slot remote-slot">
@@ -260,7 +302,9 @@
                     <div class="video-crop-wrapper">
                         <video id="video-duo-remote" autoplay playsinline></video>
                         <div class="waiting-partner-placeholder">
-                            <div class="placeholder-icon">🐰</div>
+                            <div class="placeholder-icon">
+                                <svg viewBox="0 0 24 24" width="48" height="48" fill="#8370F5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            </div>
                             <p>Menghubungkan kamera partner...</p>
                         </div>
                     </div>
@@ -270,8 +314,14 @@
             </div>
 
             <div class="duo-controls-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-                <button id="btn-capture-duo" class="btn-capture-sparkle">📸 AMBIL FOTO BERSAMA</button>
-                <button id="btn-finish-duo" class="btn-primary" style="display: none; background: #00D2D3; color: #2C2416; font-size: 18px; padding: 14px 30px; border-radius: 30px;">Selesai & Pilih Foto ✨ ➡️</button>
+                <button id="btn-capture-duo" class="btn-capture-sparkle">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    AMBIL FOTO BERSAMA
+                </button>
+                <button id="btn-finish-duo" class="btn-primary" style="display: none; background: #00D2D3; color: #2C2416; font-size: 18px; padding: 14px 30px; border-radius: 30px;">
+                    Selesai & Pilih Foto
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                </button>
             </div>
         </div>
 
@@ -299,15 +349,30 @@
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
                     <button id="btn-capture-retro" class="btn-primary">Mulai Ambil Foto</button>
-                    <button id="btn-finish-retro" class="btn-secondary" style="display: none;">Selesai & Pilih Foto ✨ ➡️</button>
+                    <button id="btn-finish-retro" class="btn-secondary" style="display: none;">
+                        Selesai & Pilih Foto
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                    </button>
                 </div>
                 <div class="ar-filter-box">
-                    <button class="ar-btn" data-filter="none">🚫</button>
-                    <button class="ar-btn" data-filter="crown">👑</button>
-                    <button class="ar-btn" data-filter="cat">🐱</button>
-                    <button class="ar-btn" data-filter="glasses">🕶️</button>
-                    <button class="ar-btn" data-filter="star">🤩</button>
-                    <button class="ar-btn" data-filter="bunny">🐰</button>
+                    <button class="ar-btn" data-filter="none" title="Normal">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="crown" title="Crown">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="cat" title="Cat">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-7.5-3a7.5 7.5 0 0 0 15 0c0-1.5-.4-2.9-1.2-4.1l1.7-4.4-4.5 1.7A7.47 7.47 0 0 0 12 4.5c-1.5 0-2.9.4-4.1 1.2L3.4 4l1.7 4.5c-.8 1.2-1.2 2.6-1.2 4z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="glasses" title="Glasses">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23 11l-2.5-7H18v2h1.5l1.5 4.2c-.6-.2-1.3-.2-2-.2-2.8 0-5 2.2-5 5 0 2.2 1.4 4 3.4 4.7 1 .3 2.1.3 3.1-.2 1.4-.8 2.5-2.3 2.5-4.5V11zM6.5 6H8V4H3.5L1 11v4c0 2.2 1.1 3.7 2.5 4.5 1 .5 2.1.5 3.1.2 2-.7 3.4-2.5 3.4-4.7 0-2.8-2.2-5-5-5-.7 0-1.4 0-2 .2L4.5 6h2z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="star" title="Star">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="bunny" title="Bunny">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6.5 2C5.1 2 4 3.1 4 4.5v6c0 1.4 1.1 2.5 2.5 2.5h.3A7.5 7.5 0 0 0 12 19.5a7.5 7.5 0 0 0 5.2-6.5h.3c1.4 0 2.5-1.1 2.5-2.5v-6C20 3.1 18.9 2 17.5 2S15 3.1 15 4.5v5.2A7.44 7.44 0 0 0 12 9a7.44 7.44 0 0 0-3-.7V4.5C9 3.1 7.9 2 6.5 2z"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -335,15 +400,30 @@
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
                     <button id="btn-capture-y2k" class="y2k-btn-capture">MULAI AMBIL FOTO</button>
-                    <button id="btn-finish-y2k" class="btn-secondary" style="display: none; padding: 12px 25px; border-radius: 20px; font-family: 'Titan One', cursive;">Selesai & Pilih Foto ✨ ➡️</button>
+                    <button id="btn-finish-y2k" class="btn-secondary" style="display: none; padding: 12px 25px; border-radius: 20px; font-family: 'Titan One', cursive;">
+                        Selesai & Pilih Foto
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                    </button>
                 </div>
                 <div class="ar-filter-box">
-                    <button class="ar-btn" data-filter="none">🚫</button>
-                    <button class="ar-btn" data-filter="crown">👑</button>
-                    <button class="ar-btn" data-filter="cat">🐱</button>
-                    <button class="ar-btn" data-filter="glasses">🕶️</button>
-                    <button class="ar-btn" data-filter="star">🤩</button>
-                    <button class="ar-btn" data-filter="bunny">🐰</button>
+                    <button class="ar-btn" data-filter="none" title="Normal">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="crown" title="Crown">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="cat" title="Cat">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-7.5-3a7.5 7.5 0 0 0 15 0c0-1.5-.4-2.9-1.2-4.1l1.7-4.4-4.5 1.7A7.47 7.47 0 0 0 12 4.5c-1.5 0-2.9.4-4.1 1.2L3.4 4l1.7 4.5c-.8 1.2-1.2 2.6-1.2 4z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="glasses" title="Glasses">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23 11l-2.5-7H18v2h1.5l1.5 4.2c-.6-.2-1.3-.2-2-.2-2.8 0-5 2.2-5 5 0 2.2 1.4 4 3.4 4.7 1 .3 2.1.3 3.1-.2 1.4-.8 2.5-2.3 2.5-4.5V11zM6.5 6H8V4H3.5L1 11v4c0 2.2 1.1 3.7 2.5 4.5 1 .5 2.1.5 3.1.2 2-.7 3.4-2.5 3.4-4.7 0-2.8-2.2-5-5-5-.7 0-1.4 0-2 .2L4.5 6h2z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="star" title="Star">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </button>
+                    <button class="ar-btn" data-filter="bunny" title="Bunny">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6.5 2C5.1 2 4 3.1 4 4.5v6c0 1.4 1.1 2.5 2.5 2.5h.3A7.5 7.5 0 0 0 12 19.5a7.5 7.5 0 0 0 5.2-6.5h.3c1.4 0 2.5-1.1 2.5-2.5v-6C20 3.1 18.9 2 17.5 2S15 3.1 15 4.5v5.2A7.44 7.44 0 0 0 12 9a7.44 7.44 0 0 0-3-.7V4.5C9 3.1 7.9 2 6.5 2z"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -441,11 +521,17 @@
                 </div>
             </div>
             <div class="container-body">
-                <h2>Hasil Foto Anda & Partner! 🎉</h2>
+                <h2>Hasil Foto Anda & Partner!</h2>
                 <canvas id="final-canvas"></canvas>
                 <div class="action-buttons">
-                    <button id="btn-download" class="btn-primary">Download Foto 💾</button>
-                    <button id="btn-restart" class="btn-secondary">Mulai Lagi 🔄</button>
+                    <button id="btn-download" class="btn-primary">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        Download Foto
+                    </button>
+                    <button id="btn-restart" class="btn-secondary">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        Mulai Lagi
+                    </button>
                 </div>
             </div>
         </div>

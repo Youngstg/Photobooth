@@ -4,12 +4,12 @@ import { API_BASE_URL } from './config.js';
 export const FALLBACK_TEMPLATES = [
     {
         id: "duo-sweet-heart",
-        name: "💖 Duo Sweet Heart (2 Foto)",
+        name: "Duo Sweet Heart (2 Foto)",
         url: "",
         bgColor: "#FFF0F5",
         borderColor: "#FF69B4",
         accentColor: "#8370F5",
-        footerText: "✨ CUTE SNAPS • DUO COLLAB ✨",
+        footerText: "CUTE SNAPS • DUO COLLAB",
         width: 800,
         height: 1200,
         photoCount: 2,
@@ -20,12 +20,12 @@ export const FALLBACK_TEMPLATES = [
     },
     {
         id: "retro-strip-3",
-        name: "🎞️ Classic 3-Cut Strip (3 Foto)",
+        name: "Classic 3-Cut Strip (3 Foto)",
         url: "",
         bgColor: "#2C2416",
         borderColor: "#FFEAA7",
         accentColor: "#E67E22",
-        footerText: "🎞️ RETRO MEMORIES • PHOTOBOOTH",
+        footerText: "RETRO MEMORIES • PHOTOBOOTH",
         width: 600,
         height: 1350,
         photoCount: 3,
@@ -37,12 +37,12 @@ export const FALLBACK_TEMPLATES = [
     },
     {
         id: "y2k-grid-4",
-        name: "👾 Y2K Cyber Grid (4 Foto)",
+        name: "Y2K Cyber Grid (4 Foto)",
         url: "",
         bgColor: "#1A1A2E",
         borderColor: "#00D2D3",
         accentColor: "#FF69B4",
-        footerText: "⚡ Y2K PHOTO BOOTH • BEST FRIENDS ⚡",
+        footerText: "Y2K PHOTO BOOTH • BEST FRIENDS",
         width: 900,
         height: 1200,
         photoCount: 4,
@@ -55,12 +55,12 @@ export const FALLBACK_TEMPLATES = [
     },
     {
         id: "cute-strip-4",
-        name: "🌸 Pastel 4-Cut Vertical (4 Foto)",
+        name: "Pastel 4-Cut Vertical (4 Foto)",
         url: "",
         bgColor: "#E8F8F5",
         borderColor: "#A29BFE",
         accentColor: "#FF7675",
-        footerText: "🌸 MEMORIES WITH YOU • FOREVER 🌸",
+        footerText: "MEMORIES WITH YOU • FOREVER",
         width: 600,
         height: 1600,
         photoCount: 4,
@@ -73,12 +73,12 @@ export const FALLBACK_TEMPLATES = [
     },
     {
         id: "polaroid-single-1",
-        name: "📷 Aesthetic Polaroid (1 Foto)",
+        name: "Aesthetic Polaroid (1 Foto)",
         url: "",
         bgColor: "#FFFFFF",
         borderColor: "#2C2416",
         accentColor: "#6C5CE7",
-        footerText: "💖 OUR SPECIAL MOMENT 💖",
+        footerText: "OUR SPECIAL MOMENT",
         width: 800,
         height: 1050,
         photoCount: 1,
@@ -101,7 +101,7 @@ function mapTemplates(data) {
         bgColor: t.bgColor || '#FFFFFF',
         borderColor: t.borderColor || '#2C2416',
         accentColor: t.accentColor || '#8370F5',
-        footerText: t.footerText || '✨ CUTE SNAPS PHOTOBOOTH ✨',
+        footerText: t.footerText || 'CUTE SNAPS PHOTOBOOTH',
         slots: t.slots || [],
         render: (ctx, photos) => renderDynamicFrame(ctx, photos, t)
     }));
@@ -109,20 +109,16 @@ function mapTemplates(data) {
 
 export async function fetchTemplates() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/templates`);
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-        const data = await response.json();
-        
+        const res = await fetch(`${API_BASE_URL}/api/templates`);
+        if (!res.ok) throw new Error('API templates fallback');
+        const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
             allFrameThemes = mapTemplates(data);
-        } else {
-            allFrameThemes = mapTemplates(FALLBACK_TEMPLATES);
+            return allFrameThemes;
         }
-        
-        console.log("Loaded templates:", allFrameThemes);
     } catch (e) {
-        console.warn('Failed to fetch templates from API, using fallback templates:', e);
-        allFrameThemes = mapTemplates(FALLBACK_TEMPLATES);
+        console.warn("Using fallback templates:", e);
     }
+    allFrameThemes = mapTemplates(FALLBACK_TEMPLATES);
+    return allFrameThemes;
 }
-

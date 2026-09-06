@@ -1891,6 +1891,57 @@ body #y2k-decorations {
     font-family: 'Fredoka', sans-serif;
 }
 
+.room-code-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.room-code-header-row label {
+    font-weight: 700;
+    color: #2C2416;
+    margin: 0;
+    font-size: 15px;
+}
+
+.room-code-timer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFF3CD;
+    border: 2px solid #2C2416;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #856404;
+    box-shadow: 2px 2px 0px #2C2416;
+    transition: all 0.3s ease;
+}
+
+.room-code-timer-badge.warning {
+    background: #FFD2D2;
+    color: #C0392B;
+    border-color: #C0392B;
+    animation: urgentPulse 1s infinite ease-in-out;
+}
+
+@keyframes urgentPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.room-code-auto-hint {
+    font-size: 12px;
+    color: #636E72;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
 .room-code-display-row, .share-link-row {
     display: flex;
     gap: 10px;
@@ -2307,5 +2358,138 @@ body #y2k-decorations {
     margin-right: 2px;
 }
 
+/* Button & Badge Icon Alignments */
+.btn-primary, .btn-secondary, .btn-large, .btn-sm, .lobby-tab-btn, .btn-leave-room, .btn-capture-sparkle, .room-code-timer-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
 
+.btn-primary svg, .btn-secondary svg, .btn-large svg, .btn-sm svg, .lobby-tab-btn svg, .btn-leave-room svg, .btn-capture-sparkle svg {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
 
+/* AR Filter Buttons with SVGs */
+.ar-filter-box {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.ar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #FFF9E6;
+    border: 2px solid #2C2416;
+    box-shadow: 2px 2px 0px #2C2416;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2C2416;
+    transition: all 0.15s ease;
+}
+
+.ar-btn:hover {
+    transform: translateY(-2px);
+    background: #FFEAA7;
+    box-shadow: 3px 3px 0px #2C2416;
+}
+
+.ar-btn.active, .ar-btn:active {
+    background: #8370F5;
+    color: white;
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px #2C2416;
+}
+
+.ar-btn svg {
+    pointer-events: none;
+}
+
+/* Live Reactions Bar & Floating Animations */
+.live-reaction-bar {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    border: 3px solid #2C2416;
+    border-radius: 30px;
+    padding: 6px 14px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 4px 4px 0px #2C2416;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.live-reaction-bar.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reaction-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.reaction-btn:hover {
+    transform: scale(1.25);
+    background: #FFEAA7;
+    border-color: #2C2416;
+}
+
+.floating-reaction {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100000;
+    animation: floatReactionUp 2.2s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.floating-reaction svg {
+    width: 36px;
+    height: 36px;
+}
+
+@keyframes floatReactionUp {
+    0% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) scale(0.4);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(-30px) translateX(calc(var(--sway-offset) * 0.3)) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(-220px) translateX(var(--sway-offset)) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-300px) translateX(var(--sway-offset)) scale(0.8);
+    }
+}

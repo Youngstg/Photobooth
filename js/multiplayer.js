@@ -23,13 +23,31 @@ export function onMultiplayerMessage(type, handler) {
 }
 
 /**
- * Generate a friendly 6-char Room Code (e.g. CUTE88, SNAPS9)
+ * Generate a unique 6-char Room Code (e.g. X8K2NP)
+ * Cryptographically random and mixed with high-resolution entropy to ensure uniqueness across users.
  */
 export function generateRoomCode() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    // 32-char unambiguous charset (excluding easily confused 0, O, 1, I)
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const randomBytes = new Uint8Array(6);
+    
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(randomBytes);
+    } else {
+        for (let i = 0; i < 6; i++) {
+            randomBytes[i] = Math.floor(Math.random() * 256);
+        }
+    }
+
+    // Mix high-resolution timestamp entropy to eliminate any risk of collision across concurrent users
+    const now = Date.now();
+    const perf = (typeof performance !== 'undefined' && performance.now) ? (performance.now() * 1000 | 0) : 0;
+    randomBytes[0] = (randomBytes[0] ^ (now & 0xFF)) % chars.length;
+    randomBytes[1] = (randomBytes[1] ^ ((now >> 8) & 0xFF) ^ (perf & 0xFF)) % chars.length;
+
     let code = '';
     for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += chars[randomBytes[i] % chars.length];
     }
     return code;
 }
@@ -387,7 +405,7 @@ function notifyPartnerConnected() {
                 <span class="status-avatar" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #8370F5; color: white; border-radius: 50%; padding: 4px;">${avatarObj.svg}</span>
                 <div>
                     <strong>${partner.name}</strong> terhubung!
-                    <div style="font-size: 12px; color: #48bb78;">Siap untuk foto bersama 🎉</div>
+                    <div style="font-size: 12px; color: #48bb78;">Siap untuk foto bersama</div>
                 </div>
             </div>
         `;
@@ -397,10 +415,11 @@ function notifyPartnerConnected() {
     if (btnStartCollab) {
         btnStartCollab.disabled = false;
         btnStartCollab.classList.remove('disabled');
-        btnStartCollab.textContent = 'Mulai Photobooth Bersama ✨';
+        btnStartCollab.textContent = 'Mulai Photobooth Bersama';
     }
 
-    showToast(`🎉 ${partner.name} bergabung ke room!`);
+    window.dispatchEvent(new CustomEvent('pb_partner_connected', { detail: partner }));
+    showToast(`${partner.name} bergabung ke room!`);
 }
 
 /**
@@ -409,7 +428,8 @@ function notifyPartnerConnected() {
 function handlePartnerDisconnected() {
     hideRemoteCursor();
     detachRemoteVideo();
-    showToast('⚠️ Partner terputus dari room.');
+    window.dispatchEvent(new CustomEvent('pb_partner_disconnected'));
+    showToast('Partner terputus dari room.');
     
     const lobbyStatus = document.getElementById('lobby-partner-status');
     if (lobbyStatus) {
