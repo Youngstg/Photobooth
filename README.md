@@ -1,58 +1,85 @@
-# 📸 Cute Snaps Photobooth
+# 📸 CuteSnaps — Interactive Web Photobooth & Face AR Studio
 
-A dynamic, web-based Photobooth application featuring Face AR Filters, real-time image processing, custom templates, and dual themes (Retro & Y2K). Built with Python (Flask), OpenCV, MediaPipe, and Firebase.
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Live%20Production-success?style=for-the-badge" alt="Production Status" />
+  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python" alt="Python" />
+  <img src="https://img.shields.io/badge/Flask-3.0-black?style=for-the-badge&logo=flask" alt="Flask" />
+  <img src="https://img.shields.io/badge/OpenCV-Headless-5C3EE8?style=for-the-badge&logo=opencv" alt="OpenCV" />
+  <img src="https://img.shields.io/badge/MediaPipe-Face%20Mesh-00897B?style=for-the-badge" alt="MediaPipe" />
+  <img src="https://img.shields.io/badge/WSGI-Gunicorn-green?style=for-the-badge&logo=gunicorn" alt="Gunicorn" />
+</p>
 
-## ✨ Features
+<p align="center">
+  <strong>Aplikasi photobooth web modern yang menggabungkan pelacakan wajah Augmented Reality (AR) secara real-time dengan pemrosesan citra digital server-side untuk menghasilkan kolase foto bergaya retro polaroid.</strong>
+</p>
 
-- **Dual Themes**: Toggle between a nostalgic 90s Retro style and a vibrant Y2K aesthetic with a single click.
-- **AR Face Filters**: Real-time face tracking using Google's MediaPipe. Try on virtual crowns, emojis, and stickers that follow your face!
-- **Real-time Image Processing**: Backend powered by OpenCV for high-quality filters including Grayscale, Sepia, Retro color grading, and a funny "Frog" bulge effect.
-- **Custom Templates**: Take 4 consecutive photos with a countdown timer, which are automatically stitched into beautiful polaroid-style frames.
-- **Admin Panel**: A dedicated `/admin.html` page to upload and manage custom frames dynamically.
-- **Serverless & Cloud Ready**: Images and templates are Base64 encoded and stored in Firebase Firestore, allowing seamless deployment on serverless platforms like Vercel without data loss.
+<p align="center">
+  🌐 <strong>Live Demo:</strong> <a href="https://cutesnaps.mooo.com" target="_blank">https://cutesnaps.mooo.com</a>
+</p>
+
+---
+
+## 💡 Gambaran Proyek
+
+**CuteSnaps Photobooth** dirancang untuk menghadirkan pengalaman photobooth fisik ke dalam browser web dengan performa tinggi. Aplikasi ini memadukan kekuatan **Google MediaPipe** di sisi klien untuk mendeteksi landmark wajah dengan latensi ultra-rendah, serta **OpenCV** di sisi backend untuk rendering filter grafis dan penataan frame foto resolusi tinggi.
+
+---
+
+## ✨ Fitur Unggulan
+
+### 1. 🎭 Real-Time Face AR Filters (MediaPipe)
+* Pelacakan 468 titik landmark wajah secara akurat di peramban tanpa memerlukan komputasi server yang berat.
+* Pilihan stiker AR, mahkota virtual, kacamata, dan efek ekspresi dinamis yang bergerak mulus mengikuti orientasi kepala pengguna.
+
+### 2. 🎞️ Dual-Theme Aesthetic (Retro 90s & Y2K)
+* Pengalaman antarmuka interaktif yang dapat berganti instan antara tema **Cyber Y2K** (gradien futuristik & font distingtif) dan **Classic 90s Polaroid**.
+* Efek audio interaktif dan transisi visual responsif di perangkat desktop maupun smartphone.
+
+### 3. 🖼️ Automated Photo Strip Stitching & OpenCV Processing
+* Mode pemotretan otomatis 4 pose dengan visual countdown interaktif.
+* Pemrosesan citra tingkat lanjut menggunakan **OpenCV**: Grayscale, Warm Sepia, Vintage Grain, dan Distortion Filters.
+* Penggabungan otomatis menjadi strip foto polaroid beresolusi tinggi yang siap diunduh atau dibagikan.
+
+### 4. 🎛️ Dynamic Frame & Template Management
+* Dashboard khusus untuk mengunggah, mengonfigurasi dimensi, serta mengatur layout bingkai kustom secara dinamis tanpa mengubah kode sumber.
+* Sistem penyimpanan modular yang mendukung penyimpanan lokal berkecepatan tinggi maupun sinkronisasi cloud NoSQL.
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+```
+[ Pengguna Web (Kamera) ]
+          │
+          ├──> [ Client Layer (MediaPipe JS) ] ──> Pelacakan Landmark Wajah Real-Time
+          │                                        Rendering Efek AR Canvas 60 FPS
+          │
+          └──> [ HTTP POST /api/filter ] ────────> [ Nginx Reverse Proxy (SSL) ]
+                                                            │
+                                                            ▼
+                                                   [ Gunicorn WSGI ]
+                                                            │
+                                                            ▼
+                                                [ Flask Application Core ]
+                                                            ├── Pemrosesan OpenCV
+                                                            ├── Stitching Strip Foto
+                                                            └── Penyimpanan Foto
+```
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: HTML5, Vanilla CSS, JavaScript
-- **Computer Vision (Client)**: MediaPipe Face Landmarks
-- **Backend API**: Python 3, Flask, Werkzeug
-- **Image Processing (Server)**: OpenCV (`opencv-python-headless`), NumPy
-- **Database**: Firebase Firestore (NoSQL)
-- **Deployment**: Vercel (Serverless Functions)
-
-## 🚀 How to Run Locally
-
-### Prerequisites
-- Python 3.8+
-- pip
-
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Youngstg/Photobooth.git
-   cd Photobooth
-   ```
-2. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. *(Optional)* Set up Firebase Credentials if you want to test the Admin Panel with Cloud Database:
-   - Create an environment variable `FIREBASE_CREDENTIALS` containing your Service Account JSON.
-   - *If not set, the app will gracefully fallback to local storage (`templates.json` and `uploads/`).*
-
-4. Run the server:
-   ```bash
-   python server.py
-   ```
-5. Open your browser and navigate to `http://localhost:8000`.
-
-## 🌍 Deployment on Vercel
-
-This app is heavily optimized for Vercel deployment.
-1. Import this repository to Vercel.
-2. In the Vercel Dashboard, go to **Settings > Environment Variables**.
-3. Add `FIREBASE_CREDENTIALS` and paste your Firebase Service Account JSON as the value.
-4. Deploy! Vercel will automatically use `vercel.json` to route `/api/*` to the Python Flask backend while serving the static HTML/CSS/JS frontend on its global Edge Network.
+* **Frontend:** HTML5 Canvas, Vanilla Modern CSS, JavaScript (ES6+), Audio Web API
+* **Computer Vision (Client):** [Google MediaPipe Face Mesh](https://developers.google.com/mediapipe)
+* **Backend Core:** [Python 3.12](https://www.python.org/), [Flask 3.0](https://flask.palletsprojects.com/)
+* **Image Processing Engine:** [OpenCV (opencv-python-headless)](https://opencv.org/), [NumPy](https://numpy.org/)
+* **WSGI & Process Management:** [Gunicorn](https://gunicorn.org/), [PM2](https://pm2.io/)
+* **Server Infrastructure:** Ubuntu Linux, Nginx, Let's Encrypt SSL, GitHub Actions CI/CD
 
 ---
-*Created with ❤️ for capturing the best moments!*
+
+## 📄 Lisensi
+
+Proyek ini dibuat untuk keperluan eksplorasi teknologi Computer Vision dan antarmuka web kreatif.  
+© 2026 **CuteSnaps Photobooth**. Seluruh hak cipta dilindungi.
