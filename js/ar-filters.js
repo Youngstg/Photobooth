@@ -5,15 +5,22 @@ let faceLandmarker = null;
 let lastVideoTime = -1;
 let activeFilter = 'none';
 let trackingLoopId = null;
+let isARReady = false;
 
-// The AR overlays
+// AR overlay canvases (per layout)
 let canvasRetro = null;
 let ctxRetro = null;
 let canvasY2k = null;
 let ctxY2k = null;
+let canvasDuo = null;  // FIX #11 (High): Support AR in Duo Mode
+let ctxDuo = null;
 
 export async function initAR() {
     console.log("Initializing MediaPipe FaceLandmarker...");
+
+    // FIX #15 (High): Show loading state on AR buttons while model loads
+    setARButtonsLoadingState(true);
+
     try {
         const filesetResolver = await FilesetResolver.forVisionTasks(
             "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
@@ -27,16 +34,60 @@ export async function initAR() {
             runningMode: "VIDEO",
             numFaces: 2
         });
+        isARReady = true;
         console.log("FaceLandmarker initialized!");
+        setARButtonsLoadingState(false);
         setupUI();
     } catch (e) {
         console.error("Failed to load FaceLandmarker:", e);
+        setARButtonsLoadingState(false, true); // error state
     }
+}
+
+/**
+ * Update AR button states: disabled while loading, enabled when ready
+ */
+function setARButtonsLoadingState(isLoading, isError = false) {
+    const arBtns = document.querySelectorAll('.ar-btn:not([data-filter="none"])');
+    arBtns.forEach(btn => {
+        if (isLoading) {
+            btn.disabled = true;
+            btn.setAttribute('title', 'Filter AR sedang dimuat...');
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'wait';
+        } else if (isError) {
+            btn.disabled = true;
+            btn.setAttribute('title', 'Filter AR gagal dimuat (cek koneksi internet)');
+            btn.style.opacity = '0.4';
+        } else {
+            btn.disabled = false;
+            btn.setAttribute('title', btn.dataset.filter);
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+        }
+    });
+
+    // Show/hide loading badge on filter section
+    const filterBoxes = document.querySelectorAll('.ar-filter-box');
+    filterBoxes.forEach(box => {
+        let badge = box.querySelector('.ar-loading-badge');
+        if (isLoading) {
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'ar-loading-badge';
+                badge.textContent = '⏳ Filter AR dimuat...';
+                box.insertBefore(badge, box.firstChild);
+            }
+        } else {
+            if (badge) badge.remove();
+        }
+    });
 }
 
 function setupUI() {
     document.querySelectorAll('.ar-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            if (!isARReady && btn.dataset.filter !== 'none') return;
             document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
             const target = e.currentTarget;
             target.classList.add('active');
@@ -55,6 +106,10 @@ export function startARLoop() {
     canvasY2k = document.getElementById('ar-overlay-y2k');
     ctxY2k = canvasY2k ? canvasY2k.getContext('2d') : null;
 
+    // FIX #11: Support AR canvas in Duo mode
+    canvasDuo = document.getElementById('ar-overlay-duo-local');
+    ctxDuo = canvasDuo ? canvasDuo.getContext('2d') : null;
+
     if (trackingLoopId) {
         cancelAnimationFrame(trackingLoopId);
     }
@@ -67,24 +122,32 @@ export function stopARLoop() {
         cancelAnimationFrame(trackingLoopId);
         trackingLoopId = null;
     }
-    // Clear canvases
+    // Clear all canvases
     if (ctxRetro && canvasRetro) ctxRetro.clearRect(0, 0, canvasRetro.width, canvasRetro.height);
     if (ctxY2k && canvasY2k) ctxY2k.clearRect(0, 0, canvasY2k.width, canvasY2k.height);
+    if (ctxDuo && canvasDuo) ctxDuo.clearRect(0, 0, canvasDuo.width, canvasDuo.height);
 }
 
 function renderAR() {
-    // Theme is always Y2K
-    const video = document.getElementById('video-y2k');
-    const canvas = canvasY2k;
-    const ctx = ctxY2k;
+    // FIX #11: Choose video element and canvas based on current mode
+    let video, canvas, ctx;
 
+    if (state.isMultiplayer) {
+        video = document.getElementById('video-duo-local');
+        canvas = canvasDuo;
+        ctx = ctxDuo;
+    } else {
+        video = document.getElementById('video-y2k');
+        canvas = canvasY2k;
+        ctx = ctxY2k;
+    }
 
     if (!video || !canvas || !ctx || video.videoWidth === 0) {
         trackingLoopId = requestAnimationFrame(renderAR);
         return;
     }
 
-    // Sync canvas size
+    // Sync canvas size to video
     if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -218,8 +281,8 @@ function drawFilter(ctx, landmarks, w, h) {
 }
 
 export function applyARToCapture(canvas, ctx) {
-    // Theme is always Y2K
-    const overlayCanvas = canvasY2k;
+    // FIX #11: Use duo canvas if in multiplayer mode
+    const overlayCanvas = state.isMultiplayer ? canvasDuo : canvasY2k;
     if (overlayCanvas && activeFilter !== 'none') {
         ctx.save();
         ctx.drawImage(overlayCanvas, 0, 0, canvas.width, canvas.height);

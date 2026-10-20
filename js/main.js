@@ -8,7 +8,7 @@ import { availableFilters, applyFilterToImages } from './filters.js';
 import { initCursorSync } from './cursor-sync.js';
 import { initReactions } from './reactions.js';
 import { setupRoomLobbyListeners } from './room.js';
-import { onMultiplayerMessage, sendMultiplayerMessage, showToast } from './multiplayer.js';
+import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm } from './multiplayer.js';
 
 // Setup basic decorations and UI
 document.addEventListener('DOMContentLoaded', async () => {
@@ -44,16 +44,12 @@ function setupMultiplayerEventHandlers() {
         startAutomaticCapture(true);
     });
 
-    // 2. Synchronized Photo Added
-    onMultiplayerMessage('photo_added', (data) => {
-        if (data.photoUrl && !state.capturedPhotos.includes(data.photoUrl)) {
-            state.capturedPhotos.push(data.photoUrl);
-            updateSessionCount();
-            const counter = document.getElementById('photo-counter');
-            if (counter) counter.textContent = `${state.capturedPhotos.length} Foto Diambil`;
-            const duoCounter = document.getElementById('duo-photo-count');
-            if (duoCounter) duoCounter.textContent = `${state.capturedPhotos.length} Foto`;
-        }
+    // 2. Synchronized Photo Taken (FIX #2 Critical: no photo data sent over DataChannel)
+    onMultiplayerMessage('photo_taken', (data) => {
+        console.log('[Multiplayer Event] Partner photo sync. Count:', data.count);
+        updateSessionCount();
+        const duoCounter = document.getElementById('duo-photo-count');
+        if (duoCounter) duoCounter.textContent = `${state.capturedPhotos.length} Foto`;
     });
 
     // 3. Synchronized Screen Navigation
@@ -220,7 +216,8 @@ function setupButtonListeners() {
             showFrameSelection();
         } catch(e) {
             console.error('Error applying filter', e);
-            alert('Gagal menerapkan filter!');
+            // FIX #10 (High): Replace alert() with showToast()
+            showToast('❌ Gagal menerapkan filter. Silakan coba lagi.');
         } finally {
             btn.textContent = 'Lanjut Pilih Frame';
             btn.disabled = false;
@@ -239,15 +236,31 @@ function setupButtonListeners() {
     });
 
     // Screen 5: Composition buttons
+    // FIX: Also add improve download filename
     document.getElementById('btn-download').addEventListener('click', () => {
         const canvas = document.getElementById('final-canvas');
         const link = document.createElement('a');
-        link.download = `photobooth-${Date.now()}.jpg`;
+        // FIX #35 (Minor): Human-readable filename instead of raw epoch timestamp
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+        const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        link.download = `cutesnaps-${dateStr}-${timeStr}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
+        showToast('📥 Foto berhasil diunduh!');
     });
 
-    document.getElementById('btn-restart').addEventListener('click', () => {
+    document.getElementById('btn-restart').addEventListener('click', async () => {
+        // FIX #29 (Medium): Confirm before losing all photos
+        const confirmed = await showConfirm(
+            'Mulai Sesi Baru?',
+            'Semua foto yang belum diunduh akan hilang permanen. Lanjutkan?',
+            'Ya, Mulai Baru',
+            'Batal'
+        );
+        if (!confirmed) return;
+        
         if (state.isMultiplayer) {
             sendMultiplayerMessage({
                 type: 'restart_session'
@@ -278,7 +291,7 @@ export function showReviewScreen(isRemote = false) {
     showScreen('screen-review');
 
     if (!state.capturedPhotos || state.capturedPhotos.length === 0) {
-        alert('Tidak ada foto yang tertangkap. Silakan mulai ulang.');
+        showToast('Tidak ada foto yang tertangkap. Silakan mulai ulang.');
         showScreen('screen-lobby');
         return;
     }
@@ -314,7 +327,8 @@ export function showReviewScreen(isRemote = false) {
                 if (currentSelected < 4) {
                     photoItem.classList.add('selected');
                 } else {
-                    alert(`Maksimal 4 foto yang bisa dipilih!`);
+                    // FIX #10 (High): Replace alert() with showToast()
+                    showToast('⚠️ Maksimal 4 foto yang bisa dipilih!');
                     return;
                 }
             }
@@ -439,40 +453,32 @@ export async function showFrameSelection(isRemote = false) {
         }
     });
 
-    // Add Continue to Final Result button on frame selection screen
-    let btnProceed = document.getElementById('btn-proceed-to-composition');
-    if (!btnProceed) {
-        btnProceed = document.createElement('button');
-        btnProceed.id = 'btn-proceed-to-composition';
-        btnProceed.className = 'btn-primary';
-        btnProceed.style.marginTop = '15px';
-        btnProceed.textContent = 'Cetak & Lihat Hasil Foto';
-        
-        const containerBody = document.querySelector('#screen-frame-selection .container-body');
-        if (containerBody) {
-            containerBody.appendChild(btnProceed);
-        }
+    // FIX #3 (Critical): btn-proceed-to-composition is now a static element in HTML
+    // Just get it by ID and attach the click handler; no dynamic DOM creation
+    const btnProceed = document.getElementById('btn-proceed-to-composition');
+    if (btnProceed) {
+        btnProceed.style.display = 'block';
+        btnProceed.onclick = async () => {
+            if (!state.selectedFrame && availableFrames.length > 0) {
+                state.selectedFrame = availableFrames[0];
+            }
+            if (state.isMultiplayer) {
+                sendMultiplayerMessage({
+                    type: 'nav_screen',
+                    screenId: 'screen-composition'
+                });
+            }
+            await createFinalComposition();
+        };
     }
-
-    btnProceed.onclick = async () => {
-        if (!state.selectedFrame && availableFrames.length > 0) {
-            state.selectedFrame = availableFrames[0];
-        }
-        if (state.isMultiplayer) {
-            sendMultiplayerMessage({
-                type: 'nav_screen',
-                screenId: 'screen-composition'
-            });
-        }
-        await createFinalComposition();
-    };
 }
 
+// getCSSFilterForPreview now imported from filters.js (kept here as local fallback)
 function getCSSFilterForPreview(filterId) {
     if (filterId === 'grayscale') return 'grayscale(100%)';
     if (filterId === 'sepia') return 'sepia(100%)';
-    if (filterId === 'retro') return 'contrast(120%) sepia(30%) hue-rotate(-30deg)';
-    if (filterId === 'frog') return 'contrast(120%) drop-shadow(0 0 10px green)';
+    if (filterId === 'retro') return 'contrast(108%) saturate(115%) sepia(20%) hue-rotate(-5deg)';
+    if (filterId === 'frog') return 'saturate(130%) hue-rotate(80deg) brightness(115%)';
     return 'none';
 }
 

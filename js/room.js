@@ -1,13 +1,14 @@
 // Room Management and Lobby UI Module
+// FIX #10/#19 (High): Replaced all alert()/confirm() with showToast() / showConfirm()
 import { state } from './state.js';
-import { createRoom, joinRoom, generateRoomCode, sendMultiplayerMessage, showToast } from './multiplayer.js';
+import { createRoom, joinRoom, generateRoomCode, sendMultiplayerMessage, showToast, showConfirm } from './multiplayer.js';
 import { showScreen } from './ui.js';
 import { startCamera } from './camera.js';
 
 let selectedAvatar = 'cat';
 let activeLobbyTab = 'create'; // 'create' or 'join'
 let roomCodeInterval = null;
-const ROTATION_SECONDS = 120; // 2 minutes (120s)
+const ROTATION_SECONDS = 120; // 2 minutes
 let timeRemaining = ROTATION_SECONDS;
 let isRoomCreated = false;
 
@@ -48,8 +49,7 @@ export function rotateRoomCode(notify = false) {
         roomCodeInput.value = newCode;
     }
 
-    // If host has already clicked "Buat Room" but partner hasn't connected yet,
-    // re-create host peer with new code and update share link
+    // If host has already clicked "Buat Room" but partner hasn't connected yet
     if (isRoomCreated && state.isHost && !state.remotePlayer) {
         const shareLinkInput = document.getElementById('share-link-input');
         if (shareLinkInput) {
@@ -63,9 +63,9 @@ export function rotateRoomCode(notify = false) {
             console.warn('[Room] Error updating host peer with new code:', err);
         });
 
-        showToast(`Kode room otomatis diperbarui ke: ${newCode}`);
+        showToast(`🔄 Kode room otomatis diperbarui: ${newCode}`);
     } else if (notify) {
-        showToast(`Kode room baru di-generate: ${newCode}`);
+        showToast(`✨ Kode room baru: ${newCode}`);
     }
 
     timeRemaining = ROTATION_SECONDS;
@@ -86,7 +86,6 @@ export function startRoomCodeTimer() {
     }
 
     roomCodeInterval = setInterval(() => {
-        // If partner is already connected in session, stop rotating
         if (state.remotePlayer) {
             stopRoomCodeTimer();
             const badgeEl = document.getElementById('room-code-timer-badge');
@@ -117,7 +116,7 @@ export function stopRoomCodeTimer() {
 }
 
 export function setupRoomLobbyListeners() {
-    // Listen for partner connection events to pause/resume rotation
+    // Listen for partner connection events
     window.addEventListener('pb_partner_connected', () => {
         stopRoomCodeTimer();
         const badgeEl = document.getElementById('room-code-timer-badge');
@@ -149,8 +148,6 @@ export function setupRoomLobbyListeners() {
             if (btnDuo) btnDuo.classList.remove('active');
             if (duoSetupPanel) duoSetupPanel.style.display = 'none';
             stopRoomCodeTimer();
-
-            // Start solo camera session directly
             startSoloSession();
         });
     }
@@ -161,8 +158,6 @@ export function setupRoomLobbyListeners() {
             btnDuo.classList.add('active');
             if (btnSolo) btnSolo.classList.remove('active');
             if (duoSetupPanel) duoSetupPanel.style.display = 'block';
-
-            // Auto generate room code and start 2-minute timer immediately
             startRoomCodeTimer();
         });
     }
@@ -189,8 +184,6 @@ export function setupRoomLobbyListeners() {
             tabJoin.classList.remove('active');
             if (panelCreate) panelCreate.style.display = 'block';
             if (panelJoin) panelJoin.style.display = 'none';
-
-            // Start/resume room code rotation on create tab
             if (!state.remotePlayer) {
                 startRoomCodeTimer();
             }
@@ -202,8 +195,6 @@ export function setupRoomLobbyListeners() {
             tabCreate.classList.remove('active');
             if (panelCreate) panelCreate.style.display = 'none';
             if (panelJoin) panelJoin.style.display = 'block';
-
-            // Pause rotation while on join tab
             stopRoomCodeTimer();
         });
     }
@@ -235,23 +226,22 @@ export function setupRoomLobbyListeners() {
             try {
                 await createRoom(roomCode, playerName, selectedAvatar);
                 isRoomCreated = true;
-                showToast(`Room ${roomCode} dibuat! Bagikan kode atau link ke partner.`);
+                showToast(`🏠 Room ${roomCode} siap! Bagikan ke partner.`);
 
-                // Show shareable link
                 const shareLinkInput = document.getElementById('share-link-input');
                 if (shareLinkInput) {
                     const fullUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
                     shareLinkInput.value = fullUrl;
                 }
 
-                // Show room created section
                 const roomInfoSection = document.getElementById('room-created-info');
                 if (roomInfoSection) roomInfoSection.style.display = 'block';
                 btnCreateRoomAction.style.display = 'none';
 
             } catch (err) {
                 console.error(err);
-                alert(`Gagal membuat room: ${err.message}`);
+                // FIX #10: Replace alert() with showToast()
+                showToast(`❌ Gagal membuat room: ${err.message}`, 5000);
                 btnCreateRoomAction.disabled = false;
                 btnCreateRoomAction.textContent = 'Buat Room Sekarang';
             }
@@ -266,7 +256,7 @@ export function setupRoomLobbyListeners() {
             if (shareLinkInput) {
                 navigator.clipboard.writeText(shareLinkInput.value).then(() => {
                     btnCopyLink.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Tersalin!`;
-                    showToast('Link room berhasil disalin ke clipboard!');
+                    showToast('✅ Link room disalin ke clipboard!');
                     setTimeout(() => { 
                         btnCopyLink.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg> Salin Link`; 
                     }, 2000);
@@ -282,7 +272,7 @@ export function setupRoomLobbyListeners() {
             if (!code) return;
             navigator.clipboard.writeText(code).then(() => {
                 btnCopyCode.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Tersalin!`;
-                showToast(`Kode room ${code} disalin!`);
+                showToast(`✅ Kode ${code} disalin!`);
                 setTimeout(() => { 
                     btnCopyCode.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Salin`; 
                 }, 2000);
@@ -300,7 +290,9 @@ export function setupRoomLobbyListeners() {
             const roomCode = joinCodeInput ? joinCodeInput.value.trim().toUpperCase() : '';
 
             if (!roomCode) {
-                alert('Masukkan Kode Room terlebih dahulu!');
+                // FIX #10: Replace alert() with showToast()
+                showToast('⚠️ Masukkan Kode Room terlebih dahulu!', 3000);
+                joinCodeInput?.focus();
                 return;
             }
 
@@ -309,16 +301,15 @@ export function setupRoomLobbyListeners() {
 
             try {
                 await joinRoom(roomCode, playerName, selectedAvatar);
-                showToast(`Berhasil bergabung ke room ${roomCode}!`);
-
-                // Start Duo camera session
+                showToast(`✅ Berhasil bergabung ke room ${roomCode}!`);
                 setTimeout(() => {
                     startDuoSession();
                 }, 600);
 
             } catch (err) {
                 console.error(err);
-                alert(`Gagal bergabung ke room: ${err.message}`);
+                // FIX #10: Replace alert() with showToast()
+                showToast(`❌ Gagal bergabung: ${err.message}`, 5000);
                 btnJoinRoomAction.disabled = false;
                 btnJoinRoomAction.textContent = 'Gabung Room Sekarang';
             }
@@ -329,7 +320,6 @@ export function setupRoomLobbyListeners() {
     const btnStartCollab = document.getElementById('btn-start-collab-session');
     if (btnStartCollab) {
         btnStartCollab.addEventListener('click', () => {
-            // Notify partner to also navigate to camera screen
             sendMultiplayerMessage({
                 type: 'nav_screen',
                 screenId: 'screen-camera'
@@ -339,16 +329,23 @@ export function setupRoomLobbyListeners() {
     }
 
     // Leave Room button in header
+    // FIX #19 (High): Replace confirm() with custom showConfirm() dialog
     const btnLeaveRoom = document.getElementById('btn-leave-room');
     if (btnLeaveRoom) {
-        btnLeaveRoom.addEventListener('click', () => {
-            if (confirm('Yakin ingin keluar dari sesi kolaborasi?')) {
+        btnLeaveRoom.addEventListener('click', async () => {
+            const confirmed = await showConfirm(
+                'Keluar dari Sesi?',
+                'Kamu akan meninggalkan sesi kolaborasi dengan partner. Partner juga akan terputus.',
+                'Keluar',
+                'Batal'
+            );
+            if (confirmed) {
                 window.location.href = window.location.pathname;
             }
         });
     }
 
-    // Check URL parameters for direct join: ?room=XXXXXX
+    // Check URL parameters for direct join
     checkUrlForRoomInvite();
 }
 
@@ -370,7 +367,7 @@ function checkUrlForRoomInvite() {
             joinCodeInput.value = roomParam.toUpperCase();
         }
 
-        showToast(`Kode room otomatis terisi: ${roomParam.toUpperCase()}`);
+        showToast(`🔗 Kode room otomatis terisi: ${roomParam.toUpperCase()}`);
     }
 }
 
@@ -379,6 +376,7 @@ function startSoloSession() {
     state.currentPhotoIndex = 0;
     state.capturedPhotos = [];
     state.selectedPhotos = [];
+    state.filteredPhotos = [];
     startCamera();
 }
 
@@ -386,5 +384,6 @@ function startDuoSession() {
     state.currentPhotoIndex = 0;
     state.capturedPhotos = [];
     state.selectedPhotos = [];
+    state.filteredPhotos = [];
     startCamera();
 }

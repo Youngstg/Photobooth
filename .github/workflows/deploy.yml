@@ -1,0 +1,48 @@
+name: Deploy Photobooth to Tencent Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Tencent Cloud Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          echo "Ensuring remote directory exists..."
+          ssh -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_IP" "mkdir -p /var/www/photobooth/uploads"
+
+          echo "Syncing Photobooth files to server..."
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='venv' \
+            --exclude='*.bat' \
+            --exclude='uploads/*' \
+            ./ "$SERVER_USER@$SERVER_IP:/var/www/photobooth/"
+
+          echo "Setting up Python venv and restarting PM2..."
+          ssh -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_IP" "
+            cd /var/www/photobooth &&
+            python3 -m venv venv &&
+            venv/bin/pip install --upgrade pip &&
+            venv/bin/pip install -r requirements.txt &&
+            (pm2 describe photobooth > /dev/null 2>&1 && pm2 restart photobooth --update-env || pm2 start 'venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 server:app' --name photobooth) &&
+            pm2 save
+          "
+          echo "✅ Photobooth successfully deployed!"

@@ -2,7 +2,7 @@ import { initAR, startARLoop, stopARLoop, applyARToCapture } from './ar-filters.
 import { state } from './state.js';
 import { updateSessionCount } from './ui.js';
 import { showReviewScreen } from './main.js';
-import { sendMultiplayerMessage, startVideoCallWithPartner } from './multiplayer.js';
+import { sendMultiplayerMessage, showToast, startVideoCallWithPartner } from './multiplayer.js';
 
 export async function startCamera() {
     const videoRetro = document.getElementById('video-retro');
@@ -43,7 +43,39 @@ export async function startCamera() {
 
     } catch (err) {
         console.error("Error accessing camera:", err);
-        alert("Tidak dapat mengakses kamera. Pastikan memberikan izin kamera pada browser.");
+        // Replace alert() with styled toast + camera error screen
+        showCameraError(err);
+    }
+}
+
+/**
+ * Show styled camera error with instructions instead of alert()
+ */
+function showCameraError(err) {
+    let message = 'Tidak dapat mengakses kamera.';
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        message = 'Izin kamera ditolak. Klik ikon kamera di address bar browser dan izinkan akses kamera, lalu muat ulang halaman.';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        message = 'Kamera tidak ditemukan. Pastikan kamera terhubung dan tidak digunakan aplikasi lain.';
+    } else if (err.name === 'NotReadableError') {
+        message = 'Kamera sedang digunakan aplikasi lain. Tutup aplikasi lain yang menggunakan kamera.';
+    }
+
+    // Show inline error instead of alert
+    const cameraScreen = document.getElementById('screen-camera');
+    if (cameraScreen) {
+        cameraScreen.classList.add('active');
+        document.querySelectorAll('.screen').forEach(s => {
+            if (s !== cameraScreen) s.classList.remove('active');
+        });
+        cameraScreen.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px;gap:20px;">
+                <div style="font-size:60px;">📷</div>
+                <h2 style="color:#FF69B4;font-family:'Titan One',cursive;margin:0;">Oops! Kamera Error</h2>
+                <p style="color:#fff;max-width:400px;font-family:'Fredoka',sans-serif;font-size:16px;line-height:1.5;">${message}</p>
+                <button onclick="location.reload()" class="btn-primary" style="font-size:18px;padding:14px 40px;">🔄 Coba Lagi</button>
+            </div>
+        `;
     }
 }
 
@@ -59,9 +91,12 @@ function setupDuoCameraLayout() {
         // Update player labels
         const localLabel = document.getElementById('duo-local-label');
         const remoteLabel = document.getElementById('duo-remote-label');
-        if (localLabel) localLabel.textContent = `You (${state.localPlayer?.name || 'Player 1'})`;
-        if (remoteLabel) remoteLabel.textContent = `Partner (${state.remotePlayer?.name || 'Player 2'})`;
+        if (localLabel) localLabel.textContent = `${state.localPlayer?.name || 'Player 1'} (${state.isHost ? 'Host' : 'Guest'})`;
+        if (remoteLabel) remoteLabel.textContent = `${state.remotePlayer?.name || 'Partner'} (${state.isHost ? 'Guest' : 'Host'})`;
     }
+
+    // Start AR loop for duo local video
+    startARLoop();
 }
 
 function setupSoloCameraLayout() {
@@ -74,6 +109,8 @@ function setupSoloCameraLayout() {
 
     if (soloRetro) soloRetro.style.display = 'none';
     if (soloY2k) soloY2k.style.display = 'flex';
+
+    startARLoop();
 }
 
 
@@ -106,6 +143,11 @@ export function startSessionTimer() {
         
         timeLeft--;
         updateDisplay(timeLeft);
+
+        // Warn when time is almost up
+        if (timeLeft === 15) {
+            showToast('⏰ Waktu tinggal 15 detik!');
+        }
         
         if (timeLeft <= 0) {
             clearInterval(state.timerInterval);
@@ -114,6 +156,7 @@ export function startSessionTimer() {
             
             // Time is up!
             updateSessionCount();
+            stopARLoop();
             stopCamera();
             showReviewScreen();
 
@@ -148,6 +191,13 @@ function updatePhotoCounter() {
     if (btnFinishDuo) btnFinishDuo.style.display = showFinish ? 'inline-block' : 'none';
     if (btnFinishRetro) btnFinishRetro.style.display = showFinish ? 'inline-block' : 'none';
     if (btnFinishY2k) btnFinishY2k.style.display = showFinish ? 'inline-block' : 'none';
+
+    // Auto-finish if max photos reached (prevent RAM overload)
+    const MAX_PHOTOS = 6;
+    if (count >= MAX_PHOTOS && state.isSessionActive) {
+        showToast(`📸 ${MAX_PHOTOS} foto tercapai! Sesi otomatis selesai.`);
+        finishPhotoSession();
+    }
 }
 
 export function finishPhotoSession() {
@@ -157,6 +207,7 @@ export function finishPhotoSession() {
     state.isCapturing = false;
 
     updateSessionCount();
+    stopARLoop();
     stopCamera();
     showReviewScreen();
 
@@ -186,9 +237,10 @@ export function startAutomaticCapture(isRemoteTriggered = false) {
 
 function executeCountdownAndCapture() {
     state.isCapturing = true;
-    // Theme is always Y2K
     state.theme = 'y2k';
 
+    // FIX #1: countdownRetro was undefined — define all countdown elements
+    const countdownRetro = document.getElementById('countdown-retro');
     const countdownY2k = document.getElementById('countdown-y2k');
     const countdownDuo = document.getElementById('countdown-duo');
 
@@ -203,7 +255,6 @@ function executeCountdownAndCapture() {
                 if (countdownY2k) countdownY2k.textContent = val;
                 if (countdownDuo) countdownDuo.textContent = val;
             };
-
 
             setDisplay(count);
             
@@ -229,6 +280,10 @@ function executeCountdownAndCapture() {
                         if (state.isSessionActive) {
                             capturePhoto();
                         }
+                        if (countdownRetro) countdownRetro.style.display = 'none';
+                        if (countdownY2k) countdownY2k.style.display = 'none';
+                        if (countdownDuo) countdownDuo.style.display = 'none';
+                        state.isCapturing = false;
                         resolve();
                     }, 300);
                 }
@@ -254,37 +309,41 @@ export function capturePhoto() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    // DUO MODE CAPTURE (Composite 2-Player Photo like Angie)
+    // DUO MODE CAPTURE
     if (state.isMultiplayer) {
         const localVideo = document.getElementById('video-duo-local');
         const remoteVideo = document.getElementById('video-duo-remote');
 
         const hasRemote = remoteVideo && remoteVideo.videoWidth > 0 && state.remoteStream;
 
+        const targetW = 1920;
+        const targetH = 1080;
+        canvas.width = targetW;
+        canvas.height = targetH;
+
+        const halfW = targetW / 2;
+
         if (hasRemote) {
-            // High-Res Split Composite (e.g. 1920x1080 canvas: Left = Player 1, Right = Player 2)
-            const targetW = 1920;
-            const targetH = 1080;
-            canvas.width = targetW;
-            canvas.height = targetH;
+            // FIX #2: Canonical layout — Host ALWAYS left, Guest ALWAYS right
+            // Ensures both sides compute identical images without sending photo data over DataChannel
+            const leftVideo = state.isHost ? localVideo : remoteVideo;
+            const rightVideo = state.isHost ? remoteVideo : localVideo;
 
-            const halfW = targetW / 2;
-
-            // Draw Local Video on Left Half (Mirrored)
+            // Draw LEFT (Host camera) - Mirrored selfie style
             ctx.save();
             ctx.translate(halfW, 0);
             ctx.scale(-1, 1);
-            drawVideoCover(ctx, localVideo, 0, 0, halfW, targetH);
+            drawVideoCover(ctx, leftVideo, 0, 0, halfW, targetH);
             ctx.restore();
 
-            // Draw Remote Video on Right Half (Mirrored)
+            // Draw RIGHT (Guest camera) - Mirrored selfie style
             ctx.save();
             ctx.translate(targetW, 0);
             ctx.scale(-1, 1);
-            drawVideoCover(ctx, remoteVideo, 0, 0, halfW, targetH);
+            drawVideoCover(ctx, rightVideo, 0, 0, halfW, targetH);
             ctx.restore();
 
-            // Draw decorative aesthetic divider line in the middle
+            // Draw decorative divider line in the middle
             ctx.save();
             ctx.lineWidth = 6;
             ctx.strokeStyle = '#FFFFFF';
@@ -311,26 +370,30 @@ export function capturePhoto() {
             ctx.restore();
 
         } else {
-            // If remote video not ready yet, capture local high res
+            // If remote video not ready yet, capture local mirrored
             if (!localVideo || !localVideo.videoWidth) return;
             canvas.width = localVideo.videoWidth;
             canvas.height = localVideo.videoHeight;
+            ctx.save();
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
             ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
         }
 
         const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
         state.capturedPhotos.push(photoDataUrl);
 
-        // Sync photo to partner
+        // FIX #2: Send lightweight signal only — NO photo data over DataChannel
+        // Both sides compute their own canonical composite independently
         sendMultiplayerMessage({
-            type: 'photo_added',
-            photoUrl: photoDataUrl
+            type: 'photo_taken',
+            count: state.capturedPhotos.length
         });
 
     } else {
         // SOLO MODE CAPTURE (always Y2K theme)
         const video = document.getElementById('video-y2k');
-
 
         if (!video || !video.videoWidth) {
             console.warn('Video stream not ready for capture');
@@ -339,9 +402,15 @@ export function capturePhoto() {
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        // FIX #12 (High): Mirror solo capture to match selfie preview
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
         state.capturedPhotos.push(photoDataUrl);
     }
 

@@ -1,6 +1,6 @@
 // Multiplayer Connection & Signaling Engine (WebRTC + PeerJS)
 import { state } from './state.js';
-import { handleRemoteCursorMove, handleRemoteCursorClick, updateRemoteCursorDesign, hideRemoteCursor, AVATARS } from './cursor-sync.js';
+import { handleRemoteCursorMove, handleRemoteCursorClick, updateRemoteCursorDesign, hideRemoteCursor, stopCursorAnimationLoop, AVATARS } from './cursor-sync.js';
 import { handleRemoteReaction, showReactionBar, hideReactionBar } from './reactions.js';
 import { showScreen } from './ui.js';
 
@@ -457,6 +457,7 @@ export function closeConnections() {
     state.remotePlayer = null;
     state.remoteStream = null;
     hideRemoteCursor();
+    stopCursorAnimationLoop(); // FIX #7 (Critical): Stop RAF loop to prevent memory leak
     hideReactionBar();
     updateRoomHeader();
 }
@@ -490,6 +491,44 @@ export function updateRoomHeader() {
     } else {
         headerEl.style.display = 'none';
     }
+}
+
+/**
+ * FIX #19 (High): Custom confirm dialog to replace window.confirm()
+ * Returns a Promise<boolean>
+ */
+export function showConfirm(title, message, confirmText = 'Ya', cancelText = 'Batal') {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'pb-confirm-overlay';
+        overlay.innerHTML = `
+            <div class="pb-confirm-dialog">
+                <div class="pb-confirm-icon">🚪</div>
+                <h3 class="pb-confirm-title">${title}</h3>
+                <p class="pb-confirm-message">${message}</p>
+                <div class="pb-confirm-buttons">
+                    <button id="pb-confirm-yes" class="btn-primary pb-confirm-btn-yes">${confirmText}</button>
+                    <button id="pb-confirm-no" class="btn-secondary pb-confirm-btn-no">${cancelText}</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Animate in
+        requestAnimationFrame(() => overlay.classList.add('visible'));
+
+        const cleanup = (result) => {
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.remove(), 250);
+            resolve(result);
+        };
+
+        overlay.querySelector('#pb-confirm-yes').addEventListener('click', () => cleanup(true));
+        overlay.querySelector('#pb-confirm-no').addEventListener('click', () => cleanup(false));
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) cleanup(false); // Click outside = cancel
+        });
+    });
 }
 
 /**

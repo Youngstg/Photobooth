@@ -1,4 +1,5 @@
 // Cursor Synchronization Module
+// FIX #7 (Critical): Added proper RAF cleanup to prevent memory leak from infinite animation loop
 import { state } from './state.js';
 import { sendMultiplayerMessage } from './multiplayer.js';
 
@@ -13,6 +14,7 @@ let targetY = 50;
 let currentX = 50;
 let currentY = 50;
 let isAnimating = false;
+let animationLoopId = null; // FIX: Track RAF ID for cleanup
 
 // Avatar vector icons map
 export const AVATARS = {
@@ -228,13 +230,15 @@ export function updateRemoteCursorDesign() {
 }
 
 /**
- * Animation loop using lerp (linear interpolation) for smooth 60fps movement
+ * FIX #7 (Critical): Animation loop with proper RAF ID tracking
+ * Loop only does work when in multiplayer mode to save CPU in solo mode
  */
 function startCursorAnimationLoop() {
     if (isAnimating) return;
     isAnimating = true;
 
     function renderLoop() {
+        // Only update cursor position when in multiplayer mode
         if (remoteCursorEl && state.isMultiplayer) {
             const lerpFactor = 0.35;
             currentX += (targetX - currentX) * lerpFactor;
@@ -243,10 +247,23 @@ function startCursorAnimationLoop() {
             remoteCursorEl.style.left = `${currentX}%`;
             remoteCursorEl.style.top = `${currentY}%`;
         }
-        requestAnimationFrame(renderLoop);
+        // FIX: Store RAF ID so it can be cancelled
+        animationLoopId = requestAnimationFrame(renderLoop);
     }
 
-    requestAnimationFrame(renderLoop);
+    animationLoopId = requestAnimationFrame(renderLoop);
+}
+
+/**
+ * FIX #7: Stop animation loop and release resources
+ * Call this on disconnect/cleanup
+ */
+export function stopCursorAnimationLoop() {
+    if (animationLoopId) {
+        cancelAnimationFrame(animationLoopId);
+        animationLoopId = null;
+    }
+    isAnimating = false;
 }
 
 /**
