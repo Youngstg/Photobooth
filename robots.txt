@@ -4,4 +4,4 @@ Disallow: /admin.html
 Disallow: /generate-templates.html
 Disallow: /api/
 
-Sitemap: https://cutesnaps.mooo.com/sitemap.xml
+Sitemap: https://cutesnaps.us.ci/sitemap.xml
