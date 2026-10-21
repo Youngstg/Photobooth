@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  🌐 <strong>Live Demo:</strong> <a href="https://cutesnaps.mooo.com" target="_blank">https://cutesnaps.mooo.com</a>
+  🌐 <strong>Live Demo:</strong> <a href="https://cutesnaps.us.ci" target="_blank">https://cutesnaps.us.ci</a>
 </p>
 
 ---
