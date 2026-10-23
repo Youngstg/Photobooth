@@ -149,47 +149,22 @@ body::after {
     max-height: calc(90vh - 60px);
 }
 
-/* Custom scrollbar for retro theme */
+/* Custom scrollbar */
 .container-body::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
 }
 
 .container-body::-webkit-scrollbar-track {
-    background: #EDD9C3;
-    border-left: 2px solid #2C2416;
+    background: #FFF;
 }
 
 .container-body::-webkit-scrollbar-thumb {
-    background: #7BC4A8;
-    border: 2px solid #2C2416;
+    background: #8370F5;
+    border-radius: 4px;
 }
 
 .container-body::-webkit-scrollbar-thumb:hover {
-    background: #A8D5BA;
-}
-
-/* Retro corner decoration */
-.container::before,
-.container::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #2C2416;
-}
-
-.container::before {
-    top: -3px;
-    left: -3px;
-    border-right: none;
-    border-bottom: none;
-}
-
-.container::after {
-    bottom: -3px;
-    right: -3px;
-    border-left: none;
-    border-top: none;
+    background: #FF69B4;
 }
 
 h1, h2 {
@@ -271,7 +246,7 @@ p {
     box-shadow: 6px 6px 0px #3D3427;
 }
 
-#video, #video-retro {
+#video {
     width: 100%;
     height: auto;
     display: block;
@@ -495,7 +470,7 @@ p {
     margin: 0;
 }
 
-/* Additional retro decorations */
+/* Additional decorations */
 .container > h1::before,
 .container > h1::after {
     content: '◆';
@@ -879,14 +854,14 @@ body:has(#screen-welcome.active) .corner-decoration,
 
 /* Y2K Diagonal Pink & White Stripes Background */
 body {
-    background: url('Assets/BGY2K.png') no-repeat center center fixed !important;
+    background: url('Assets/BGY2K.webp') no-repeat center center fixed !important;
     background-size: cover !important;
 }
 
 /* Mobile background for Y2K globally */
 @media (max-width: 768px) {
     body {
-        background: url('Assets/BGY2K_mobile.png') no-repeat center center fixed !important;
+        background: url('Assets/BGY2K_mobile.webp') no-repeat center center fixed !important;
         background-size: cover !important;
     }
 }
@@ -943,15 +918,57 @@ body #screen-welcome .y2k-skewed-banner {
     font-family: 'Titan One', cursive !important;
 }
 
+/* CuteSnaps Welcome Screen Logo with Clover Motif */
+.welcome-logo-container {
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-logo-img {
+    width: 165px;
+    height: 165px;
+    max-width: 90vw;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 22px rgba(131, 112, 245, 0.35));
+    animation: floatCuteLogo 3.4s ease-in-out infinite;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.welcome-logo-img:hover {
+    transform: scale(1.08) rotate(-3deg);
+    filter: drop-shadow(0 16px 28px rgba(131, 112, 245, 0.5));
+}
+
+@keyframes floatCuteLogo {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(1.5deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-logo-img {
+        width: 125px;
+        height: 125px;
+    }
+    .welcome-logo-container {
+        margin-bottom: 12px;
+    }
+}
+
 /* =========================================
    Y2K CAMERA LAYOUT SPECIFIC STYLES
    ========================================= */
 
 
-
-body #camera-layout-retro {
-    display: none !important;
-}
 
 body #camera-layout-y2k {
     display: flex !important;
@@ -1154,7 +1171,7 @@ body #camera-layout-y2k {
     text-shadow: 1px 1px 0 #fff;
 }
 
-/* Hide Retro corner decorations when on Y2K theme */
+/* Corner decorations hidden in Y2K theme */
 body .corner-decoration {
     display: none !important;
 }
@@ -1199,24 +1216,9 @@ body .corner-decoration {
     border-color: #30D1A4;
 }
 
-#camera-layout-retro .camera-container #countdown-retro {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 120px;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    color: #FFF;
-    -webkit-text-stroke: 3px #111;
-    text-shadow: 0 0 20px rgba(0,0,0,0.8);
-    z-index: 999;
-    pointer-events: none;
-}
-
 /* Background khusus untuk layar sesi foto Y2K */
 body:has(#screen-camera.active) {
-    background: url('Assets/BGY2K_2.png') no-repeat center center fixed !important;
+    background: url('Assets/BGY2K_2.webp') no-repeat center center fixed !important;
     background-size: cover !important;
 }
 
@@ -1257,7 +1259,7 @@ body:has(#screen-camera.active) {
     }
     
     /* 5. Typography */
-    .countdown, #countdown-retro, #countdown-y2k {
+    .countdown, #countdown-y2k {
         font-size: 80px !important;
     }
     
@@ -1367,8 +1369,8 @@ body #y2k-decorations {
         overflow: hidden !important;
         border-radius: 8px !important;
     }
-    video#video-retro, video#video-y2k, 
-    canvas#ar-overlay-retro, canvas#ar-overlay-y2k {
+    video#video-y2k, 
+    canvas#ar-overlay-y2k {
         aspect-ratio: 1 / 1 !important;
         object-fit: cover !important;
         width: 100% !important;
@@ -1377,7 +1379,7 @@ body #y2k-decorations {
     }
     
     /* 5. Buttons & AR Filters */
-    .y2k-btn-capture, #btn-capture-retro {
+    .y2k-btn-capture {
         padding: 12px 20px !important;
         font-size: 16px !important;
         margin-bottom: 10px !important;

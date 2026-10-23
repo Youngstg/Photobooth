@@ -5,7 +5,7 @@ export const availableFilters = [
     { id: 'normal', name: 'Normal' },
     { id: 'grayscale', name: 'Hitam Putih' },
     { id: 'sepia', name: 'Sepia' },
-    { id: 'retro', name: 'Retro' },
+    { id: 'retro', name: 'Y2K Vintage ✨' },
     { id: 'frog', name: 'Muka Kodok 🐸' }
 ];
 

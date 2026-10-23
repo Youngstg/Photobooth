@@ -2,23 +2,11 @@
 export const assetImages = {};
 
 const assetPaths = {
-    heart: 'Assets/heart.png',
-    play: 'Assets/play.png',
-    next: 'Assets/nextbutton.png',
-    replay: 'Assets/replay.png',
-    home: 'Assets/home.png',
-    search: 'Assets/search.png',
-    add: 'Assets/add.png',
-    saveInstagram: 'Assets/saveinstagram.png',
-    user: 'Assets/user.png',
-    chat: 'Assets/chat.png',
-    send: 'Assets/send.png',
-    smiley: 'Assets/smiley.png',
-    clip: 'Assets/clip.png',
-    speechBubble: 'Assets/speech-bubble.png',
-    record: 'Assets/record.png',
-    responsive: 'Assets/responsive.png',
-    windows: 'Assets/windows.png'
+    logo: 'Assets/logo.webp',
+    sticker1: 'Assets/emoji/download__1_-removebg-preview.webp',
+    sticker2: 'Assets/emoji/download__2_-removebg-preview.webp',
+    sticker3: 'Assets/emoji/gv-removebg-preview.webp',
+    sticker4: 'Assets/emoji/smile-removebg-preview.webp'
 };
 
 // Load all asset images and convert to canvas for CORS-safe usage

@@ -8,11 +8,9 @@ let trackingLoopId = null;
 let isARReady = false;
 
 // AR overlay canvases (per layout)
-let canvasRetro = null;
-let ctxRetro = null;
 let canvasY2k = null;
 let ctxY2k = null;
-let canvasDuo = null;  // FIX #11 (High): Support AR in Duo Mode
+let canvasDuo = null;  // Support AR in Duo Mode
 let ctxDuo = null;
 
 export async function initAR() {
@@ -100,9 +98,6 @@ function setupUI() {
 export function startARLoop() {
     if (!faceLandmarker) return;
     
-    canvasRetro = document.getElementById('ar-overlay-retro');
-    ctxRetro = canvasRetro ? canvasRetro.getContext('2d') : null;
-    
     canvasY2k = document.getElementById('ar-overlay-y2k');
     ctxY2k = canvasY2k ? canvasY2k.getContext('2d') : null;
 
@@ -123,7 +118,6 @@ export function stopARLoop() {
         trackingLoopId = null;
     }
     // Clear all canvases
-    if (ctxRetro && canvasRetro) ctxRetro.clearRect(0, 0, canvasRetro.width, canvasRetro.height);
     if (ctxY2k && canvasY2k) ctxY2k.clearRect(0, 0, canvasY2k.width, canvasY2k.height);
     if (ctxDuo && canvasDuo) ctxDuo.clearRect(0, 0, canvasDuo.width, canvasDuo.height);
 }

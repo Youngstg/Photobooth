@@ -1,14 +1,14 @@
-import { initAR } from './ar-filters.js';
-import { state } from './state.js';
-import { loadAssets } from './assets.js';
-import { updateClock, updateSessionCount, showScreen, setupUIListeners } from './ui.js';
-import { startCamera, startAutomaticCapture, finishPhotoSession, stopCamera } from './camera.js';
-import { allFrameThemes, fetchTemplates } from './templates.js';
-import { availableFilters, applyFilterToImages } from './filters.js';
-import { initCursorSync } from './cursor-sync.js';
-import { initReactions } from './reactions.js';
-import { setupRoomLobbyListeners } from './room.js';
-import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm } from './multiplayer.js';
+import { initAR } from './ar-filters.js?v=63';
+import { state } from './state.js?v=63';
+import { loadAssets } from './assets.js?v=63';
+import { updateClock, updateSessionCount, showScreen, setupUIListeners } from './ui.js?v=63';
+import { startCamera, startAutomaticCapture, finishPhotoSession, stopCamera } from './camera.js?v=63';
+import { allFrameThemes, fetchTemplates } from './templates.js?v=63';
+import { availableFilters, applyFilterToImages } from './filters.js?v=63';
+import { initCursorSync } from './cursor-sync.js?v=63';
+import { initReactions } from './reactions.js?v=63';
+import { setupRoomLobbyListeners } from './room.js?v=63';
+import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm } from './multiplayer.js?v=63';
 
 // Setup basic decorations and UI
 document.addEventListener('DOMContentLoaded', async () => {
@@ -151,14 +151,12 @@ function setupButtonListeners() {
     const startCaptureHandler = () => { 
         startAutomaticCapture(false); 
     };
-    if (document.getElementById('btn-capture-retro')) document.getElementById('btn-capture-retro').addEventListener('click', startCaptureHandler);
     if (document.getElementById('btn-capture-y2k')) document.getElementById('btn-capture-y2k').addEventListener('click', startCaptureHandler);
     if (document.getElementById('btn-capture-duo')) document.getElementById('btn-capture-duo').addEventListener('click', startCaptureHandler);
 
     const finishCaptureHandler = () => {
         finishPhotoSession();
     };
-    if (document.getElementById('btn-finish-retro')) document.getElementById('btn-finish-retro').addEventListener('click', finishCaptureHandler);
     if (document.getElementById('btn-finish-y2k')) document.getElementById('btn-finish-y2k').addEventListener('click', finishCaptureHandler);
     if (document.getElementById('btn-finish-duo')) document.getElementById('btn-finish-duo').addEventListener('click', finishCaptureHandler);
 

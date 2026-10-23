@@ -5,7 +5,6 @@ import { showReviewScreen } from './main.js';
 import { sendMultiplayerMessage, showToast, startVideoCallWithPartner } from './multiplayer.js';
 
 export async function startCamera() {
-    const videoRetro = document.getElementById('video-retro');
     const videoY2k = document.getElementById('video-y2k');
     const videoDuoLocal = document.getElementById('video-duo-local');
 
@@ -19,7 +18,6 @@ export async function startCamera() {
             audio: false
         });
 
-        if (videoRetro) videoRetro.srcObject = stream;
         if (videoY2k) videoY2k.srcObject = stream;
         if (videoDuoLocal) videoDuoLocal.srcObject = stream;
         state.stream = stream;
@@ -80,11 +78,9 @@ function showCameraError(err) {
 }
 
 function setupDuoCameraLayout() {
-    const soloRetro = document.getElementById('camera-layout-retro');
     const soloY2k = document.getElementById('camera-layout-y2k');
     const duoLayout = document.getElementById('camera-layout-duo');
 
-    if (soloRetro) soloRetro.style.display = 'none';
     if (soloY2k) soloY2k.style.display = 'none';
     if (duoLayout) {
         duoLayout.style.display = 'flex';
@@ -104,10 +100,7 @@ function setupSoloCameraLayout() {
     if (duoLayout) duoLayout.style.display = 'none';
 
     // Theme is always Y2K
-    const soloRetro = document.getElementById('camera-layout-retro');
     const soloY2k = document.getElementById('camera-layout-y2k');
-
-    if (soloRetro) soloRetro.style.display = 'none';
     if (soloY2k) soloY2k.style.display = 'flex';
 
     startARLoop();
@@ -115,7 +108,6 @@ function setupSoloCameraLayout() {
 
 
 export function startSessionTimer() {
-    const timerElRetro = document.getElementById('global-timer-retro');
     const timerElY2k = document.getElementById('global-timer-y2k');
     const timerElDuo = document.getElementById('global-timer-duo');
     
@@ -127,7 +119,6 @@ export function startSessionTimer() {
         const m = Math.floor(secs / 60);
         const s = secs % 60;
         const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        if (timerElRetro) timerElRetro.textContent = text;
         if (timerElY2k) timerElY2k.textContent = text;
         if (timerElDuo) timerElDuo.textContent = text;
     };
@@ -185,11 +176,9 @@ function updatePhotoCounter() {
     // Show Finish & Review buttons once at least 1 photo is taken
     const showFinish = count >= 1;
     const btnFinishDuo = document.getElementById('btn-finish-duo');
-    const btnFinishRetro = document.getElementById('btn-finish-retro');
     const btnFinishY2k = document.getElementById('btn-finish-y2k');
 
     if (btnFinishDuo) btnFinishDuo.style.display = showFinish ? 'inline-block' : 'none';
-    if (btnFinishRetro) btnFinishRetro.style.display = showFinish ? 'inline-block' : 'none';
     if (btnFinishY2k) btnFinishY2k.style.display = showFinish ? 'inline-block' : 'none';
 
     // Auto-finish if max photos reached (prevent RAM overload)
@@ -239,14 +228,11 @@ function executeCountdownAndCapture() {
     state.isCapturing = true;
     state.theme = 'y2k';
 
-    // FIX #1: countdownRetro was undefined — define all countdown elements
-    const countdownRetro = document.getElementById('countdown-retro');
     const countdownY2k = document.getElementById('countdown-y2k');
     const countdownDuo = document.getElementById('countdown-duo');
 
     if (state.isMultiplayer && countdownDuo) countdownDuo.style.display = 'flex';
     else if (countdownY2k) countdownY2k.style.display = 'flex';
-
 
     function takeOnePhoto() {
         return new Promise((resolve) => {
@@ -261,7 +247,6 @@ function executeCountdownAndCapture() {
             const interval = setInterval(() => {
                 if (!state.isSessionActive) {
                     clearInterval(interval);
-                    if (countdownRetro) countdownRetro.style.display = 'none';
                     if (countdownY2k) countdownY2k.style.display = 'none';
                     if (countdownDuo) countdownDuo.style.display = 'none';
                     state.isCapturing = false;
@@ -280,7 +265,6 @@ function executeCountdownAndCapture() {
                         if (state.isSessionActive) {
                             capturePhoto();
                         }
-                        if (countdownRetro) countdownRetro.style.display = 'none';
                         if (countdownY2k) countdownY2k.style.display = 'none';
                         if (countdownDuo) countdownDuo.style.display = 'none';
                         state.isCapturing = false;
@@ -293,7 +277,6 @@ function executeCountdownAndCapture() {
 
     async function processCapture() {
         await takeOnePhoto();
-        if (countdownRetro) countdownRetro.style.display = 'none';
         if (countdownY2k) countdownY2k.style.display = 'none';
         if (countdownDuo) countdownDuo.style.display = 'none';
         state.isCapturing = false;
