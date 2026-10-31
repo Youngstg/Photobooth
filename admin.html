@@ -3,112 +3,858 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CuteSnaps Admin - Template Editor</title>
+    <title>CuteSnaps Admin - Manajemen &amp; Editor Template</title>
     <link rel="icon" type="image/webp" href="Assets/favicon.webp">
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Fredoka:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Courier Prime', monospace;
-            background-color: #1a1a1a;
+            font-family: 'Fredoka', 'Courier Prime', monospace;
+            background-color: #121217;
             color: #f0f0f0;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
         }
-        h1 { text-align: center; color: #00ffcc; }
-        .container {
+
+        /* Top Header & Branding */
+        .admin-header {
             display: flex;
-            gap: 20px;
-            max-width: 1200px;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1350px;
+            margin: 0 auto 20px auto;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #282835;
+        }
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .admin-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(131, 112, 245, 0.4));
+        }
+        .admin-title-box h1 {
+            margin: 0;
+            font-family: 'Titan One', cursive;
+            font-size: 26px;
+            letter-spacing: 1.2px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 50%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(0,255,204,0.3));
+        }
+        .admin-title-box p {
+            margin: 2px 0 0 0;
+            font-size: 13px;
+            color: #8E8EA0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-photobooth {
+            background: #8370F5;
+            color: white;
+            border: 2px solid #111;
+            box-shadow: 3px 3px 0px #111;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+        .btn-photobooth:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 5px 0px #111;
+            background: #7158F2;
+        }
+
+        /* Admin Navigation Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            max-width: 1350px;
+            margin: 0 auto 24px auto;
+            border-bottom: 2px solid #282835;
+            padding-bottom: 4px;
+        }
+        .tab-btn {
+            background: #1c1c24;
+            color: #aaa;
+            border: 1.5px solid #333344;
+            border-bottom: none;
+            padding: 12px 22px;
+            border-radius: 12px 12px 0 0;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+            width: auto;
+            margin: 0;
+        }
+        .tab-btn:hover {
+            background: #262633;
+            color: #00ffcc;
+        }
+        .tab-btn.active {
+            background: #252535;
+            color: #00ffcc;
+            border-color: #00ffcc;
+            border-bottom: 3px solid #00ffcc;
+            box-shadow: 0 -4px 14px rgba(0,255,204,0.15);
+        }
+        .tab-badge {
+            background: #00ffcc;
+            color: #121217;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 10px;
+        }
+
+        /* Tab Content Sections */
+        .tab-content {
+            display: none;
+            max-width: 1350px;
             margin: 0 auto;
         }
-        .panel {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #444;
+        .tab-content.active {
+            display: block;
         }
-        .left-panel { flex: 1; }
-        .right-panel { flex: 2; display: flex; flex-direction: column; align-items: center; }
+
+        /* =========================================
+           TAB 1: TEMPLATE MANAGEMENT (Daftar & Aksi)
+           ========================================= */
+        .manager-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1a24;
+            padding: 16px 20px;
+            border-radius: 14px;
+            border: 1.5px solid #2d2d3d;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .manager-filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input-box {
+            position: relative;
+            min-width: 260px;
+        }
+        .search-input-box input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            background: #262634;
+            border: 1.5px solid #3d3d52;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input-box input:focus {
+            border-color: #00ffcc;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .filter-chip-group {
+            display: flex;
+            gap: 6px;
+        }
+        .filter-chip {
+            background: #252533;
+            color: #bbb;
+            border: 1px solid #3d3d52;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .filter-chip:hover {
+            border-color: #00ffcc;
+            color: #fff;
+        }
+        .filter-chip.active {
+            background: #00ffcc;
+            color: #121217;
+            border-color: #00ffcc;
+            font-weight: bold;
+        }
+
+        .btn-create-new {
+            background: linear-gradient(135deg, #00ffcc 0%, #00ccaa 100%);
+            color: #121217;
+            font-weight: bold;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(0,255,204,0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+            width: auto;
+            margin: 0;
+        }
+        .btn-create-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,255,204,0.5);
+        }
+
+        /* Template Cards Grid */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+        .template-card {
+            background: #1b1b24;
+            border: 2px solid #2e2e40;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+        .template-card:hover {
+            transform: translateY(-4px);
+            border-color: #00ffcc;
+            box-shadow: 0 12px 30px rgba(0, 255, 204, 0.2);
+        }
+        .card-preview-area {
+            height: 200px;
+            background: #14141c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            position: relative;
+            border-bottom: 1.5px solid #282838;
+            background-image: 
+                linear-gradient(45deg, #1c1c28 25%, transparent 25%), 
+                linear-gradient(-45deg, #1c1c28 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1c1c28 75%), 
+                linear-gradient(-45deg, transparent 75%, #1c1c28 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        }
+        .card-preview-img,
+        .card-preview-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .card-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-png {
+            background: rgba(0, 255, 204, 0.2);
+            color: #00ffcc;
+            border: 1px solid #00ffcc55;
+        }
+        .badge-procedural {
+            background: rgba(255, 105, 180, 0.2);
+            color: #FF69B4;
+            border: 1px solid #FF69B455;
+        }
+
+        .card-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-id {
+            font-size: 11px;
+            color: #717188;
+            font-family: monospace;
+            margin-bottom: 12px;
+        }
+        .card-meta-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .meta-tag {
+            font-size: 11px;
+            background: #252535;
+            color: #bbb;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+        .btn-card-action {
+            flex: 1;
+            padding: 9px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.15s;
+            margin: 0;
+        }
+        .btn-card-edit {
+            background: #00ffcc;
+            color: #121217;
+        }
+        .btn-card-edit:hover {
+            background: #1de9b6;
+        }
+        .btn-card-dup {
+            background: #333346;
+            color: #e2e8f0;
+        }
+        .btn-card-dup:hover {
+            background: #44445d;
+            color: #00ffcc;
+        }
+        .btn-card-del {
+            background: #ff475722;
+            color: #ff4757;
+            border: 1px solid #ff475755;
+            max-width: 42px;
+        }
+        .btn-card-del:hover {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #1b1b24;
+            border-radius: 16px;
+            border: 2px dashed #333346;
+        }
+        .empty-state h3 {
+            color: #e2e8f0;
+            margin: 12px 0 6px 0;
+            font-size: 18px;
+        }
+        .empty-state p {
+            color: #8E8EA0;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* =========================================
+           TAB 2: TEMPLATE EDITOR (Live Studio)
+           ========================================= */
+        .editor-mode-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e1e2c;
+            border: 1.5px solid #00ffcc55;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mode-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #fff;
+        }
+        .mode-info strong {
+            color: #00ffcc;
+        }
+        .btn-reset-mode {
+            background: #2e2e40;
+            color: #fff;
+            border: 1px solid #4a4a60;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+        }
+        .btn-reset-mode:hover {
+            background: #ff4757;
+            border-color: #ff4757;
+        }
+
+        .editor-container {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .panel {
+            background: #1e1e24;
+            padding: 24px;
+            border-radius: 16px;
+            border: 2px solid #333340;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .left-panel { flex: 1.1; min-width: 320px; }
+        .right-panel { flex: 1.4; min-width: 340px; display: flex; flex-direction: column; align-items: center; }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; color: #bbb; font-weight: 600; font-size: 13px; }
         input[type="text"], input[type="number"], input[type="file"] {
-            width: 100%; padding: 8px; box-sizing: border-box;
-            background: #333; border: 1px solid #555; color: white;
-            font-family: inherit;
+            width: 100%; padding: 10px 12px; box-sizing: border-box;
+            background: #2a2a36; border: 1.5px solid #444455; color: white;
+            font-family: inherit; border-radius: 8px; font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #00ffcc; outline: none;
         }
         button {
             background: #00ffcc; color: #000; border: none;
-            padding: 10px 15px; cursor: pointer; font-family: inherit;
-            font-weight: bold; border-radius: 5px; width: 100%; margin-bottom: 10px;
+            padding: 12px 18px; cursor: pointer; font-family: inherit;
+            font-weight: bold; border-radius: 8px; width: 100%; margin-bottom: 10px;
+            font-size: 15px; transition: transform 0.15s, background-color 0.15s;
         }
-        button:hover { background: #00ccaa; }
+        button:hover { background: #1de9b6; transform: translateY(-1px); }
+        button:active { transform: translateY(1px); }
         
+        /* Slot Editor Card with Sliders */
         .slot-editor {
-            background: #333; padding: 10px; margin-bottom: 10px; border-left: 4px solid #00ffcc;
+            background: #262633; padding: 16px; margin-bottom: 18px;
+            border-left: 5px solid #00ffcc; border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            transition: border-color 0.2s;
         }
-        .slot-editor h4 { margin: 0 0 10px 0; }
-        .slot-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .slot-row input { flex: 1; }
+        .slot-editor:hover {
+            border-left-color: #ff0066;
+        }
+        .slot-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+        }
+        .slot-header h4 { margin: 0; color: #00ffcc; font-size: 16px; }
+        .btn-del-slot {
+            width: auto; padding: 4px 10px; background: #ff4757; color: white;
+            border-radius: 6px; font-size: 12px; margin: 0;
+        }
+        .btn-del-slot:hover { background: #ff6b81; }
+
+        /* Aspect Ratio Presets */
+        .ratio-presets {
+            display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;
+        }
+        .btn-ratio {
+            background: #2f2f3d; color: #ccc; border: 1.5px solid #444455;
+            padding: 6px 10px; font-size: 12px; border-radius: 6px; cursor: pointer;
+            width: auto; margin: 0; font-weight: 600; transition: all 0.15s;
+        }
+        .btn-ratio:hover {
+            border-color: #00ffcc; color: #fff;
+        }
+        .btn-ratio.active {
+            background: #00ffcc !important; color: #121217 !important; border-color: #00ffcc !important; font-weight: bold;
+            box-shadow: 0 0 8px rgba(0,255,204,0.4);
+        }
+
+        /* Scale / Size Control Box */
+        .scale-box {
+            background: #1e1e28; border: 1.5px solid #00ffcc44; border-radius: 8px;
+            padding: 12px; margin-bottom: 14px;
+        }
+        .scale-box-title {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; font-weight: bold; color: #00ffcc; margin-bottom: 8px;
+        }
+        .lock-badge {
+            font-size: 11px; background: rgba(0, 255, 204, 0.15); color: #00ffcc;
+            padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;
+            border: 1px solid rgba(0,255,204,0.3); font-weight: 600;
+        }
         
+        .slider-row {
+            margin-bottom: 12px;
+        }
+        .slider-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 12px; color: #ccc; margin-bottom: 4px;
+        }
+        .slider-header strong { color: #fff; }
+        .slider-controls {
+            display: flex; gap: 10px; align-items: center;
+        }
+        .slider-controls input[type="range"] {
+            flex: 1; accent-color: #00ffcc; cursor: pointer;
+        }
+        .slider-controls input[type="number"] {
+            width: 80px; padding: 4px 8px; font-size: 13px; text-align: center;
+        }
+
+        .slot-quick-actions {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+        }
+        .btn-quick {
+            width: auto; padding: 5px 12px; background: #3a3a4d; color: #e2e8f0;
+            font-size: 11px; margin: 0; border-radius: 6px; font-weight: 600;
+        }
+        .btn-quick:hover { background: #4a4a60; color: #00ffcc; }
+
+        /* Preview Toolbar */
+        .preview-toolbar {
+            display: flex; gap: 15px; align-items: center; width: 100%;
+            background: #252532; padding: 10px 16px; border-radius: 10px;
+            margin-bottom: 14px; font-size: 13px; flex-wrap: wrap;
+        }
+        .preview-toolbar label { margin: 0; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #eee; }
+        .preview-toolbar input[type="range"] { accent-color: #00ffcc; width: 100px; cursor: pointer; }
+
+        /* Visual Canvas Layout */
         #preview-container {
             position: relative;
-            background: #000 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/ENAEwwGjBqBgQJAYYygcYKj5BQCMHQsM2X8/QwAAAABJRU5ErkJggg==');
-            /* Checkerboard for transparency */
+            display: inline-block;
+            background-color: #1a1a24;
+            background-image: 
+                linear-gradient(45deg, #242433 25%, transparent 25%), 
+                linear-gradient(-45deg, #242433 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #242433 75%), 
+                linear-gradient(-45deg, transparent 75%, #242433 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             max-width: 100%;
-            border: 2px dashed #666;
+            border: 2px dashed #555566;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            user-select: none;
         }
+
+        /* 1. LAYER BAWAH: Slot Foto Pengguna */
+        #overlays-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1; /* DI BAWAH */
+            pointer-events: none;
+        }
+
+        /* 2. LAYER ATAS: Frame PNG Template */
         #preview-image {
-            display: block; max-width: 100%; height: auto;
-            opacity: 0.8; /* Make it slightly transparent so we can see slots */
+            position: relative;
+            display: block;
+            max-width: 100%;
+            height: auto;
+            z-index: 2; /* DI ATAS */
+            pointer-events: none;
+            transition: opacity 0.15s ease;
         }
+
+        /* 3. LAYER PANDUAN: Garis Seleksi / Guide */
+        #guides-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 3; /* Paling atas untuk panduan garis */
+            pointer-events: auto;
+        }
+
         .slot-overlay {
             position: absolute;
-            background: rgba(255, 0, 100, 0.5);
-            border: 2px solid #ff0066;
+            /* Placeholder foto estetik */
+            background: linear-gradient(135deg, #FF69B4 0%, #8370F5 100%);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
             color: white; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none; /* Let clicks pass through */
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-size: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            border-radius: 4px;
+        }
+        .slot-overlay span { font-size: 11px; opacity: 0.9; font-weight: normal; }
+
+        .slot-guide-box {
+            position: absolute;
+            border: 2px dashed #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            pointer-events: auto;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        .slot-guide-box:hover, .slot-guide-box.active {
+            border: 2.5px solid #00ffcc;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.85);
+            background: rgba(0, 255, 204, 0.08);
+        }
+        .slot-guide-header {
+            display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+        }
+        .slot-guide-tag {
+            background: #00ffcc; color: #000; font-size: 10px;
+            font-weight: bold; padding: 2px 5px; border-radius: 3px;
+        }
+        .slot-ratio-tag {
+            background: rgba(0,0,0,0.7); color: #00ffcc; font-size: 10px;
+            font-weight: bold; padding: 2px 5px; border-radius: 3px;
+            border: 1px solid #00ffcc55;
+        }
+
+        /* Corner Resize Handle with Fixed Aspect Ratio */
+        .slot-resize-handle {
+            position: absolute;
+            right: -6px;
+            bottom: -6px;
+            width: 14px;
+            height: 14px;
+            background: #00ffcc;
+            border: 2px solid #111;
+            border-radius: 3px;
+            cursor: nwse-resize;
+            box-shadow: 0 0 6px rgba(0,0,0,0.5);
+            z-index: 10;
+            pointer-events: auto;
+        }
+        .slot-resize-handle:hover {
+            background: #fff;
+            transform: scale(1.25);
+        }
+        
+        .layer-badge {
+            background: #8370F5; color: white; padding: 4px 10px;
+            border-radius: 12px; font-size: 11px; font-weight: bold;
+        }
+
+        /* Toast Notification */
+        .admin-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e1e2c;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            border-left: 5px solid #00ffcc;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+        .admin-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .admin-toast.error {
+            border-left-color: #ff4757;
         }
     </style>
 </head>
 <body>
-    <h1>🛠️ Admin Template Editor</h1>
-    <div class="container">
-        <div class="panel left-panel">
-            <h3>1. Upload Template PNG</h3>
-            <div class="form-group">
-                <input type="file" id="template-file" accept="image/png">
+    <!-- Top Header & Branding -->
+    <header class="admin-header">
+        <div class="admin-brand">
+            <img src="Assets/logo.webp" alt="CuteSnaps Logo">
+            <div class="admin-title-box">
+                <h1>🛠️ CuteSnaps Admin</h1>
+                <p>Manajemen Template, Tata Letak Foto &amp; Live Studio Editor</p>
             </div>
-            <button id="btn-upload">Upload & Preview</button>
-            <hr style="border-color: #444; margin: 20px 0;">
-            
-            <h3>2. Konfigurasi Template</h3>
-            <div class="form-group">
-                <label>Nama Template (Misal: Summer Vibes)</label>
-                <input type="text" id="template-name" placeholder="Nama Template">
-            </div>
-            
-            <div id="slots-container">
-                <!-- Slots added here dynamically -->
-            </div>
-            <button id="btn-add-slot" style="background: #444; color: white;">+ Tambah Slot Foto</button>
-            
-            <hr style="border-color: #444; margin: 20px 0;">
-            <button id="btn-save" style="background: #ff0066; color: white;">💾 Simpan Template</button>
         </div>
-        
-        <div class="panel right-panel">
-            <h3>Live Preview</h3>
-            <p style="color: #888; font-size: 12px; margin-top:0;">*Slot foto berada di BAWAH template PNG (di Photobooth)</p>
-            <div id="preview-container">
-                <img id="preview-image" src="" style="display:none;">
-                <div id="overlays-container"></div>
-            </div>
-            <p id="dimensions-info" style="color: #00ffcc; margin-top: 10px;"></p>
+        <div class="header-actions">
+            <a href="index.html" class="btn-photobooth" title="Buka Aplikasi Photobooth">
+                <span>📸 Buka Photobooth</span>
+                <span>➔</span>
+            </a>
         </div>
+    </header>
+
+    <!-- Admin Navigation Tabs -->
+    <nav class="admin-tabs">
+        <button id="tab-btn-manager" class="tab-btn active">
+            <span>📁 Manajemen Template</span>
+            <span id="tab-templates-count" class="tab-badge">0</span>
+        </button>
+        <button id="tab-btn-editor" class="tab-btn">
+            <span>🎨 Editor &amp; Customizer Slot</span>
+        </button>
+    </nav>
+
+    <!-- =========================================
+         TAB 1: MANAJEMEN TEMPLATE (Daftar & Aksi)
+         ========================================= -->
+    <section id="tab-manager" class="tab-content active">
+        <!-- Toolbar Pencarian & Filter -->
+        <div class="manager-toolbar">
+            <div class="manager-filters">
+                <div class="search-input-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="manager-search" placeholder="Cari nama atau ID template...">
+                </div>
+                <div class="filter-chip-group">
+                    <button class="filter-chip active" data-filter="all">Semua</button>
+                    <button class="filter-chip" data-filter="1">1 Foto</button>
+                    <button class="filter-chip" data-filter="2">2 Foto</button>
+                    <button class="filter-chip" data-filter="3">3 Foto</button>
+                    <button class="filter-chip" data-filter="4">4 Foto</button>
+                </div>
+            </div>
+            <button id="btn-manager-create-new" class="btn-create-new">
+                <span>+ Buat Template Baru</span>
+            </button>
+        </div>
+
+        <!-- Grid Kartu Template -->
+        <div id="templates-grid" class="templates-grid">
+            <!-- Cards rendered dynamically via js/admin.js -->
+        </div>
+    </section>
+
+    <!-- =========================================
+         TAB 2: EDITOR TEMPLATE & LIVE STUDIO
+         ========================================= -->
+    <section id="tab-editor" class="tab-content">
+        <!-- Mode Banner (Indikasi Sedang Buat Baru atau Edit Template Tertentu) -->
+        <div id="editor-mode-banner" class="editor-mode-banner">
+            <div class="mode-info">
+                <span id="mode-badge" style="background:#00ffcc22; color:#00ffcc; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:12px;">Mode Baru</span>
+                <span id="mode-text">Membuat Template Baru</span>
+            </div>
+            <button id="btn-reset-to-new" class="btn-reset-mode">+ Reset Form / Buat Baru</button>
+        </div>
+
+        <div class="editor-container">
+            <div class="panel left-panel">
+                <h3>1. Upload Template PNG</h3>
+                <div class="form-group">
+                    <input type="file" id="template-file" accept="image/png">
+                </div>
+                <button id="btn-upload">Upload &amp; Preview</button>
+                <hr style="border-color: #333344; margin: 20px 0;">
+                
+                <h3>2. Konfigurasi Template &amp; Posisi Foto</h3>
+                <div class="form-group">
+                    <label>Nama Template (Misal: Summer Vibes)</label>
+                    <input type="text" id="template-name" placeholder="Nama Template">
+                </div>
+                
+                <div id="slots-container">
+                    <!-- Slots with live range sliders generated here -->
+                </div>
+                <button id="btn-add-slot" style="background: #333344; color: white;">+ Tambah Slot Foto</button>
+                
+                <hr style="border-color: #333344; margin: 20px 0;">
+                <button id="btn-save" style="background: #ff0066; color: white;">💾 Simpan Template</button>
+            </div>
+            
+            <div class="panel right-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                    <h3 style="margin:0;">Live Preview</h3>
+                    <span class="layer-badge">✨ Slot berada di BAWAH layer template</span>
+                </div>
+
+                <!-- Toolbar Slider & Opsi -->
+                <div class="preview-toolbar">
+                    <label>
+                        <span>Opacity Template:</span>
+                        <input type="range" id="slider-template-opacity" min="30" max="100" value="100">
+                        <span id="opacity-val">100%</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="chk-show-guides" checked>
+                        <span>Tampilkan Garis Pembatas (Guides)</span>
+                    </label>
+                </div>
+
+                <div id="preview-container">
+                    <!-- Layer 1: Slot foto di bawah -->
+                    <div id="overlays-container"></div>
+                    <!-- Layer 2: Template PNG di atas slot foto -->
+                    <img id="preview-image" src="" style="display:none;" alt="Template Preview">
+                    <!-- Layer 3: Panduan garis pembatas di atas -->
+                    <div id="guides-container"></div>
+                </div>
+                <p id="dimensions-info" style="color: #00ffcc; margin-top: 12px; font-weight: bold; font-size: 14px;"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast Notification Container -->
+    <div id="admin-toast" class="admin-toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-message">Pesan notifikasi</span>
     </div>
-    
+
     <script type="module" src="js/admin.js"></script>
 </body>
 </html>

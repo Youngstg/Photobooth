@@ -6,13 +6,23 @@
         "bgColor": "#FFF0F5",
         "borderColor": "#FF69B4",
         "accentColor": "#8370F5",
-        "footerText": "CUTE SNAPS • DUO COLLAB",
+        "footerText": "CUTE SNAPS \u2022 DUO COLLAB",
         "width": 800,
         "height": 1200,
         "photoCount": 2,
         "slots": [
-            { "x": 60, "y": 70, "w": 680, "h": 460 },
-            { "x": 60, "y": 570, "w": 680, "h": 460 }
+            {
+                "x": 60,
+                "y": 70,
+                "w": 680,
+                "h": 460
+            },
+            {
+                "x": 60,
+                "y": 570,
+                "w": 680,
+                "h": 460
+            }
         ]
     },
     {
@@ -22,14 +32,29 @@
         "bgColor": "#1C1536",
         "borderColor": "#FF76AC",
         "accentColor": "#8370F5",
-        "footerText": "CUTESNAPS • Y2K PHOTO BOOTH",
+        "footerText": "CUTESNAPS \u2022 Y2K PHOTO BOOTH",
         "width": 600,
         "height": 1350,
         "photoCount": 3,
         "slots": [
-            { "x": 50, "y": 50, "w": 500, "h": 360 },
-            { "x": 50, "y": 440, "w": 500, "h": 360 },
-            { "x": 50, "y": 830, "w": 500, "h": 360 }
+            {
+                "x": 50,
+                "y": 50,
+                "w": 500,
+                "h": 360
+            },
+            {
+                "x": 50,
+                "y": 440,
+                "w": 500,
+                "h": 360
+            },
+            {
+                "x": 50,
+                "y": 830,
+                "w": 500,
+                "h": 360
+            }
         ]
     },
     {
@@ -39,15 +64,35 @@
         "bgColor": "#1A1A2E",
         "borderColor": "#00D2D3",
         "accentColor": "#FF69B4",
-        "footerText": "Y2K PHOTO BOOTH • BEST FRIENDS",
+        "footerText": "Y2K PHOTO BOOTH \u2022 BEST FRIENDS",
         "width": 900,
         "height": 1200,
         "photoCount": 4,
         "slots": [
-            { "x": 60, "y": 70, "w": 365, "h": 470 },
-            { "x": 475, "y": 70, "w": 365, "h": 470 },
-            { "x": 60, "y": 570, "w": 365, "h": 470 },
-            { "x": 475, "y": 570, "w": 365, "h": 470 }
+            {
+                "x": 60,
+                "y": 70,
+                "w": 365,
+                "h": 470
+            },
+            {
+                "x": 475,
+                "y": 70,
+                "w": 365,
+                "h": 470
+            },
+            {
+                "x": 60,
+                "y": 570,
+                "w": 365,
+                "h": 470
+            },
+            {
+                "x": 475,
+                "y": 570,
+                "w": 365,
+                "h": 470
+            }
         ]
     },
     {
@@ -57,15 +102,35 @@
         "bgColor": "#E8F8F5",
         "borderColor": "#A29BFE",
         "accentColor": "#FF7675",
-        "footerText": "MEMORIES WITH YOU • FOREVER",
+        "footerText": "MEMORIES WITH YOU \u2022 FOREVER",
         "width": 600,
         "height": 1600,
         "photoCount": 4,
         "slots": [
-            { "x": 45, "y": 45, "w": 510, "h": 330 },
-            { "x": 45, "y": 405, "w": 510, "h": 330 },
-            { "x": 45, "y": 765, "w": 510, "h": 330 },
-            { "x": 45, "y": 1125, "w": 510, "h": 330 }
+            {
+                "x": 45,
+                "y": 45,
+                "w": 510,
+                "h": 330
+            },
+            {
+                "x": 45,
+                "y": 405,
+                "w": 510,
+                "h": 330
+            },
+            {
+                "x": 45,
+                "y": 765,
+                "w": 510,
+                "h": 330
+            },
+            {
+                "x": 45,
+                "y": 1125,
+                "w": 510,
+                "h": 330
+            }
         ]
     },
     {
@@ -75,12 +140,61 @@
         "bgColor": "#FFFFFF",
         "borderColor": "#8370F5",
         "accentColor": "#FF76AC",
-        "footerText": "CUTESNAPS • SPECIAL MOMENT",
+        "footerText": "CUTESNAPS \u2022 SPECIAL MOMENT",
         "width": 800,
         "height": 1050,
         "photoCount": 1,
         "slots": [
-            { "x": 60, "y": 60, "w": 680, "h": 780 }
+            {
+                "x": 60,
+                "y": 60,
+                "w": 680,
+                "h": 780
+            }
+        ]
+    },
+    {
+        "id": "y2k",
+        "name": "Y2K",
+        "url": "/uploads/converted_14184dbd-43a9-44da-96fb-e9d822e6ec99.png",
+        "width": 338,
+        "height": 1024,
+        "photoCount": 1,
+        "slots": [
+            {
+                "x": 20,
+                "y": 0,
+                "w": 250,
+                "h": 400
+            }
+        ]
+    },
+    {
+        "id": "y2k2",
+        "name": "Y2K2",
+        "url": "/uploads/converted_14184dbd-43a9-44da-96fb-e9d822e6ec99.png",
+        "width": 338,
+        "height": 1024,
+        "photoCount": 3,
+        "slots": [
+            {
+                "x": 51,
+                "y": 159,
+                "w": 236,
+                "h": 203
+            },
+            {
+                "x": 51,
+                "y": 414,
+                "w": 237,
+                "h": 199
+            },
+            {
+                "x": 51,
+                "y": 669,
+                "w": 237,
+                "h": 205
+            }
         ]
     }
 ]

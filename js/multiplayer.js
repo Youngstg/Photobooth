@@ -118,8 +118,7 @@ export function createRoom(roomCode, playerName, playerAvatar) {
             });
 
             peer.on('disconnected', () => {
-                console.warn('[Multiplayer] Peer disconnected, attempting reconnect...');
-                peer.reconnect();
+                console.warn('[Multiplayer] Host signaling server connection disconnected.');
             });
 
         } catch (e) {
@@ -176,12 +175,17 @@ export function joinRoom(roomCode, playerName, playerAvatar) {
                     reliable: true
                 });
 
-                conn.on('open', () => {
+                const onConnected = () => {
                     console.log('[Multiplayer] Connected to Host data channel!');
                     setupDataConnection(conn);
                     updateRoomHeader();
                     resolve(cleanCode);
-                });
+                };
+                if (conn.open) {
+                    onConnected();
+                } else {
+                    conn.on('open', onConnected);
+                }
 
                 conn.on('error', (err) => {
                     console.error('[Multiplayer] Connection to Host failed:', err);
@@ -212,7 +216,7 @@ function setupDataConnection(conn) {
     dataConn = conn;
     state.dataConnection = conn;
 
-    conn.on('open', () => {
+    const onDataChannelReady = () => {
         console.log('[Multiplayer] Data channel fully open');
         
         // Send initial handshake with our player info
@@ -228,7 +232,23 @@ function setupDataConnection(conn) {
         if (state.stream) {
             startVideoCallWithPartner();
         }
-    });
+
+        // If host is already on camera or beyond, catch guest up
+        if (state.isHost) {
+            const currentScreen = document.querySelector('.screen.active');
+            if (currentScreen && currentScreen.id !== 'screen-lobby' && currentScreen.id !== 'screen-welcome') {
+                sendMultiplayerMessage({
+                    type: 'nav_screen',
+                    screenId: currentScreen.id
+                });
+            }
+        }
+    };
+    if (conn.open) {
+        onDataChannelReady();
+    } else {
+        conn.on('open', onDataChannelReady);
+    }
 
     conn.on('data', (data) => {
         handleIncomingData(data);
@@ -419,7 +439,7 @@ function notifyPartnerConnected() {
     }
 
     window.dispatchEvent(new CustomEvent('pb_partner_connected', { detail: partner }));
-    showToast(`${partner.name} bergabung ke room!`);
+    showToast(`${partner.name} berhasil join ke room!`);
 }
 
 /**
@@ -433,7 +453,7 @@ function handlePartnerDisconnected() {
     
     const lobbyStatus = document.getElementById('lobby-partner-status');
     if (lobbyStatus) {
-        lobbyStatus.innerHTML = `<span class="pulse-dot"></span> Menunggu partner bergabung...`;
+        lobbyStatus.innerHTML = `<span class="pulse-dot"></span> Menunggu partner join...`;
     }
 }
 
@@ -499,34 +519,47 @@ export function updateRoomHeader() {
  */
 export function showConfirm(title, message, confirmText = 'Ya', cancelText = 'Batal') {
     return new Promise((resolve) => {
+        // Strict Singleton Guard: Prevent multiple dialogs if clicked multiple times
+        if (document.querySelector('.pb-confirm-overlay')) {
+            resolve(false);
+            return;
+        }
+
         const overlay = document.createElement('div');
         overlay.className = 'pb-confirm-overlay';
         overlay.innerHTML = `
-            <div class="pb-confirm-dialog">
-                <div class="pb-confirm-icon">🚪</div>
+            <div class="pb-confirm-dialog" role="dialog" aria-modal="true">
+                <div class="pb-confirm-icon">⚠️</div>
                 <h3 class="pb-confirm-title">${title}</h3>
                 <p class="pb-confirm-message">${message}</p>
                 <div class="pb-confirm-buttons">
-                    <button id="pb-confirm-yes" class="btn-primary pb-confirm-btn-yes">${confirmText}</button>
-                    <button id="pb-confirm-no" class="btn-secondary pb-confirm-btn-no">${cancelText}</button>
+                    <button type="button" class="btn-primary pb-confirm-btn-yes">${confirmText}</button>
+                    <button type="button" class="btn-secondary pb-confirm-btn-no">${cancelText}</button>
                 </div>
             </div>
         `;
         document.body.appendChild(overlay);
 
-        // Animate in
+        // Animate in smoothly
         requestAnimationFrame(() => overlay.classList.add('visible'));
 
+        let resolved = false;
         const cleanup = (result) => {
+            if (resolved) return;
+            resolved = true;
             overlay.classList.remove('visible');
-            setTimeout(() => overlay.remove(), 250);
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 200);
             resolve(result);
         };
 
-        overlay.querySelector('#pb-confirm-yes').addEventListener('click', () => cleanup(true));
-        overlay.querySelector('#pb-confirm-no').addEventListener('click', () => cleanup(false));
+        const yesBtn = overlay.querySelector('.pb-confirm-btn-yes');
+        const noBtn = overlay.querySelector('.pb-confirm-btn-no');
+        if (yesBtn) yesBtn.addEventListener('click', (e) => { e.stopPropagation(); cleanup(true); });
+        if (noBtn) noBtn.addEventListener('click', (e) => { e.stopPropagation(); cleanup(false); });
         overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) cleanup(false); // Click outside = cancel
+            if (e.target === overlay) cleanup(false);
         });
     });
 }

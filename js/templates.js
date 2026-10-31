@@ -103,7 +103,7 @@ function mapTemplates(data) {
         accentColor: t.accentColor || '#8370F5',
         footerText: t.footerText || 'CUTE SNAPS PHOTOBOOTH',
         slots: t.slots || [],
-        render: (ctx, photos) => renderDynamicFrame(ctx, photos, t)
+        render: (ctx, photos, targetW, targetH, adjustments) => renderDynamicFrame(ctx, photos, t, targetW, targetH, adjustments)
     }));
 }
 

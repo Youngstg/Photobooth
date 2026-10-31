@@ -3,69 +3,102 @@ import { state } from './state.js';
 
 let faceLandmarker = null;
 let lastVideoTime = -1;
+let lastResults = null;
 let activeFilter = 'none';
 let trackingLoopId = null;
 let isARReady = false;
+let isLoopRequested = false;
 
 // AR overlay canvases (per layout)
 let canvasY2k = null;
 let ctxY2k = null;
-let canvasDuo = null;  // Support AR in Duo Mode
+let canvasDuo = null;
 let ctxDuo = null;
 
-export async function initAR() {
-    console.log("Initializing MediaPipe FaceLandmarker...");
+// Preload Prop Graphic Assets (WebP format)
+const propImages = {};
+const PROPS_MANIFEST = {
+    cowboy: 'Assets/props/cowboy_hat.webp',
+    mustache: 'Assets/props/mustache.webp',
+    sunglasses: 'Assets/props/sunglasses.webp',
+    crown: 'Assets/props/crown.webp',
+    cat: 'Assets/props/cat_ears.webp'
+};
 
-    // FIX #15 (High): Show loading state on AR buttons while model loads
+function preloadProps() {
+    for (const [key, path] of Object.entries(PROPS_MANIFEST)) {
+        const img = new Image();
+        img.src = path;
+        propImages[key] = img;
+    }
+}
+preloadProps();
+
+export async function initAR() {
+    console.log("Initializing MediaPipe FaceLandmarker for Props...");
     setARButtonsLoadingState(true);
 
     try {
         const filesetResolver = await FilesetResolver.forVisionTasks(
             "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
         );
-        faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
-            baseOptions: {
-                modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
-                delegate: "GPU"
-            },
-            outputFaceBlendshapes: false,
-            runningMode: "VIDEO",
-            numFaces: 2
-        });
+        
+        try {
+            faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+                baseOptions: {
+                    modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+                    delegate: "GPU"
+                },
+                outputFaceBlendshapes: false,
+                runningMode: "VIDEO",
+                numFaces: 4
+            });
+            console.log("✓ MediaPipe FaceLandmarker (GPU) initialized successfully!");
+        } catch (gpuErr) {
+            console.warn("GPU delegate failed, falling back to CPU mode:", gpuErr);
+            faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+                baseOptions: {
+                    modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+                    delegate: "CPU"
+                },
+                outputFaceBlendshapes: false,
+                runningMode: "VIDEO",
+                numFaces: 4
+            });
+            console.log("✓ MediaPipe FaceLandmarker (CPU) initialized successfully!");
+        }
+
         isARReady = true;
-        console.log("FaceLandmarker initialized!");
         setARButtonsLoadingState(false);
         setupUI();
+        
+        if (isLoopRequested) {
+            startARLoop();
+        }
     } catch (e) {
         console.error("Failed to load FaceLandmarker:", e);
-        setARButtonsLoadingState(false, true); // error state
+        setARButtonsLoadingState(false, true);
     }
 }
 
 /**
- * Update AR button states: disabled while loading, enabled when ready
+ * Update AR button states: loading indication
  */
 function setARButtonsLoadingState(isLoading, isError = false) {
-    const arBtns = document.querySelectorAll('.ar-btn:not([data-filter="none"])');
+    const arBtns = document.querySelectorAll('.ar-btn');
     arBtns.forEach(btn => {
-        if (isLoading) {
-            btn.disabled = true;
-            btn.setAttribute('title', 'Filter AR sedang dimuat...');
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'wait';
+        if (isLoading && btn.dataset.filter !== 'none') {
+            btn.style.opacity = '0.7';
+            btn.setAttribute('title', 'Memuat model AR...');
         } else if (isError) {
-            btn.disabled = true;
-            btn.setAttribute('title', 'Filter AR gagal dimuat (cek koneksi internet)');
-            btn.style.opacity = '0.4';
+            btn.style.opacity = '0.5';
+            btn.setAttribute('title', 'Koneksi AR terganggu');
         } else {
-            btn.disabled = false;
-            btn.setAttribute('title', btn.dataset.filter);
             btn.style.opacity = '';
-            btn.style.cursor = '';
+            btn.style.cursor = 'pointer';
         }
     });
 
-    // Show/hide loading badge on filter section
     const filterBoxes = document.querySelectorAll('.ar-filter-box');
     filterBoxes.forEach(box => {
         let badge = box.querySelector('.ar-loading-badge');
@@ -73,7 +106,9 @@ function setARButtonsLoadingState(isLoading, isError = false) {
             if (!badge) {
                 badge = document.createElement('div');
                 badge.className = 'ar-loading-badge';
-                badge.textContent = '⏳ Filter AR dimuat...';
+                badge.textContent = '⏳ Memuat AR...';
+                badge.style.fontSize = '11px';
+                badge.style.color = '#8370F5';
                 box.insertBefore(badge, box.firstChild);
             }
         } else {
@@ -82,28 +117,37 @@ function setARButtonsLoadingState(isLoading, isError = false) {
     });
 }
 
-function setupUI() {
+export function setupUI() {
     document.querySelectorAll('.ar-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if (!isARReady && btn.dataset.filter !== 'none') return;
-            document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
+        btn.onclick = (e) => {
             const target = e.currentTarget;
+            document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
             target.classList.add('active');
-            activeFilter = target.getAttribute('data-filter');
-            console.log("AR Filter selected:", activeFilter);
-        });
+            activeFilter = target.getAttribute('data-filter') || 'none';
+            console.log("AR Prop selected:", activeFilter);
+        };
     });
 }
 
+// Initial binding
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupUI);
+} else {
+    setupUI();
+}
+
 export function startARLoop() {
-    if (!faceLandmarker) return;
-    
+    isLoopRequested = true;
     canvasY2k = document.getElementById('ar-overlay-y2k');
     ctxY2k = canvasY2k ? canvasY2k.getContext('2d') : null;
 
-    // FIX #11: Support AR canvas in Duo mode
     canvasDuo = document.getElementById('ar-overlay-duo-local');
     ctxDuo = canvasDuo ? canvasDuo.getContext('2d') : null;
+
+    if (!faceLandmarker) {
+        console.log("FaceLandmarker loading in progress... Loop will start once loaded.");
+        return;
+    }
 
     if (trackingLoopId) {
         cancelAnimationFrame(trackingLoopId);
@@ -113,17 +157,19 @@ export function startARLoop() {
 }
 
 export function stopARLoop() {
+    isLoopRequested = false;
     if (trackingLoopId) {
         cancelAnimationFrame(trackingLoopId);
         trackingLoopId = null;
     }
-    // Clear all canvases
+    lastResults = null;
     if (ctxY2k && canvasY2k) ctxY2k.clearRect(0, 0, canvasY2k.width, canvasY2k.height);
     if (ctxDuo && canvasDuo) ctxDuo.clearRect(0, 0, canvasDuo.width, canvasDuo.height);
 }
 
 function renderAR() {
-    // FIX #11: Choose video element and canvas based on current mode
+    if (!isLoopRequested) return;
+
     let video, canvas, ctx;
 
     if (state.isMultiplayer) {
@@ -136,149 +182,185 @@ function renderAR() {
         ctx = ctxY2k;
     }
 
-    if (!video || !canvas || !ctx || video.videoWidth === 0) {
+    if (!video || !canvas || !ctx || video.videoWidth === 0 || video.readyState < 2) {
         trackingLoopId = requestAnimationFrame(renderAR);
         return;
     }
 
-    // Sync canvas size to video
+    // Sync canvas resolution to actual video dimensions
     if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
     }
 
-    // Process frame
-    let results = null;
-    if (video.currentTime !== lastVideoTime) {
+    // Process video frame with MediaPipe FaceLandmarker
+    if (faceLandmarker && video.currentTime !== lastVideoTime) {
         lastVideoTime = video.currentTime;
         try {
-            results = faceLandmarker.detectForVideo(video, performance.now());
+            lastResults = faceLandmarker.detectForVideo(video, performance.now());
         } catch(e) {
-            console.error("Landmarker error:", e);
+            console.error("Landmarker detect error:", e);
         }
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (results && results.faceLandmarks && activeFilter !== 'none') {
-        for (const landmarks of results.faceLandmarks) {
-            drawFilter(ctx, landmarks, canvas.width, canvas.height);
+    if (lastResults && lastResults.faceLandmarks && activeFilter !== 'none') {
+        for (const landmarks of lastResults.faceLandmarks) {
+            drawPropFilter(ctx, landmarks, canvas.width, canvas.height);
         }
     }
 
     trackingLoopId = requestAnimationFrame(renderAR);
 }
 
-
-
-
-function drawFilter(ctx, landmarks, w, h) {
+/**
+ * Draws image with translation, rotation, and custom anchor center
+ */
+function drawPropImage(ctx, img, cx, cy, angle, targetWidth, targetHeight, anchorXRatio = 0.5, anchorYRatio = 0.5) {
+    if (!img || !img.complete || img.naturalWidth === 0) return;
     ctx.save();
-    
-    if (activeFilter === 'glasses') {
-        const leftEye = landmarks[33];
-        const rightEye = landmarks[263];
-        const lx = leftEye.x * w;
-        const ly = leftEye.y * h;
-        const rx = rightEye.x * w;
-        const ry = rightEye.y * h;
-        const dx = rx - lx;
-        const dy = ry - ly;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        const angle = Math.atan2(dy, dx);
-        const cx = (lx + rx) / 2;
-        const cy = (ly + ry) / 2;
-        const size = dist * 2.5;
-        
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-        ctx.font = `${size}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🕶️', 0, 0);
-    } 
-    else if (activeFilter === 'crown' || activeFilter === 'hat') {
-        const forehead = landmarks[10];
-        const leftEar = landmarks[234];
-        const rightEar = landmarks[454];
-        const lx = leftEar.x * w;
-        const rx = rightEar.x * w;
-        const headWidth = Math.abs(rx - lx);
-        const fx = forehead.x * w;
-        const fy = forehead.y * h;
-        
-        const emoji = activeFilter === 'crown' ? '👑' : '🎩';
-        const size = headWidth * 1.5;
-        
-        ctx.translate(fx, fy - (size * 0.3));
-        ctx.font = `${size}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(emoji, 0, 0);
-    }
-    else if (activeFilter === 'bunny') {
-        const forehead = landmarks[10];
-        const leftEar = landmarks[234];
-        const rightEar = landmarks[454];
-        const lx = leftEar.x * w;
-        const rx = rightEar.x * w;
-        const headWidth = Math.abs(rx - lx);
-        const fx = forehead.x * w;
-        const fy = forehead.y * h;
-        
-        const size = headWidth * 1.2;
-        
-        ctx.translate(fx, fy);
-        ctx.font = `${size}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('🐰', 0, size * 0.2);
-    }
-    else if (activeFilter === 'cat') {
-        const nose = landmarks[1];
-        const leftEar = landmarks[234];
-        const rightEar = landmarks[454];
-        const lx = leftEar.x * w;
-        const rx = rightEar.x * w;
-        const headWidth = Math.abs(rx - lx);
-        const nx = nose.x * w;
-        const ny = nose.y * h;
-        
-        const size = headWidth * 1.5;
-        
-        ctx.translate(nx, ny);
-        ctx.font = `${size}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🐱', 0, 0);
-    }
-    else if (activeFilter === 'star') {
-        const nose = landmarks[1];
-        const leftEar = landmarks[234];
-        const rightEar = landmarks[454];
-        const lx = leftEar.x * w;
-        const rx = rightEar.x * w;
-        const headWidth = Math.abs(rx - lx);
-        const nx = nose.x * w;
-        const ny = nose.y * h;
-        
-        const size = headWidth * 1.2;
-        
-        ctx.translate(nx, ny - size*0.1);
-        ctx.font = `${size}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🤩', 0, 0);
-    }
-    
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    const drawX = -targetWidth * anchorXRatio;
+    const drawY = -targetHeight * anchorYRatio;
+    ctx.drawImage(img, drawX, drawY, targetWidth, targetHeight);
     ctx.restore();
 }
 
+/**
+ * Align and draw AR props matching head rotation, tilt, and scale
+ */
+function drawPropFilter(ctx, landmarks, w, h) {
+    if (!landmarks || landmarks.length === 0) return;
+
+    // Key MediaPipe Face Landmarks
+    const forehead = landmarks[10];      // Top of forehead
+    const leftTemple = landmarks[234];   // Left temple / ear
+    const rightTemple = landmarks[454];  // Right temple / ear
+    const leftEye = landmarks[33];       // Left eye outer
+    const rightEye = landmarks[263];     // Right eye outer
+    const bridge = landmarks[168];       // Nose bridge between eyes
+    const philtrum = landmarks[164];     // Upper lip philtrum (below nose)
+    const mouthLeft = landmarks[61];     // Left mouth corner
+    const mouthRight = landmarks[291];   // Right mouth corner
+
+    // Head orientation and geometry
+    const headDx = (rightTemple.x - leftTemple.x) * w;
+    const headDy = (rightTemple.y - leftTemple.y) * h;
+    const headAngle = Math.atan2(headDy, headDx);
+    const headWidth = Math.hypot(headDx, headDy);
+
+    // Eye line rotation
+    const eyeDx = (rightEye.x - leftEye.x) * w;
+    const eyeDy = (rightEye.y - leftEye.y) * h;
+    const eyeAngle = Math.atan2(eyeDy, eyeDx);
+
+    // Mouth line rotation
+    const mouthDx = (mouthRight.x - mouthLeft.x) * w;
+    const mouthDy = (mouthRight.y - mouthLeft.y) * h;
+    const mouthAngle = Math.atan2(mouthDy, mouthDx);
+
+    // Anchor points in canvas pixels
+    const fx = forehead.x * w;
+    const fy = forehead.y * h;
+    const bx = bridge.x * w;
+    const by = bridge.y * h;
+    const mx = philtrum.x * w;
+    const my = philtrum.y * h;
+
+    // Helper functions for individual props
+    const drawCowboyHat = () => {
+        const img = propImages.cowboy;
+        const targetW = headWidth * 1.85;
+        const targetH = targetW * (400 / 600);
+        drawPropImage(ctx, img, fx, fy, headAngle, targetW, targetH, 0.5, 0.73);
+    };
+
+    const drawMustache = () => {
+        const img = propImages.mustache;
+        const targetW = headWidth * 0.65;
+        const targetH = targetW * (200 / 400);
+        drawPropImage(ctx, img, mx, my, mouthAngle, targetW, targetH, 0.5, 0.45);
+    };
+
+    const drawSunglasses = () => {
+        const img = propImages.sunglasses;
+        const targetW = headWidth * 1.05;
+        const targetH = targetW * (200 / 500);
+        drawPropImage(ctx, img, bx, by, eyeAngle, targetW, targetH, 0.5, 0.5);
+    };
+
+    const drawCrown = () => {
+        const img = propImages.crown;
+        const targetW = headWidth * 1.15;
+        const targetH = targetW * (300 / 400);
+        drawPropImage(ctx, img, fx, fy, headAngle, targetW, targetH, 0.5, 0.88);
+    };
+
+    const drawCatEars = () => {
+        const img = propImages.cat;
+        const targetW = headWidth * 1.25;
+        const targetH = targetW * (250 / 400);
+        drawPropImage(ctx, img, fx, fy, headAngle, targetW, targetH, 0.5, 0.82);
+    };
+
+    switch (activeFilter) {
+        case 'cowboy':
+            drawCowboyHat();
+            break;
+        case 'mustache':
+            drawMustache();
+            break;
+        case 'cowboy_mustache':
+            drawCowboyHat();
+            drawMustache();
+            break;
+        case 'glasses':
+            drawSunglasses();
+            break;
+        case 'crown':
+            drawCrown();
+            break;
+        case 'cat':
+            drawCatEars();
+            break;
+        case 'party':
+            drawCrown();
+            drawSunglasses();
+            drawMustache();
+            break;
+        case 'star':
+            ctx.save();
+            ctx.translate(bx, by);
+            ctx.font = `${headWidth * 0.7}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('✨', 0, 0);
+            ctx.restore();
+            break;
+        case 'bunny':
+            ctx.save();
+            ctx.translate(fx, fy);
+            ctx.font = `${headWidth * 1.1}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('🐰', 0, 0);
+            ctx.restore();
+            break;
+    }
+}
+
+/**
+ * Burn AR overlay onto captured photo canvas
+ */
 export function applyARToCapture(canvas, ctx) {
-    // FIX #11: Use duo canvas if in multiplayer mode
     const overlayCanvas = state.isMultiplayer ? canvasDuo : canvasY2k;
     if (overlayCanvas && activeFilter !== 'none') {
         ctx.save();
+        // Match the horizontal mirroring applied to the camera photo
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
         ctx.drawImage(overlayCanvas, 0, 0, canvas.width, canvas.height);
         ctx.restore();
     }

@@ -24,13 +24,12 @@
 
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/webp" href="Assets/favicon.webp">
-    <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="Assets/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=63">
+    <link rel="stylesheet" href="style.css?v=20261031_layout_preview_timer_fix">
     
     <!-- PeerJS for WebRTC Realtime Multiplayer -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -61,32 +60,20 @@
 
     <!-- Screen 1: Welcome Screen -->
     <div id="screen-welcome" class="screen active">
-        <div class="container">
-            <div class="container-header">
-                <div class="header-dots">
-                    <div class="header-dot red"></div>
-                    <div class="header-dot yellow"></div>
-                    <div class="header-dot green"></div>
-                </div>
-                <div class="breadcrumb">
-                    <span class="breadcrumb-path">home\</span>start
-                </div>
+        <div class="welcome-center-box">
+            <div class="welcome-logo-container">
+                <img src="Assets/logo.webp" alt="CuteSnaps Logo" class="welcome-logo-img">
             </div>
-            <div class="container-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%;">
-                <div class="welcome-logo-container">
-                    <img src="Assets/logo.webp" alt="CuteSnaps Logo" class="welcome-logo-img">
-                </div>
-                <div class="y2k-skewed-banner" style="display: flex; flex-direction: column; line-height: 1.1;">
-                    <span style="text-align: left;">Welcome to</span>
-                    <span style="text-align: right;">Cute Snaps!</span>
-                </div>
-                <p style="margin-top: 25px; margin-bottom: 20px; font-weight: bold; border: none; background: transparent; font-size: 24px; font-family: 'Comic Sans MS', sans-serif !important; text-align: center;">
-                    Photobooth Online Bersama Teman & Pasangan
-                </p>
-                <button id="btn-start-now" class="btn-primary" style="font-size: 28px; padding: 20px 50px; border-radius: 20px; max-width: 400px; background-color: #8370F5; color: white;">
-                    Start Now
-                </button>
+            <div class="y2k-skewed-banner">
+                <span class="banner-line-1">Welcome to</span>
+                <span class="banner-line-2">Cute Snaps!</span>
             </div>
+            <p class="welcome-subtitle">
+                Photobooth Online Bersama Teman & Pasangan
+            </p>
+            <button id="btn-start-now" class="welcome-start-btn">
+                START NOW
+            </button>
         </div>
     </div>
 
@@ -140,23 +127,23 @@
                         <div class="avatar-row">
                             <span class="avatar-label"><strong>Pilih Avatar Cursor:</strong></span>
                             <div class="avatar-grid">
-                                <button type="button" class="avatar-option selected" data-avatar="cat" title="Cat">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-7.5-3a7.5 7.5 0 0 0 15 0c0-1.5-.4-2.9-1.2-4.1l1.7-4.4-4.5 1.7A7.47 7.47 0 0 0 12 4.5c-1.5 0-2.9.4-4.1 1.2L3.4 4l1.7 4.5c-.8 1.2-1.2 2.6-1.2 4z"/></svg>
+                                <button type="button" class="avatar-option selected" data-avatar="cat" title="Kucing">
+                                    <img src="Assets/avatars/cat.webp" alt="Cat" class="avatar-img">
                                 </button>
-                                <button type="button" class="avatar-option" data-avatar="bunny" title="Bunny">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6.5 2C5.1 2 4 3.1 4 4.5v6c0 1.4 1.1 2.5 2.5 2.5h.3A7.5 7.5 0 0 0 12 19.5a7.5 7.5 0 0 0 5.2-6.5h.3c1.4 0 2.5-1.1 2.5-2.5v-6C20 3.1 18.9 2 17.5 2S15 3.1 15 4.5v5.2A7.44 7.44 0 0 0 12 9a7.44 7.44 0 0 0-3-.7V4.5C9 3.1 7.9 2 6.5 2zM12 15a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+                                <button type="button" class="avatar-option" data-avatar="bunny" title="Kelinci">
+                                    <img src="Assets/avatars/bunny.webp?v=2" alt="Bunny" class="avatar-img">
                                 </button>
-                                <button type="button" class="avatar-option" data-avatar="bear" title="Bear">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.5 4.5a3.5 3.5 0 0 0-3.3 2.3A7.95 7.95 0 0 0 12 6a7.95 7.95 0 0 0-4.2.8A3.5 3.5 0 1 0 4.5 11c0 .2.02.4.05.6A7.98 7.98 0 0 0 12 22a7.98 7.98 0 0 0 7.45-10.4c.03-.2.05-.4.05-.6a3.5 3.5 0 0 0 0-6.5zM9 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-3 6c-1.5 0-2.5-.8-2.5-1.5s1-1.5 2.5-1.5 2.5.8 2.5 1.5-1 1.5-2.5 1.5z"/></svg>
+                                <button type="button" class="avatar-option" data-avatar="bear" title="Beruang">
+                                    <img src="Assets/avatars/bear.webp" alt="Bear" class="avatar-img">
                                 </button>
-                                <button type="button" class="avatar-option" data-avatar="heart" title="Heart">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <button type="button" class="avatar-option" data-avatar="heart" title="Hati">
+                                    <img src="Assets/avatars/heart.webp" alt="Heart" class="avatar-img">
                                 </button>
-                                <button type="button" class="avatar-option" data-avatar="star" title="Star">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                <button type="button" class="avatar-option" data-avatar="star" title="Bintang">
+                                    <img src="Assets/avatars/star.webp" alt="Star" class="avatar-img">
                                 </button>
-                                <button type="button" class="avatar-option" data-avatar="camera" title="Camera">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <button type="button" class="avatar-option" data-avatar="camera" title="Kamera">
+                                    <img src="Assets/avatars/camera.webp?v=2" alt="Camera" class="avatar-img">
                                 </button>
                             </div>
                         </div>
@@ -170,7 +157,7 @@
                         </button>
                         <button id="tab-lobby-join" class="lobby-tab-btn">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                            <span>Gabung Room Partner</span>
+                            <span>Join Room Partner</span>
                         </button>
                     </div>
 
@@ -219,7 +206,7 @@
                                 </div>
 
                                 <div id="lobby-partner-status" class="lobby-status-indicator">
-                                    <span class="pulse-dot"></span> Menunggu partner bergabung...
+                                    <span class="pulse-dot"></span> Menunggu partner join...
                                 </div>
 
                                 <button id="btn-start-collab-session" class="btn-primary btn-large disabled" disabled style="margin-top: 15px;">
@@ -232,10 +219,10 @@
                     <!-- Panel: Join Room -->
                     <div id="panel-lobby-join" class="lobby-tab-panel" style="display: none;">
                         <div class="join-room-box">
-                            <label for="input-join-code">Masukkan Kode Room dari Partner:</label>
+                            <label for="input-join-code">Masukkan Kode Room untuk Join:</label>
                             <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: CUTE88" maxlength="8">
                             <button id="btn-join-room-action" class="btn-primary btn-large" style="margin-top: 15px;">
-                                Gabung Room Sekarang
+                                Join Room Sekarang
                             </button>
                         </div>
                     </div>
@@ -256,7 +243,7 @@
                     DUO PHOTOBOOTH
                 </div>
                 <div id="global-timer-duo" class="duo-timer-display">01:30</div>
-                <div id="duo-photo-count" class="duo-count-tag">0 Foto</div>
+                <div id="duo-photo-count" class="photo-count-pill">0 Foto</div>
             </div>
 
             <div id="duo-camera-container" class="duo-camera-split-container">
@@ -265,6 +252,7 @@
                     <div id="duo-local-label" class="duo-player-label host-label">You (Host)</div>
                     <div class="video-crop-wrapper">
                         <video id="video-duo-local" autoplay playsinline muted></video>
+                        <canvas id="ar-overlay-duo-local" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform: scaleX(-1);"></canvas>
                     </div>
                 </div>
 
@@ -288,70 +276,109 @@
                 </div>
 
                 <div class="duo-countdown-overlay" id="countdown-duo"></div>
+                <div id="shutter-flash-duo" class="shutter-flash"></div>
             </div>
 
-            <div class="duo-controls-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+            <!-- Mini Thumbnails Bar for Duo -->
+            <div id="duo-thumbnails-bar" class="camera-thumbnails-strip"></div>
+
+            <div class="duo-controls-row">
                 <button id="btn-capture-duo" class="btn-capture-sparkle">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                     AMBIL FOTO BERSAMA
                 </button>
-                <button id="btn-finish-duo" class="btn-primary" style="display: none; background: #00D2D3; color: #2C2416; font-size: 18px; padding: 14px 30px; border-radius: 30px;">
-                    Selesai & Pilih Foto
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                <button id="btn-finish-duo" class="btn-finish-camera" title="Selesai mengambil foto">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    <span class="finish-btn-text">Selesai & Pilih Foto</span>
                 </button>
             </div>
         </div>
 
-
-
-        <!-- Y2K LAYOUT (Solo) -->
-        <div id="camera-layout-y2k" style="display: none; width: 100%; max-width: 800px; margin: 0 auto; position: relative; padding: 20px; box-sizing: border-box; align-items: center; justify-content: flex-start; flex-direction: column;">
-            <div class="y2k-timer-box">
-                <span class="y2k-arrow">◀</span>
-                <div class="y2k-timer-inner">
-                    <div id="global-timer-y2k" class="y2k-timer-text">01:30</div>
-                    <div class="y2k-timer-label">Capture Time</div>
+        <!-- Y2K LAYOUT (Solo): Layout Bersebelahan (Side-by-Side: Kamera di Kiri, Kontrol & Filter di Kanan) -->
+        <div id="camera-layout-y2k" class="y2k-camera-layout">
+            
+            <!-- SISI KIRI: Frame Kamera & Strip Thumbnail Foto -->
+            <div class="y2k-camera-left-panel">
+                <div class="y2k-camera-wrapper">
+                    <div class="y2k-camera-header">Capture Time!</div>
+                    <div class="y2k-video-container">
+                        <video id="video-y2k" autoplay playsinline muted></video>
+                        <canvas id="ar-overlay-y2k" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform: scaleX(-1);"></canvas>
+                        <div class="y2k-countdown-huge" id="countdown-y2k"></div>
+                        <div id="shutter-flash-overlay" class="shutter-flash"></div>
+                    </div>
                 </div>
-                <span class="y2k-arrow">▶</span>
+
+                <!-- Mini Live Thumbnails Bar for Solo (6 slots) -->
+                <div id="solo-thumbnails-bar" class="camera-thumbnails-strip"></div>
             </div>
 
-            <div class="y2k-camera-wrapper">
-                <div class="y2k-camera-header">Capture Time!</div>
-                <div class="y2k-video-container">
-                    <video id="video-y2k" autoplay playsinline></video>
-                    <canvas id="ar-overlay-y2k" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1);"></canvas>
-                    <div class="y2k-countdown-huge" id="countdown-y2k"></div>
+            <!-- SISI KANAN: Timer, Tombol Ambil Foto, Selesai, & Pilihan Properti AR -->
+            <div class="y2k-camera-right-panel">
+                
+                <!-- Timer & Counter Status -->
+                <div class="y2k-timer-bar">
+                    <div class="y2k-timer-box">
+                        <span class="y2k-arrow">◀</span>
+                        <div class="y2k-timer-inner">
+                            <div id="global-timer-y2k" class="y2k-timer-text">01:30</div>
+                            <div class="y2k-timer-label">Capture Time</div>
+                        </div>
+                        <span class="y2k-arrow">▶</span>
+                    </div>
+                    <div id="solo-photo-count-badge" class="photo-count-pill">0 / 6 Foto</div>
                 </div>
-            </div>
 
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
-                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
-                    <button id="btn-capture-y2k" class="y2k-btn-capture">MULAI AMBIL FOTO</button>
-                    <button id="btn-finish-y2k" class="btn-secondary" style="display: none; padding: 12px 25px; border-radius: 20px; font-family: 'Titan One', cursive;">
-                        Selesai & Pilih Foto
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                <!-- Action Buttons Group -->
+                <div class="camera-buttons-group">
+                    <button id="btn-capture-y2k" class="y2k-btn-capture">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        AMBIL FOTO
+                    </button>
+                    <button id="btn-finish-y2k" class="btn-finish-camera" title="Selesai mengambil foto">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <span class="finish-btn-text">Selesai &amp; Pilih Foto</span>
                     </button>
                 </div>
-                <div class="ar-filter-box">
-                    <button class="ar-btn" data-filter="none" title="Normal">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
-                    </button>
-                    <button class="ar-btn" data-filter="crown" title="Crown">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/></svg>
-                    </button>
-                    <button class="ar-btn" data-filter="cat" title="Cat">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-7.5-3a7.5 7.5 0 0 0 15 0c0-1.5-.4-2.9-1.2-4.1l1.7-4.4-4.5 1.7A7.47 7.47 0 0 0 12 4.5c-1.5 0-2.9.4-4.1 1.2L3.4 4l1.7 4.5c-.8 1.2-1.2 2.6-1.2 4z"/></svg>
-                    </button>
-                    <button class="ar-btn" data-filter="glasses" title="Glasses">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23 11l-2.5-7H18v2h1.5l1.5 4.2c-.6-.2-1.3-.2-2-.2-2.8 0-5 2.2-5 5 0 2.2 1.4 4 3.4 4.7 1 .3 2.1.3 3.1-.2 1.4-.8 2.5-2.3 2.5-4.5V11zM6.5 6H8V4H3.5L1 11v4c0 2.2 1.1 3.7 2.5 4.5 1 .5 2.1.5 3.1.2 2-.7 3.4-2.5 3.4-4.7 0-2.8-2.2-5-5-5-.7 0-1.4 0-2 .2L4.5 6h2z"/></svg>
-                    </button>
-                    <button class="ar-btn" data-filter="star" title="Star">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    </button>
-                    <button class="ar-btn" data-filter="bunny" title="Bunny">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6.5 2C5.1 2 4 3.1 4 4.5v6c0 1.4 1.1 2.5 2.5 2.5h.3A7.5 7.5 0 0 0 12 19.5a7.5 7.5 0 0 0 5.2-6.5h.3c1.4 0 2.5-1.1 2.5-2.5v-6C20 3.1 18.9 2 17.5 2S15 3.1 15 4.5v5.2A7.44 7.44 0 0 0 12 9a7.44 7.44 0 0 0-3-.7V4.5C9 3.1 7.9 2 6.5 2z"/></svg>
-                    </button>
+
+                <!-- AR Props Selection Section -->
+                <div class="y2k-props-container">
+                    <div class="y2k-props-header">Properti Foto AR</div>
+                    <div class="ar-filter-box" title="Pilih Properti Foto AR (Topi Koboy, Kumis, Kacamata, dll)">
+                        <button class="ar-btn active" data-filter="none" title="Tanpa Properti (Normal)">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
+                        </button>
+                        <button class="ar-btn" data-filter="cowboy" title="Topi Koboy">
+                            <img src="Assets/props/cowboy_hat.webp" alt="Topi Koboy" class="ar-prop-icon">
+                        </button>
+                        <button class="ar-btn" data-filter="mustache" title="Kumis">
+                            <img src="Assets/props/mustache.webp" alt="Kumis" class="ar-prop-icon">
+                        </button>
+                        <button class="ar-btn" data-filter="cowboy_mustache" title="Koboy &amp; Kumis" style="width: auto; padding: 0 8px;">
+                            <div class="ar-prop-combo">
+                                <img src="Assets/props/cowboy_hat.webp" alt="Topi Koboy" class="ar-prop-combo-icon">
+                                <img src="Assets/props/mustache.webp" alt="Kumis" class="ar-prop-combo-icon">
+                            </div>
+                        </button>
+                        <button class="ar-btn" data-filter="glasses" title="Kacamata Hitam">
+                            <img src="Assets/props/sunglasses.webp" alt="Kacamata Hitam" class="ar-prop-icon">
+                        </button>
+                        <button class="ar-btn" data-filter="crown" title="Mahkota">
+                            <img src="Assets/props/crown.webp" alt="Mahkota" class="ar-prop-icon">
+                        </button>
+                        <button class="ar-btn" data-filter="cat" title="Telinga Kucing">
+                            <img src="Assets/props/cat_ears.webp" alt="Telinga Kucing" class="ar-prop-icon">
+                        </button>
+                        <button class="ar-btn" data-filter="party" title="Party Pack (Mahkota, Kacamata, Kumis)" style="width: auto; padding: 0 8px;">
+                            <div class="ar-prop-combo">
+                                <img src="Assets/props/crown.webp" alt="Mahkota" class="ar-prop-combo-icon">
+                                <img src="Assets/props/sunglasses.webp" alt="Kacamata" class="ar-prop-combo-icon">
+                                <img src="Assets/props/mustache.webp" alt="Kumis" class="ar-prop-combo-icon">
+                            </div>
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </div>
 
@@ -398,10 +425,10 @@
             </div>
             <div class="container-body">
                 <h2>Pilih Filter Foto</h2>
-                <div id="filter-grid" class="frame-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                <div id="filter-grid" class="frame-grid">
                     <!-- Filters will be generated here -->
                 </div>
-                <div class="action-buttons" style="margin-top: 20px;">
+                <div class="action-buttons">
                     <button id="btn-back-to-review-from-filter" class="btn-secondary">Kembali</button>
                     <button id="btn-apply-filter" class="btn-primary">Lanjut Pilih Frame</button>
                 </div>
@@ -427,16 +454,17 @@
                 <div id="frame-grid" class="frame-grid">
                     <!-- Frame options will be generated here -->
                 </div>
-                <div class="action-buttons" style="margin-top: 15px;">
+                <div class="action-buttons">
                     <button id="btn-back-to-review" class="btn-secondary">Kembali</button>
+                    <button id="btn-proceed-to-composition" class="btn-primary">Lanjut ke Hasil Foto ✨</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Screen 5: Final Composition -->
+    <!-- Screen 5: Final Composition (Side-by-Side: Preview di Kiri, 2 Button di Kanan) -->
     <div id="screen-composition" class="screen">
-        <div class="container">
+        <div class="container composition-result-container">
             <div class="container-header">
                 <div class="header-dots">
                     <div class="header-dot red"></div>
@@ -447,18 +475,34 @@
                     <span class="breadcrumb-path">home\start\capture\review\frame\</span>result
                 </div>
             </div>
-            <div class="container-body">
-                <h2>Hasil Foto Anda & Partner!</h2>
-                <canvas id="final-canvas"></canvas>
-                <div class="action-buttons">
-                    <button id="btn-download" class="btn-primary">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                        Download Foto
-                    </button>
-                    <button id="btn-restart" class="btn-secondary">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                        Mulai Lagi
-                    </button>
+            <div class="container-body composition-split-view">
+                <!-- SISI KIRI: Canvas Preview (Diperbesar) -->
+                <div class="composition-left-panel">
+                    <canvas id="final-canvas"></canvas>
+                </div>
+
+                <!-- SISI KANAN: Judul, Info, dan 2 Tombol Aksi -->
+                <div class="composition-right-panel">
+                    <div class="composition-header-group">
+                        <h2 class="composition-heading">Hasil Foto Anda &amp; Partner!</h2>
+                        <p class="composition-subheading">Photostrip Y2K kamu sudah jadi dan siap disimpan! ✨</p>
+                    </div>
+
+                    <div class="composition-actions-vertical">
+                        <button id="btn-download" class="btn-primary comp-btn comp-btn-download">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            <span>Download Foto</span>
+                        </button>
+                        <button id="btn-restart" class="btn-secondary comp-btn comp-btn-restart">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                            <span>Mulai Lagi</span>
+                        </button>
+                    </div>
+
+                    <div class="composition-tip-card">
+                        <span class="tip-icon">💡</span>
+                        <span class="tip-text">Format resolusi tinggi (HD 300 DPI) siap langsung dicetak atau dibagikan ke media sosial.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -472,6 +516,6 @@
         <img src="Assets/emoji/smile-removebg-preview.webp" class="y2k-sticker sticker-5" alt="Y2K Sticker 5">
     </div>
 
-    <script type="module" src="js/main.js?v=63"></script>
+    <script type="module" src="js/main.js?v=20261031_layout_preview_timer_fix"></script>
 </body>
 </html>

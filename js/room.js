@@ -301,17 +301,28 @@ export function setupRoomLobbyListeners() {
 
             try {
                 await joinRoom(roomCode, playerName, selectedAvatar);
-                showToast(`✅ Berhasil bergabung ke room ${roomCode}!`);
-                setTimeout(() => {
-                    startDuoSession();
-                }, 600);
+                showToast(`✅ Berhasil join ke room ${roomCode}!`);
+                btnJoinRoomAction.disabled = true;
+                btnJoinRoomAction.textContent = 'Terhubung! Menunggu Host...';
 
+                const joinBox = document.querySelector('.join-room-box');
+                if (joinBox) {
+                    let waitingMsg = document.getElementById('guest-waiting-host-msg');
+                    if (!waitingMsg) {
+                        waitingMsg = document.createElement('div');
+                        waitingMsg.id = 'guest-waiting-host-msg';
+                        waitingMsg.className = 'lobby-status-indicator';
+                        waitingMsg.style.marginTop = '15px';
+                        waitingMsg.innerHTML = '<span class="pulse-dot"></span> Terhubung dengan Host! Menunggu Host memulai sesi...';
+                        joinBox.appendChild(waitingMsg);
+                    }
+                }
             } catch (err) {
                 console.error(err);
                 // FIX #10: Replace alert() with showToast()
-                showToast(`❌ Gagal bergabung: ${err.message}`, 5000);
+                showToast(`❌ Gagal join: ${err.message}`, 5000);
                 btnJoinRoomAction.disabled = false;
-                btnJoinRoomAction.textContent = 'Gabung Room Sekarang';
+                btnJoinRoomAction.textContent = 'Join Room Sekarang';
             }
         });
     }
@@ -380,7 +391,7 @@ function startSoloSession() {
     startCamera();
 }
 
-function startDuoSession() {
+export function startDuoSession() {
     state.currentPhotoIndex = 0;
     state.capturedPhotos = [];
     state.selectedPhotos = [];

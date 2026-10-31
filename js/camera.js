@@ -18,9 +18,20 @@ export async function startCamera() {
             audio: false
         });
 
-        if (videoY2k) videoY2k.srcObject = stream;
-        if (videoDuoLocal) videoDuoLocal.srcObject = stream;
+        if (videoY2k) {
+            videoY2k.srcObject = stream;
+            videoY2k.muted = true;
+            try { await videoY2k.play(); } catch(e) {}
+        }
+        if (videoDuoLocal) {
+            videoDuoLocal.srcObject = stream;
+            videoDuoLocal.muted = true;
+            try { await videoDuoLocal.play(); } catch(e) {}
+        }
         state.stream = stream;
+
+        // Reset and render initial thumbnail strip and finish buttons
+        updatePhotoCounter();
 
         // If in multiplayer mode, initiate video call to partner
         if (state.isMultiplayer) {
@@ -149,7 +160,13 @@ export function startSessionTimer() {
             updateSessionCount();
             stopARLoop();
             stopCamera();
-            showReviewScreen();
+
+            if (state.capturedPhotos && state.capturedPhotos.length > 0) {
+                showToast('⏰ Waktu habis! Melanjutkan ke pemilihan foto.');
+            } else {
+                showToast('⏰ Waktu habis dan belum ada foto diambil.');
+            }
+            showReviewScreen(false, state.capturedPhotos);
 
             // Sync navigation in multiplayer
             if (state.isMultiplayer) {
@@ -162,24 +179,54 @@ export function startSessionTimer() {
     }, 1000);
 }
 
-function updatePhotoCounter() {
-    const count = state.capturedPhotos.length;
+export function updatePhotoCounter() {
+    const count = state.capturedPhotos ? state.capturedPhotos.length : 0;
     const counter = document.getElementById('photo-counter');
     if (counter) {
         counter.textContent = `${count} Foto Diambil`;
+    }
+    const soloBadge = document.getElementById('solo-photo-count-badge');
+    if (soloBadge) {
+        soloBadge.textContent = `${count} / 6 Foto`;
     }
     const duoCounter = document.getElementById('duo-photo-count');
     if (duoCounter) {
         duoCounter.textContent = `${count} Foto`;
     }
+    const sessionCount = document.getElementById('session-count');
+    if (sessionCount) {
+        sessionCount.textContent = `${count} Foto`;
+    }
 
-    // Show Finish & Review buttons once at least 1 photo is taken
-    const showFinish = count >= 1;
+    // Update Finish buttons - ALWAYS visible, changes to ready when count >= 1
     const btnFinishDuo = document.getElementById('btn-finish-duo');
     const btnFinishY2k = document.getElementById('btn-finish-y2k');
 
-    if (btnFinishDuo) btnFinishDuo.style.display = showFinish ? 'inline-block' : 'none';
-    if (btnFinishY2k) btnFinishY2k.style.display = showFinish ? 'inline-block' : 'none';
+    [btnFinishDuo, btnFinishY2k].forEach(btn => {
+        if (!btn) return;
+        const textSpan = btn.querySelector('.finish-btn-text');
+        if (count >= 1) {
+            btn.classList.add('ready');
+            if (textSpan) {
+                textSpan.textContent = `Selesai & Pilih (${count} Foto) ➔`;
+            } else {
+                btn.textContent = `Selesai & Pilih (${count} Foto) ➔`;
+            }
+            btn.title = 'Selesai dan lanjut memilih frame';
+        } else {
+            btn.classList.remove('ready');
+            if (textSpan) {
+                textSpan.textContent = 'Selesai & Pilih Foto';
+            } else {
+                btn.textContent = 'Selesai & Pilih Foto';
+            }
+            btn.title = 'Ambil minimal 1 foto dulu';
+        }
+    });
+
+    // Render thumbnail previews
+    renderThumbnails('solo-thumbnails-bar');
+    renderThumbnails('duo-thumbnails-bar');
 
     // Auto-finish if max photos reached (prevent RAM overload)
     const MAX_PHOTOS = 6;
@@ -189,8 +236,33 @@ function updatePhotoCounter() {
     }
 }
 
+function renderThumbnails(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    const totalSlots = 6;
+    for (let i = 0; i < totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'thumb-slot';
+        if (state.capturedPhotos && state.capturedPhotos[i]) {
+            slot.classList.add('filled');
+            const img = document.createElement('img');
+            img.src = state.capturedPhotos[i];
+            img.alt = `Foto ${i + 1}`;
+            slot.appendChild(img);
+        } else {
+            slot.textContent = `${i + 1}`;
+        }
+        container.appendChild(slot);
+    }
+}
+
 export function finishPhotoSession() {
-    if (!state.isSessionActive) return;
+    if (!state.capturedPhotos || state.capturedPhotos.length === 0) {
+        showToast('⚠️ Ambil minimal 1 foto dulu sebelum selesai!');
+        return;
+    }
     if (state.timerInterval) clearInterval(state.timerInterval);
     state.isSessionActive = false;
     state.isCapturing = false;
@@ -198,7 +270,7 @@ export function finishPhotoSession() {
     updateSessionCount();
     stopARLoop();
     stopCamera();
-    showReviewScreen();
+    showReviewScreen(false, state.capturedPhotos);
 
     // Sync navigation in multiplayer
     if (state.isMultiplayer) {
@@ -262,9 +334,7 @@ function executeCountdownAndCapture() {
                     setDisplay('📸');
 
                     setTimeout(() => {
-                        if (state.isSessionActive) {
-                            capturePhoto();
-                        }
+                        capturePhoto();
                         if (countdownY2k) countdownY2k.style.display = 'none';
                         if (countdownDuo) countdownDuo.style.display = 'none';
                         state.isCapturing = false;
@@ -289,116 +359,160 @@ function executeCountdownAndCapture() {
  * Capture photo from webcam(s)
  */
 export function capturePhoto() {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    try {
+        const canvas = document.getElementById('canvas');
+        if (!canvas) {
+            console.error('Canvas not found');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
 
-    // DUO MODE CAPTURE
-    if (state.isMultiplayer) {
-        const localVideo = document.getElementById('video-duo-local');
-        const remoteVideo = document.getElementById('video-duo-remote');
+        // DUO MODE CAPTURE
+        if (state.isMultiplayer) {
+            const localVideo = document.getElementById('video-duo-local');
+            const remoteVideo = document.getElementById('video-duo-remote');
 
-        const hasRemote = remoteVideo && remoteVideo.videoWidth > 0 && state.remoteStream;
+            const hasRemote = remoteVideo && remoteVideo.videoWidth > 0 && state.remoteStream;
 
-        const targetW = 1920;
-        const targetH = 1080;
-        canvas.width = targetW;
-        canvas.height = targetH;
+            const targetW = 1920;
+            const targetH = 1080;
+            canvas.width = targetW;
+            canvas.height = targetH;
 
-        const halfW = targetW / 2;
+            const halfW = targetW / 2;
 
-        if (hasRemote) {
-            // FIX #2: Canonical layout — Host ALWAYS left, Guest ALWAYS right
-            // Ensures both sides compute identical images without sending photo data over DataChannel
-            const leftVideo = state.isHost ? localVideo : remoteVideo;
-            const rightVideo = state.isHost ? remoteVideo : localVideo;
+            if (hasRemote) {
+                const leftVideo = state.isHost ? localVideo : remoteVideo;
+                const rightVideo = state.isHost ? remoteVideo : localVideo;
 
-            // Draw LEFT (Host camera) - Mirrored selfie style
-            ctx.save();
-            ctx.translate(halfW, 0);
-            ctx.scale(-1, 1);
-            drawVideoCover(ctx, leftVideo, 0, 0, halfW, targetH);
-            ctx.restore();
+                ctx.save();
+                ctx.translate(halfW, 0);
+                ctx.scale(-1, 1);
+                drawVideoCover(ctx, leftVideo, 0, 0, halfW, targetH);
+                ctx.restore();
 
-            // Draw RIGHT (Guest camera) - Mirrored selfie style
-            ctx.save();
-            ctx.translate(targetW, 0);
-            ctx.scale(-1, 1);
-            drawVideoCover(ctx, rightVideo, 0, 0, halfW, targetH);
-            ctx.restore();
+                ctx.save();
+                ctx.translate(targetW, 0);
+                ctx.scale(-1, 1);
+                drawVideoCover(ctx, rightVideo, 0, 0, halfW, targetH);
+                ctx.restore();
 
-            // Draw decorative divider line in the middle
-            ctx.save();
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.shadowColor = 'rgba(0,0,0,0.4)';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.moveTo(halfW, 0);
-            ctx.lineTo(halfW, targetH);
-            ctx.stroke();
+                ctx.save();
+                ctx.lineWidth = 6;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.moveTo(halfW, 0);
+                ctx.lineTo(halfW, targetH);
+                ctx.stroke();
 
-            // Add cute center badge
-            ctx.fillStyle = '#FF69B4';
-            ctx.beginPath();
-            ctx.arc(halfW, targetH / 2, 28, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 4;
-            ctx.stroke();
+                ctx.fillStyle = '#FF69B4';
+                ctx.beginPath();
+                ctx.arc(halfW, targetH / 2, 28, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 4;
+                ctx.stroke();
 
-            ctx.font = '24px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('💖', halfW, targetH / 2);
-            ctx.restore();
+                ctx.font = '24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💖', halfW, targetH / 2);
+                ctx.restore();
+
+            } else {
+                if (!localVideo) return;
+                const vw = localVideo.videoWidth || 1280;
+                const vh = localVideo.videoHeight || 720;
+                canvas.width = vw;
+                canvas.height = vh;
+                ctx.save();
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
+
+            applyARToCapture(canvas, ctx);
+
+            const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            state.capturedPhotos.push(photoDataUrl);
+            if (typeof window !== 'undefined') {
+                if (window.__PHOTOBOOTH_STATE__) window.__PHOTOBOOTH_STATE__.capturedPhotos = state.capturedPhotos;
+                window.__CAPTURED_PHOTOS__ = state.capturedPhotos;
+            }
+            try {
+                sessionStorage.setItem('cutesnaps_captured_photos', JSON.stringify(state.capturedPhotos));
+            } catch(e) {}
+
+            sendMultiplayerMessage({
+                type: 'photo_taken',
+                count: state.capturedPhotos.length
+            });
+
+            // Duo Shutter Flash
+            const flashDuo = document.getElementById('shutter-flash-duo');
+            if (flashDuo) {
+                flashDuo.classList.add('flash-active');
+                setTimeout(() => flashDuo.classList.remove('flash-active'), 120);
+            }
 
         } else {
-            // If remote video not ready yet, capture local mirrored
-            if (!localVideo || !localVideo.videoWidth) return;
-            canvas.width = localVideo.videoWidth;
-            canvas.height = localVideo.videoHeight;
+            // SOLO MODE CAPTURE
+            const video = document.getElementById('video-y2k');
+            if (!video) {
+                console.warn('Video element not found');
+                return;
+            }
+
+            let vw = video.videoWidth;
+            let vh = video.videoHeight;
+
+            if (!vw || !vh) {
+                const track = state.stream?.getVideoTracks()[0];
+                const settings = track ? track.getSettings() : null;
+                vw = (settings && settings.width) || video.clientWidth || 1280;
+                vh = (settings && settings.height) || video.clientHeight || 720;
+            }
+
+            canvas.width = vw;
+            canvas.height = vh;
+
             ctx.save();
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             ctx.restore();
+
+            applyARToCapture(canvas, ctx);
+
+            const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            state.capturedPhotos.push(photoDataUrl);
+            if (typeof window !== 'undefined') {
+                if (window.__PHOTOBOOTH_STATE__) window.__PHOTOBOOTH_STATE__.capturedPhotos = state.capturedPhotos;
+                window.__CAPTURED_PHOTOS__ = state.capturedPhotos;
+            }
+            try {
+                sessionStorage.setItem('cutesnaps_captured_photos', JSON.stringify(state.capturedPhotos));
+            } catch(e) {}
+
+            // Solo Shutter Flash
+            const flashSolo = document.getElementById('shutter-flash-overlay');
+            if (flashSolo) {
+                flashSolo.classList.add('flash-active');
+                setTimeout(() => flashSolo.classList.remove('flash-active'), 120);
+            }
         }
 
-        const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-        state.capturedPhotos.push(photoDataUrl);
+        updatePhotoCounter();
+        showToast(`📸 Foto ke-${state.capturedPhotos.length} berhasil diambil!`);
+        console.log(`Foto tersimpan. Total foto: ${state.capturedPhotos.length}`);
 
-        // FIX #2: Send lightweight signal only — NO photo data over DataChannel
-        // Both sides compute their own canonical composite independently
-        sendMultiplayerMessage({
-            type: 'photo_taken',
-            count: state.capturedPhotos.length
-        });
-
-    } else {
-        // SOLO MODE CAPTURE (always Y2K theme)
-        const video = document.getElementById('video-y2k');
-
-        if (!video || !video.videoWidth) {
-            console.warn('Video stream not ready for capture');
-            return;
-        }
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // FIX #12 (High): Mirror solo capture to match selfie preview
-        ctx.save();
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        ctx.restore();
-
-        const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-        state.capturedPhotos.push(photoDataUrl);
+    } catch (err) {
+        console.error('Error during capturePhoto:', err);
+        showToast('❌ Gagal menyimpan foto: ' + err.message);
     }
-
-    updatePhotoCounter();
-    console.log(`Foto tersimpan. Total foto: ${state.capturedPhotos.length}`);
 }
 
 /**
