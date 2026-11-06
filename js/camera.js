@@ -3,8 +3,12 @@ import { state } from './state.js';
 import { updateSessionCount } from './ui.js';
 import { showReviewScreen } from './main.js';
 import { sendMultiplayerMessage, showToast, startVideoCallWithPartner } from './multiplayer.js';
+import { isPrivacyConsented, promptPrivacyNotice } from './privacy.js';
 
 export async function startCamera() {
+    if (!isPrivacyConsented()) {
+        await promptPrivacyNotice();
+    }
     const videoY2k = document.getElementById('video-y2k');
     const videoDuoLocal = document.getElementById('video-duo-local');
 

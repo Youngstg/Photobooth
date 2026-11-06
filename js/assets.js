@@ -3,10 +3,10 @@ export const assetImages = {};
 
 const assetPaths = {
     logo: 'Assets/logo.webp',
-    sticker1: 'Assets/emoji/download__1_-removebg-preview.webp',
-    sticker2: 'Assets/emoji/download__2_-removebg-preview.webp',
-    sticker3: 'Assets/emoji/gv-removebg-preview.webp',
-    sticker4: 'Assets/emoji/smile-removebg-preview.webp'
+    sticker1: 'Assets/emoji/sticker-sparkle.webp',
+    sticker2: 'Assets/emoji/sticker-heart.webp',
+    sticker3: 'Assets/emoji/sticker-butterfly.webp',
+    sticker4: 'Assets/emoji/sticker-smile.webp'
 };
 
 // Load all asset images and convert to canvas for CORS-safe usage
@@ -30,12 +30,12 @@ export function loadAssets() {
                         const safeImg = new Image();
                         safeImg.onload = () => {
                             assetImages[key] = safeImg;
-                            console.log(`✓ Loaded asset: ${key} from ${path}`);
+                            console.log(`Loaded asset: ${key} from ${path}`);
                             resolve();
                         };
                         safeImg.src = canvas.toDataURL();
                     } catch (error) {
-                        console.warn(`✗ Failed to convert asset: ${key} - ${error.message}`);
+                        console.warn(`Failed to convert asset: ${key} - ${error.message}`);
                         // Store original image anyway
                         assetImages[key] = img;
                         resolve();
@@ -43,7 +43,7 @@ export function loadAssets() {
                 };
 
                 img.onerror = () => {
-                    console.warn(`✗ Failed to load asset: ${key} from ${path}`);
+                    console.warn(`Failed to load asset: ${key} from ${path}`);
                     resolve(); // Continue even if one fails
                 };
 

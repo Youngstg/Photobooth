@@ -1,5 +1,6 @@
 // Multiplayer Connection & Signaling Engine (WebRTC + PeerJS)
 import { state } from './state.js';
+import { getIceConfig } from './config.js';
 import { handleRemoteCursorMove, handleRemoteCursorClick, updateRemoteCursorDesign, hideRemoteCursor, stopCursorAnimationLoop, AVATARS } from './cursor-sync.js';
 import { handleRemoteReaction, showReactionBar, hideReactionBar } from './reactions.js';
 import { showScreen } from './ui.js';
@@ -7,6 +8,12 @@ import { showScreen } from './ui.js';
 let peer = null;
 let dataConn = null;
 let mediaConn = null;
+
+// Expose getIceConfig for testing and inspection
+export { getIceConfig };
+if (typeof window !== 'undefined') {
+    window.getIceConfig = getIceConfig;
+}
 
 // Event callbacks registered by other modules
 const messageHandlers = {
@@ -23,18 +30,18 @@ export function onMultiplayerMessage(type, handler) {
 }
 
 /**
- * Generate a unique 6-char Room Code (e.g. X8K2NP)
+ * Generate a unique 8-char Room Code (e.g. K9P2X4WT)
  * Cryptographically random and mixed with high-resolution entropy to ensure uniqueness across users.
  */
 export function generateRoomCode() {
     // 32-char unambiguous charset (excluding easily confused 0, O, 1, I)
     const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    const randomBytes = new Uint8Array(6);
+    const randomBytes = new Uint8Array(8);
     
     if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
         window.crypto.getRandomValues(randomBytes);
     } else {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 8; i++) {
             randomBytes[i] = Math.floor(Math.random() * 256);
         }
     }
@@ -46,7 +53,7 @@ export function generateRoomCode() {
     randomBytes[1] = (randomBytes[1] ^ ((now >> 8) & 0xFF) ^ (perf & 0xFF)) % chars.length;
 
     let code = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
         code += chars[randomBytes[i] % chars.length];
     }
     return code;
@@ -56,11 +63,13 @@ export function generateRoomCode() {
  * Create a new multiplayer room (Host)
  */
 export function createRoom(roomCode, playerName, playerAvatar) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         closeConnections();
 
         state.isMultiplayer = true;
         state.isHost = true;
+        state.isRoomLocked = false;
+        state.remotePlayer = null;
         state.roomCode = roomCode;
         state.localPlayer = {
             id: 'host',
@@ -80,14 +89,10 @@ export function createRoom(roomCode, playerName, playerAvatar) {
         }
 
         try {
+            const iceConfig = await getIceConfig();
             peer = new Peer(hostPeerId, {
                 debug: 1,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:global.stun.twilio.com:3478' }
-                    ]
-                }
+                config: iceConfig
             });
 
             peer.on('open', (id) => {
@@ -98,12 +103,132 @@ export function createRoom(roomCode, playerName, playerAvatar) {
             });
 
             peer.on('connection', (conn) => {
-                console.log('[Multiplayer] Guest connected to Host data channel');
-                setupDataConnection(conn);
+                console.log('[Multiplayer] Incoming connection to Host data channel');
+
+                // FIX #2 (Tugas #2): Hentikan koneksi ketiga di sisi Host & cek jika room terkunci
+                if (state.remotePlayer || state.isRoomLocked) {
+                    console.warn('[Multiplayer] 3rd/unauthorized connection attempt rejected: Room is full/locked');
+                    const rejectFull = () => {
+                        try {
+                            conn.send({
+                                type: 'room_full',
+                                message: 'Room ini sudah penuh (maksimal 2 orang) atau sesi sedang berlangsung.'
+                            });
+                        } catch (_) {}
+                        setTimeout(() => { try { conn.close(); } catch (_) {} }, 400);
+                    };
+                    if (conn.open) rejectFull();
+                    else conn.on('open', rejectFull);
+                    return;
+                }
+
+                // Handle handshake / join request from first guest
+                conn.on('data', async (data) => {
+                    if (!data || !data.type) return;
+
+                    if (data.type === 'join_request' || data.type === 'handshake') {
+                        if (state.remotePlayer || state.isRoomLocked) {
+                            try {
+                                conn.send({
+                                    type: 'room_full',
+                                    message: 'Room sudah penuh (maksimal 2 orang).'
+                                });
+                                setTimeout(() => { try { conn.close(); } catch (_) {} }, 400);
+                            } catch (_) {}
+                            return;
+                        }
+
+                        const guestPlayer = data.player || { name: 'Tamu', avatar: 'bunny' };
+                        const guestName = guestPlayer.name || 'Tamu';
+
+                        // Konfirmasi "Izinkan bergabung?" di sisi Host (Opsi A)
+                        const confirmed = await showConfirm(
+                            'Permintaan Bergabung',
+                            `${guestName} ingin bergabung ke room Anda. Izinkan?`,
+                            'Izinkan',
+                            'Tolak'
+                        );
+
+                        if (confirmed) {
+                            if (state.remotePlayer) {
+                                try {
+                                    conn.send({ type: 'room_full', message: 'Room sudah terisi.' });
+                                    setTimeout(() => { try { conn.close(); } catch (_) {} }, 400);
+                                } catch (_) {}
+                                return;
+                            }
+
+                            // Host menerima!
+                            state.remotePlayer = guestPlayer;
+                            state.isRoomLocked = true; // Kode hangus & kunci room!
+
+                            // Hentikan timer kode room di UI dan tandai terhubung
+                            window.dispatchEvent(new CustomEvent('pb_partner_connected'));
+
+                            // Kirim konfirmasi penerimaan ke partner
+                            conn.send({
+                                type: 'join_accepted',
+                                player: state.localPlayer
+                            });
+
+                            setupDataConnection(conn);
+                            updateRemoteCursorDesign();
+                            updateRoomHeader();
+                            notifyPartnerConnected();
+                            showToast(`🤝 ${guestName} bergabung ke room!`);
+
+                            if (state.stream) {
+                                startVideoCallWithPartner();
+                            }
+
+                            // Catch guest up jika host sudah berpindah layar
+                            const currentScreen = document.querySelector('.screen.active');
+                            if (currentScreen && currentScreen.id !== 'screen-lobby' && currentScreen.id !== 'screen-welcome') {
+                                sendMultiplayerMessage({
+                                    type: 'nav_screen',
+                                    screenId: currentScreen.id
+                                });
+                            }
+                        } else {
+                            // Host menolak koneksi tamu
+                            try {
+                                conn.send({
+                                    type: 'join_rejected',
+                                    message: 'Host menolak permintaan bergabung Anda.'
+                                });
+                                setTimeout(() => { try { conn.close(); } catch (_) {} }, 400);
+                            } catch (_) {}
+                            showToast(`🚫 Anda menolak permintaan bergabung dari ${guestName}.`);
+                        }
+                        return;
+                    }
+
+                    // Setelah partner diterima, teruskan pesan game/aplikasi
+                    if (state.remotePlayer && dataConn === conn) {
+                        handleIncomingData(data);
+                    }
+                });
+
+                conn.on('close', () => {
+                    if (state.remotePlayer && dataConn === conn) {
+                        console.warn('[Multiplayer] Partner disconnected');
+                        handlePartnerDisconnected();
+                    }
+                });
+
+                conn.on('error', (err) => {
+                    console.error('[Multiplayer] Host data channel error:', err);
+                });
             });
 
+            // Tolak panggilan video jika bukan dari partner resmi
             peer.on('call', (call) => {
-                console.log('[Multiplayer] Incoming video call from Guest');
+                console.log('[Multiplayer] Incoming video call from:', call.peer);
+                if (!dataConn || call.peer !== dataConn.peer || !state.remotePlayer) {
+                    console.warn('[Multiplayer] Unauthorized incoming video call rejected from:', call.peer);
+                    try { call.close(); } catch (_) {}
+                    return;
+                }
                 handleIncomingCall(call);
             });
 
@@ -131,12 +256,13 @@ export function createRoom(roomCode, playerName, playerAvatar) {
  * Join an existing multiplayer room (Guest)
  */
 export function joinRoom(roomCode, playerName, playerAvatar) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         closeConnections();
 
         const cleanCode = roomCode.trim().toUpperCase();
         state.isMultiplayer = true;
         state.isHost = false;
+        state.isRoomLocked = false;
         state.roomCode = cleanCode;
         state.localPlayer = {
             id: 'guest',
@@ -152,17 +278,21 @@ export function joinRoom(roomCode, playerName, playerAvatar) {
         }
 
         try {
-            // Guest gets a random peer ID
+            const iceConfig = await getIceConfig();
             const guestPeerId = `pb-guest-${Math.random().toString(36).substring(2, 9)}`;
             peer = new Peer(guestPeerId, {
                 debug: 1,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:global.stun.twilio.com:3478' }
-                    ]
-                }
+                config: iceConfig
             });
+
+            let isResolved = false;
+            let joinTimeout = setTimeout(() => {
+                if (!isResolved) {
+                    isResolved = true;
+                    try { peer?.destroy(); } catch (_) {}
+                    reject(new Error('Waktu tunggu habis. Host tidak merespon permintaan bergabung.'));
+                }
+            }, 35000);
 
             peer.on('open', (id) => {
                 console.log(`[Multiplayer] Guest peer opened with ID: ${id}`);
@@ -175,21 +305,75 @@ export function joinRoom(roomCode, playerName, playerAvatar) {
                     reliable: true
                 });
 
-                const onConnected = () => {
-                    console.log('[Multiplayer] Connected to Host data channel!');
-                    setupDataConnection(conn);
-                    updateRoomHeader();
-                    resolve(cleanCode);
-                };
-                if (conn.open) {
-                    onConnected();
-                } else {
-                    conn.on('open', onConnected);
-                }
+                conn.on('open', () => {
+                    console.log('[Multiplayer] Connected to Host data channel! Sending join_request...');
+                    conn.send({
+                        type: 'join_request',
+                        player: state.localPlayer
+                    });
+                });
+
+                conn.on('data', (data) => {
+                    if (!data || !data.type) return;
+
+                    if (data.type === 'join_accepted') {
+                        if (isResolved) return;
+                        isResolved = true;
+                        clearTimeout(joinTimeout);
+
+                        state.remotePlayer = data.player;
+                        state.isRoomLocked = true;
+                        setupDataConnection(conn);
+                        updateRemoteCursorDesign();
+                        updateRoomHeader();
+                        resolve(cleanCode);
+                        return;
+                    }
+
+                    if (data.type === 'join_rejected') {
+                        if (isResolved) return;
+                        isResolved = true;
+                        clearTimeout(joinTimeout);
+                        try { conn.close(); } catch (_) {}
+                        try { peer?.destroy(); } catch (_) {}
+                        reject(new Error(data.message || 'Permintaan bergabung ditolak oleh Host.'));
+                        return;
+                    }
+
+                    if (data.type === 'room_full') {
+                        if (isResolved) return;
+                        isResolved = true;
+                        clearTimeout(joinTimeout);
+                        try { conn.close(); } catch (_) {}
+                        try { peer?.destroy(); } catch (_) {}
+                        reject(new Error(data.message || 'Room sudah penuh (maksimal 2 orang).'));
+                        return;
+                    }
+
+                    // Process other messages once connected
+                    if (state.remotePlayer) {
+                        handleIncomingData(data);
+                    }
+                });
+
+                conn.on('close', () => {
+                    console.warn('[Multiplayer] Host disconnected');
+                    if (!isResolved) {
+                        isResolved = true;
+                        clearTimeout(joinTimeout);
+                        reject(new Error('Koneksi ke Host terputus sebelum permintaan diterima.'));
+                    } else {
+                        handlePartnerDisconnected();
+                    }
+                });
 
                 conn.on('error', (err) => {
-                    console.error('[Multiplayer] Connection to Host failed:', err);
-                    reject(new Error('Gagal menghubungkan ke room. Pastikan Kode Room benar!'));
+                    console.error('[Multiplayer] Connection to Host error:', err);
+                    if (!isResolved) {
+                        isResolved = true;
+                        clearTimeout(joinTimeout);
+                        reject(new Error('Kode room tidak ditemukan atau sudah kedaluwarsa. Pastikan kode benar atau buat room baru.'));
+                    }
                 });
             });
 
@@ -200,7 +384,15 @@ export function joinRoom(roomCode, playerName, playerAvatar) {
 
             peer.on('error', (err) => {
                 console.error('[Multiplayer] Guest Peer Error:', err);
-                reject(err);
+                if (!isResolved) {
+                    isResolved = true;
+                    clearTimeout(joinTimeout);
+                    if (err.type === 'peer-unavailable' || err.message?.includes('Could not connect to peer')) {
+                        reject(new Error('Kode room tidak ditemukan atau sudah kedaluwarsa. Pastikan kode benar atau buat room baru.'));
+                    } else {
+                        reject(new Error(err.message || 'Gagal menyambung ke jaringan Peer.'));
+                    }
+                }
             });
 
         } catch (e) {
@@ -216,38 +408,12 @@ function setupDataConnection(conn) {
     dataConn = conn;
     state.dataConnection = conn;
 
-    const onDataChannelReady = () => {
-        console.log('[Multiplayer] Data channel fully open');
-        
-        // Send initial handshake with our player info
-        sendMultiplayerMessage({
-            type: 'handshake',
-            player: state.localPlayer
-        });
+    showReactionBar();
+    notifyPartnerConnected();
 
-        showReactionBar();
-        notifyPartnerConnected();
-
-        // If local camera is already active, initiate video call to partner
-        if (state.stream) {
-            startVideoCallWithPartner();
-        }
-
-        // If host is already on camera or beyond, catch guest up
-        if (state.isHost) {
-            const currentScreen = document.querySelector('.screen.active');
-            if (currentScreen && currentScreen.id !== 'screen-lobby' && currentScreen.id !== 'screen-welcome') {
-                sendMultiplayerMessage({
-                    type: 'nav_screen',
-                    screenId: currentScreen.id
-                });
-            }
-        }
-    };
-    if (conn.open) {
-        onDataChannelReady();
-    } else {
-        conn.on('open', onDataChannelReady);
+    // If local camera is already active, initiate video call to partner
+    if (state.stream) {
+        startVideoCallWithPartner();
     }
 
     conn.on('data', (data) => {
@@ -332,6 +498,11 @@ export function startVideoCallWithPartner() {
     }
 
     console.log(`[Multiplayer] Calling partner video stream: ${partnerPeerId}`);
+    const statusText = document.getElementById('duo-remote-status-text');
+    const retryBtn = document.getElementById('btn-retry-partner-video');
+    if (statusText) statusText.textContent = 'Menghubungkan kamera partner...';
+    if (retryBtn) retryBtn.style.display = 'none';
+
     try {
         const call = peer.call(partnerPeerId, state.stream);
         if (call) {
@@ -340,6 +511,18 @@ export function startVideoCallWithPartner() {
     } catch (e) {
         console.error('[Multiplayer] Error calling partner stream:', e);
     }
+
+    // 15-second watchdog for cross-network WebRTC media connection
+    if (window._partnerVideoWatchdog) clearTimeout(window._partnerVideoWatchdog);
+    window._partnerVideoWatchdog = setTimeout(() => {
+        if (!state.remoteStream) {
+            console.warn('[Multiplayer] Partner video connection timeout (15s)');
+            if (statusText) {
+                statusText.textContent = 'Koneksi video partner terhambat (WebRTC/firewall). Coba klik tombol di bawah untuk menyambungkan ulang.';
+            }
+            if (retryBtn) retryBtn.style.display = 'inline-block';
+        }
+    }, 15000);
 }
 
 function handleOutgoingCall(call) {
@@ -389,6 +572,15 @@ function handleIncomingCall(call) {
  * Attach remote stream to video elements in UI
  */
 export function attachRemoteVideo(stream) {
+    if (window._partnerVideoWatchdog) {
+        clearTimeout(window._partnerVideoWatchdog);
+        window._partnerVideoWatchdog = null;
+    }
+    const statusText = document.getElementById('duo-remote-status-text');
+    const retryBtn = document.getElementById('btn-retry-partner-video');
+    if (statusText) statusText.textContent = 'Partner Terhubung';
+    if (retryBtn) retryBtn.style.display = 'none';
+
     const videoRemoteDuo = document.getElementById('video-duo-remote');
     if (videoRemoteDuo) {
         videoRemoteDuo.srcObject = stream;
@@ -410,6 +602,10 @@ export function detachRemoteVideo() {
     if (container) {
         container.classList.remove('has-partner-video');
     }
+    const statusText = document.getElementById('duo-remote-status-text');
+    const retryBtn = document.getElementById('btn-retry-partner-video');
+    if (statusText) statusText.textContent = 'Kamera partner terputus. Klik Hubungkan Ulang jika partner masih online.';
+    if (retryBtn) retryBtn.style.display = 'inline-block';
 }
 
 /**
@@ -448,6 +644,8 @@ function notifyPartnerConnected() {
 function handlePartnerDisconnected() {
     hideRemoteCursor();
     detachRemoteVideo();
+    state.remotePlayer = null;
+    state.isRoomLocked = false;
     window.dispatchEvent(new CustomEvent('pb_partner_disconnected'));
     showToast('Partner terputus dari room.');
     
@@ -474,6 +672,7 @@ export function closeConnections() {
         peer = null;
     }
     state.isMultiplayer = false;
+    state.isRoomLocked = false;
     state.remotePlayer = null;
     state.remoteStream = null;
     hideRemoteCursor();

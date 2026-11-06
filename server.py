@@ -60,6 +60,36 @@ def add_header(response):
 def index():
     return send_from_directory('.', 'index.html')
 
+@app.route('/api/ice-servers', methods=['GET'])
+def get_ice_servers():
+    """Provides WebRTC ICE STUN and TURN server configuration from environment variables."""
+    stun_servers = os.environ.get('STUN_SERVERS', 'stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302,stun:stun.cloudflare.com:3478')
+    turn_servers = os.environ.get('TURN_SERVERS')
+    turn_username = os.environ.get('TURN_USERNAME')
+    turn_credential = os.environ.get('TURN_CREDENTIAL')
+
+    ice_servers = []
+    for s in stun_servers.split(','):
+        s_clean = s.strip()
+        if s_clean:
+            ice_servers.append({'urls': s_clean})
+
+    has_turn = False
+    if turn_servers and turn_username and turn_credential:
+        urls = [u.strip() for u in turn_servers.split(',') if u.strip()]
+        if urls:
+            ice_servers.append({
+                'urls': urls,
+                'username': turn_username,
+                'credential': turn_credential
+            })
+            has_turn = True
+
+    return jsonify({
+        'iceServers': ice_servers,
+        'hasTurn': has_turn
+    })
+
 @app.route('/api/filter', methods=['POST'])
 def apply_filter():
     try:

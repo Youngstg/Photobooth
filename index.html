@@ -12,14 +12,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cutesnaps.us.ci/">
     <meta property="og:title" content="CuteSnaps">
-    <meta property="og:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter cerdas, dan koleksi template photostrip estetik.">
+    <meta property="og:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter foto estetik, properti AR, dan koleksi template photostrip estetik.">
     <meta property="og:image" content="https://cutesnaps.us.ci/Assets/logo.webp">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://cutesnaps.us.ci/">
     <meta property="twitter:title" content="CuteSnaps">
-    <meta property="twitter:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter cerdas, dan koleksi template photostrip estetik.">
+    <meta property="twitter:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter foto estetik, properti AR, dan koleksi template photostrip estetik.">
     <meta property="twitter:image" content="https://cutesnaps.us.ci/Assets/logo.webp">
 
     <!-- Favicon & Icons -->
@@ -34,9 +34,19 @@
     <!-- PeerJS for WebRTC Realtime Multiplayer -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- MediaPipe Tasks Vision -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
 </head>
 <body class="theme-y2k">
+
+    <!-- In-App Browser Warning Banner -->
+    <div id="in-app-browser-warning" class="in-app-browser-banner">
+        <div class="banner-icon">⚠️</div>
+        <div class="banner-content">
+            <strong>Peramban Aplikasi Terdeteksi</strong>
+            <p>Anda membuka lewat peramban aplikasi (Instagram/TikTok/WA) yang membatasi kamera. Ketuk <strong>⋮</strong> di kanan atas lalu pilih <em>"Buka di Browser Eksternal (Chrome/Safari)"</em>.</p>
+        </div>
+        <button type="button" id="btn-copy-app-link" class="banner-btn" title="Salin Link">Salin Link</button>
+    </div>
+
 
     <!-- Duo Room Live Header Bar (Hidden in Solo mode) -->
     <div id="duo-room-header" class="duo-room-header" style="display: none;">
@@ -74,6 +84,12 @@
             <button id="btn-start-now" class="welcome-start-btn">
                 START NOW
             </button>
+            <div class="welcome-privacy-link-container">
+                <button type="button" id="btn-open-privacy-modal" class="privacy-link-btn" title="Pemberitahuan Privasi & Kamera">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                    Pemberitahuan Privasi & Kamera
+                </button>
+            </div>
         </div>
     </div>
 
@@ -220,7 +236,7 @@
                     <div id="panel-lobby-join" class="lobby-tab-panel" style="display: none;">
                         <div class="join-room-box">
                             <label for="input-join-code">Masukkan Kode Room untuk Join:</label>
-                            <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: CUTE88" maxlength="8">
+                            <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: K9P2X4WT" maxlength="8">
                             <button id="btn-join-room-action" class="btn-primary btn-large" style="margin-top: 15px;">
                                 Join Room Sekarang
                             </button>
@@ -270,7 +286,10 @@
                             <div class="placeholder-icon">
                                 <svg viewBox="0 0 24 24" width="48" height="48" fill="#8370F5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             </div>
-                            <p>Menghubungkan kamera partner...</p>
+                            <p id="duo-remote-status-text">Menghubungkan kamera partner...</p>
+                            <button type="button" id="btn-retry-partner-video" class="btn-retry-video" style="display: none;">
+                                🔄 Hubungkan Ulang Kamera
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -501,7 +520,7 @@
 
                     <div class="composition-tip-card">
                         <span class="tip-icon">💡</span>
-                        <span class="tip-text">Format resolusi tinggi (HD 300 DPI) siap langsung dicetak atau dibagikan ke media sosial.</span>
+                        <span class="tip-text">Format resolusi tinggi (HD Siap Cetak) jernih dan tajam, siap dicetak atau dibagikan ke media sosial.</span>
                     </div>
                 </div>
             </div>
@@ -510,12 +529,51 @@
 
     <!-- Y2K Stickers Decorations -->
     <div id="y2k-decorations">
-        <img src="Assets/emoji/download__1_-removebg-preview.webp" class="y2k-sticker sticker-2" alt="Y2K Sticker 2">
-        <img src="Assets/emoji/download__2_-removebg-preview.webp" class="y2k-sticker sticker-3" alt="Y2K Sticker 3">
-        <img src="Assets/emoji/gv-removebg-preview.webp" class="y2k-sticker sticker-4" alt="Y2K Sticker 4">
-        <img src="Assets/emoji/smile-removebg-preview.webp" class="y2k-sticker sticker-5" alt="Y2K Sticker 5">
+        <img src="Assets/emoji/sticker-sparkle.webp" class="y2k-sticker sticker-2" alt="Y2K Sticker 2">
+        <img src="Assets/emoji/sticker-heart.webp" class="y2k-sticker sticker-3" alt="Y2K Sticker 3">
+        <img src="Assets/emoji/sticker-butterfly.webp" class="y2k-sticker sticker-4" alt="Y2K Sticker 4">
+        <img src="Assets/emoji/sticker-smile.webp" class="y2k-sticker sticker-5" alt="Y2K Sticker 5">
     </div>
 
     <script type="module" src="js/main.js?v=20261031_layout_preview_timer_fix"></script>
+
+    <!-- Privacy & Camera Notice Modal -->
+    <div id="modal-privacy-notice" class="privacy-modal-overlay">
+        <div class="privacy-modal-box">
+            <div class="privacy-modal-header">
+                <span style="font-size: 26px;">🔒</span>
+                <h3>Pemberitahuan Privasi & Kamera</h3>
+            </div>
+            <div class="privacy-modal-body">
+                <div class="privacy-item">
+                    <div class="privacy-item-icon">📷</div>
+                    <div class="privacy-item-text">
+                        <strong>Kamera & Aliran Video</strong>
+                        <p>Pada <strong>Mode Solo</strong>, kamera diproses 100% lokal di browser perangkat Anda. Pada <strong>Mode Duo</strong>, video dikirimkan secara langsung <em>peer-to-peer (WebRTC)</em> hanya kepada partner di room Anda tanpa perantara server.</p>
+                    </div>
+                </div>
+                <div class="privacy-item">
+                    <div class="privacy-item-icon">🛡️</div>
+                    <div class="privacy-item-text">
+                        <strong>Tanpa Penyimpanan di Server</strong>
+                        <p><strong>Tidak ada foto atau rekaman video yang diunggah atau disimpan di server kami.</strong> Semua foto hanya berada di memori perangkat Anda selama sesi dan otomatis terhapus saat sesi selesai atau browser ditutup.</p>
+                    </div>
+                </div>
+                <div class="privacy-item">
+                    <div class="privacy-item-icon">👥</div>
+                    <div class="privacy-item-text">
+                        <strong>Nama Panggilan & Avatar</strong>
+                        <p>Nama dan avatar hanya digunakan sementara untuk membedakan kursor Anda dan partner saat memilih foto dan frame bersama.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="privacy-modal-footer">
+                <button type="button" id="btn-accept-privacy" class="btn-primary modal-action-btn">
+                    Saya Mengerti & Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

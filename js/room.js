@@ -290,8 +290,12 @@ export function setupRoomLobbyListeners() {
             const roomCode = joinCodeInput ? joinCodeInput.value.trim().toUpperCase() : '';
 
             if (!roomCode) {
-                // FIX #10: Replace alert() with showToast()
                 showToast('⚠️ Masukkan Kode Room terlebih dahulu!', 3000);
+                joinCodeInput?.focus();
+                return;
+            }
+            if (roomCode.length !== 8) {
+                showToast('⚠️ Kode Room harus terdiri dari 8 karakter!', 3000);
                 joinCodeInput?.focus();
                 return;
             }
@@ -319,8 +323,11 @@ export function setupRoomLobbyListeners() {
                 }
             } catch (err) {
                 console.error(err);
-                // FIX #10: Replace alert() with showToast()
-                showToast(`❌ Gagal join: ${err.message}`, 5000);
+                let friendlyMsg = err.message || 'Koneksi gagal.';
+                if (friendlyMsg.includes('Could not connect to peer') || friendlyMsg.includes('peer-unavailable') || friendlyMsg.includes('tidak ditemukan')) {
+                    friendlyMsg = 'Kode room tidak ditemukan atau sudah kedaluwarsa. Pastikan kode benar atau mintalah kode terbaru dari Host.';
+                }
+                showToast(`❌ Gagal join: ${friendlyMsg}`, 5000);
                 btnJoinRoomAction.disabled = false;
                 btnJoinRoomAction.textContent = 'Join Room Sekarang';
             }
@@ -358,6 +365,7 @@ export function setupRoomLobbyListeners() {
 
     // Check URL parameters for direct join
     checkUrlForRoomInvite();
+    startRoomCodeTimer();
 }
 
 /**

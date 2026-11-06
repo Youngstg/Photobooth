@@ -30,6 +30,7 @@ uploads/
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # Internal installation and deployment guides
 INSTALLATION_GUIDE.md
@@ -46,3 +47,8 @@ skills-lock.json
 *.bak
 scratch/
 .DS_Store
+
+# UAT Testing artifacts & reports
+uat/
+uat-results/
+node_modules/

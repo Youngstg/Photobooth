@@ -8,7 +8,8 @@ import { availableFilters, applyFilterToImages } from './filters.js';
 import { initCursorSync } from './cursor-sync.js';
 import { initReactions } from './reactions.js';
 import { setupRoomLobbyListeners, startDuoSession } from './room.js';
-import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm } from './multiplayer.js';
+import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm, startVideoCallWithPartner } from './multiplayer.js';
+import { initPrivacyAndBrowserGuards } from './privacy.js';
 
 let isComposing = false;
 
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initReactions();
     setupRoomLobbyListeners();
     setupMultiplayerEventHandlers();
+    initPrivacyAndBrowserGuards();
 
     await fetchTemplates();
     loadAssets().then(() => {
@@ -176,6 +178,16 @@ function setupButtonListeners() {
     };
     if (document.getElementById('btn-finish-y2k')) document.getElementById('btn-finish-y2k').addEventListener('click', finishCaptureHandler);
     if (document.getElementById('btn-finish-duo')) document.getElementById('btn-finish-duo').addEventListener('click', finishCaptureHandler);
+
+    // Retry partner video button
+    const btnRetryPartner = document.getElementById('btn-retry-partner-video');
+    if (btnRetryPartner) {
+        btnRetryPartner.addEventListener('click', () => {
+            showToast('🔄 Mencoba menyambungkan kamera partner kembali...');
+            startVideoCallWithPartner();
+        });
+    }
+
 
     // Screen 3: Review buttons
     document.getElementById('btn-retake').addEventListener('click', () => {

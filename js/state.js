@@ -18,6 +18,7 @@ if (typeof window !== 'undefined') {
             // Multiplayer (Angie-Style) State
             isMultiplayer: false,
             roomCode: null,
+            isRoomLocked: false,
             isHost: false,
             localPlayer: null,
             remotePlayer: null,
@@ -46,6 +47,7 @@ export const state = typeof window !== 'undefined' ? window.__PHOTOBOOTH_STATE__
     theme: 'y2k',
     isMultiplayer: false,
     roomCode: null,
+    isRoomLocked: false,
     isHost: false,
     localPlayer: null,
     remotePlayer: null,
