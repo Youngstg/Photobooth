@@ -305,7 +305,7 @@ export function setupRoomLobbyListeners() {
 
             try {
                 await joinRoom(roomCode, playerName, selectedAvatar);
-                showToast(`✅ Berhasil join ke room ${roomCode}!`);
+                showToast(`✅ Berhasil bergabung ke room ${roomCode}!`);
                 btnJoinRoomAction.disabled = true;
                 btnJoinRoomAction.textContent = 'Terhubung! Menunggu Host...';
 
@@ -327,9 +327,9 @@ export function setupRoomLobbyListeners() {
                 if (friendlyMsg.includes('Could not connect to peer') || friendlyMsg.includes('peer-unavailable') || friendlyMsg.includes('tidak ditemukan')) {
                     friendlyMsg = 'Kode room tidak ditemukan atau sudah kedaluwarsa. Pastikan kode benar atau mintalah kode terbaru dari Host.';
                 }
-                showToast(`❌ Gagal join: ${friendlyMsg}`, 5000);
+                showToast(`❌ Gagal bergabung: ${friendlyMsg}`, 5000);
                 btnJoinRoomAction.disabled = false;
-                btnJoinRoomAction.textContent = 'Join Room Sekarang';
+                btnJoinRoomAction.textContent = 'Gabung Room Sekarang';
             }
         });
     }

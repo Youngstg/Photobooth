@@ -10,6 +10,7 @@ import { initReactions } from './reactions.js';
 import { setupRoomLobbyListeners, startDuoSession } from './room.js';
 import { onMultiplayerMessage, sendMultiplayerMessage, showToast, showConfirm, startVideoCallWithPartner } from './multiplayer.js';
 import { initPrivacyAndBrowserGuards } from './privacy.js';
+import { insertJpegDpi } from './canvas.js';
 
 let isComposing = false;
 
@@ -303,9 +304,10 @@ function setupButtonListeners() {
         const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
         const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
         link.download = `cutesnaps-${dateStr}-${timeStr}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        const rawJpeg = canvas.toDataURL('image/jpeg', 0.95);
+        link.href = insertJpegDpi(rawJpeg, 300);
         link.click();
-        showToast('📥 Foto berhasil diunduh!');
+        showToast('📥 Foto berhasil diunduh (HD 300 DPI)!');
     });
 
     let isRestartConfirmActive = false;

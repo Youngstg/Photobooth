@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CuteSnaps</title>
+    <meta name="theme-color" content="#FFEAA7">
+    <title>CuteSnaps — Photobooth Online Y2K & Duo Collab</title>
     <meta name="description" content="CuteSnaps Photobooth Online — Aplikasi web photobooth Y2K interaktif dengan fitur duo collab real-time WebRTC, filter foto estetik retro, properti AR, dan template photostrip estetik langsung dari browser.">
     <meta name="keywords" content="photobooth online, photobooth web, duo collab photobooth, photobooth webrtc, cutesnaps, filter foto online, photo strip y2k, virtual photobooth indonesia">
     <link rel="canonical" href="https://cutesnaps.us.ci/">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="https://cutesnaps.us.ci/">
-    <meta property="og:title" content="CuteSnaps">
+    <meta property="og:title" content="CuteSnaps — Photobooth Online Y2K & Duo Collab">
     <meta property="og:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter foto estetik, properti AR, dan koleksi template photostrip estetik.">
     <meta property="og:image" content="https://cutesnaps.us.ci/Assets/logo.webp">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://cutesnaps.us.ci/">
-    <meta property="twitter:title" content="CuteSnaps">
+    <meta property="twitter:title" content="CuteSnaps — Photobooth Online Y2K & Duo Collab">
     <meta property="twitter:description" content="Aplikasi photobooth online gratis dengan multiplayer duo collab real-time, filter foto estetik, properti AR, dan koleksi template photostrip estetik.">
     <meta property="twitter:image" content="https://cutesnaps.us.ci/Assets/logo.webp">
 
@@ -75,14 +77,14 @@
                 <img src="Assets/logo.webp" alt="CuteSnaps Logo" class="welcome-logo-img">
             </div>
             <div class="y2k-skewed-banner">
-                <span class="banner-line-1">Welcome to</span>
+                <span class="banner-line-1">Selamat Datang di</span>
                 <span class="banner-line-2">Cute Snaps!</span>
             </div>
             <p class="welcome-subtitle">
                 Photobooth Online Bersama Teman & Pasangan
             </p>
             <button id="btn-start-now" class="welcome-start-btn">
-                START NOW
+                MULAI SEKARANG
             </button>
             <div class="welcome-privacy-link-container">
                 <button type="button" id="btn-open-privacy-modal" class="privacy-link-btn" title="Pemberitahuan Privasi & Kamera">
@@ -173,7 +175,7 @@
                         </button>
                         <button id="tab-lobby-join" class="lobby-tab-btn">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                            <span>Join Room Partner</span>
+                            <span>Gabung Room Partner</span>
                         </button>
                     </div>
 
@@ -235,10 +237,10 @@
                     <!-- Panel: Join Room -->
                     <div id="panel-lobby-join" class="lobby-tab-panel" style="display: none;">
                         <div class="join-room-box">
-                            <label for="input-join-code">Masukkan Kode Room untuk Join:</label>
+                            <label for="input-join-code">Masukkan Kode Room untuk Bergabung:</label>
                             <input type="text" id="input-join-code" class="y2k-input join-code-input" placeholder="Contoh: K9P2X4WT" maxlength="8">
                             <button id="btn-join-room-action" class="btn-primary btn-large" style="margin-top: 15px;">
-                                Join Room Sekarang
+                                Gabung Room Sekarang
                             </button>
                         </div>
                     </div>
@@ -265,7 +267,7 @@
             <div id="duo-camera-container" class="duo-camera-split-container">
                 <!-- Local Video Player (Left) -->
                 <div class="duo-video-slot local-slot">
-                    <div id="duo-local-label" class="duo-player-label host-label">You (Host)</div>
+                    <div id="duo-local-label" class="duo-player-label host-label">Kamu (Host)</div>
                     <div class="video-crop-wrapper">
                         <video id="video-duo-local" autoplay playsinline muted></video>
                         <canvas id="ar-overlay-duo-local" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform: scaleX(-1);"></canvas>
@@ -319,7 +321,7 @@
             <!-- SISI KIRI: Frame Kamera & Strip Thumbnail Foto -->
             <div class="y2k-camera-left-panel">
                 <div class="y2k-camera-wrapper">
-                    <div class="y2k-camera-header">Capture Time!</div>
+                    <div class="y2k-camera-header">Waktunya Foto!</div>
                     <div class="y2k-video-container">
                         <video id="video-y2k" autoplay playsinline muted></video>
                         <canvas id="ar-overlay-y2k" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform: scaleX(-1);"></canvas>
@@ -341,7 +343,7 @@
                         <span class="y2k-arrow">◀</span>
                         <div class="y2k-timer-inner">
                             <div id="global-timer-y2k" class="y2k-timer-text">01:30</div>
-                            <div class="y2k-timer-label">Capture Time</div>
+                            <div class="y2k-timer-label">Waktu Foto</div>
                         </div>
                         <span class="y2k-arrow">▶</span>
                     </div>
@@ -510,7 +512,7 @@
                     <div class="composition-actions-vertical">
                         <button id="btn-download" class="btn-primary comp-btn comp-btn-download">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            <span>Download Foto</span>
+                            <span>Unduh Foto</span>
                         </button>
                         <button id="btn-restart" class="btn-secondary comp-btn comp-btn-restart">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>

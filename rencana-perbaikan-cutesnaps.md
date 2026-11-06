@@ -36,11 +36,11 @@ Kolom **Status**: ☐ belum, 🔄 dikerjakan, ✅ selesai dan terverifikasi.
 
 ### Fase 2: poles
 
-| # | Perbaikan | Langkah | Usaha |
-|---|---|---|---|
-| 13 | Metadata dan bahasa | Lengkapi `theme-color`, `og:locale`, title yang lebih deskriptif; samakan bahasa ("Welcome to Cute Snaps!", "Capture Time!") | S |
-| 14 | DPI dan kualitas hasil | Tanam metadata DPI pada JPG, atau tetap pakai redaksi "Siap Cetak"; cek parameter kualitas JPG dengan kamera nyata | S |
-| 15 | Otomasi | Pasang Playwright di CI agar setiap deploy diuji otomatis | M |
+| # | Perbaikan | Langkah | Usaha | Status |
+|---|---|---|---|---|
+| 13 | Metadata dan bahasa | Lengkapi `theme-color`, `og:locale`, title yang lebih deskriptif; samakan bahasa ("Welcome to Cute Snaps!", "Capture Time!") | S | 🔄 |
+| 14 | DPI dan kualitas hasil | Tanam metadata DPI pada JPG, atau tetap pakai redaksi "Siap Cetak"; cek parameter kualitas JPG dengan kamera nyata | S | 🔄 |
+| 15 | Otomasi | Pasang Playwright di CI agar setiap deploy diuji otomatis | M | 🔄 |
 
 ---
 
@@ -80,4 +80,6 @@ Hitungan 63 lulus / 7 gagal tidak bisa dipercaya apa adanya. Ubah status menjadi
 | 2026-11-06 | #10 | Pesan error PeerJS disanitasi ramah bahasa Indonesia tanpa membocorkan prefix pb-room-. |
 | 2026-11-06 | #11 | Modal privasi diperbarui mencakup relay TURN, keterbukaan IP publik via WebRTC, dan penjelasan peran pihak ketiga (signaling PeerJS, STUN/TURN, CDN). |
 | 2026-11-06 | #12 | resetLocalState() membersihkan seluruh data foto sesi; dikonfirmasi localStorage hanya memuat flag persetujuan privasi dan 0 data foto tersimpan. |
-
+| 2026-11-06 | #13 | Menambahkan meta theme-color (#FFEAA7), og:locale (id_ID), title deskriptif Y2K, dan menyeragamkan antarmuka menjadi bahasa Indonesia konsisten (Selamat Datang, Mulai Sekarang, Gabung Room, Kamu (Host), Waktunya Foto, Unduh Foto). |
+| 2026-11-06 | #14 | Menambahkan fungsi insertJpegDpi() untuk menginjeksi metadata standar JFIF APP0 (300 DPI) ke dalam ekspor JPG berkualitas 0.95 dan menjaga redaksi akurat HD Siap Cetak. |
+| 2026-11-06 | #15 | Memasang workflow GitHub Actions Playwright (.github/workflows/playwright.yml) dan skrip smoke test otomatis (tests/ci-smoke.js) dengan tingkat kelulusan 100% (17/17 uji). |

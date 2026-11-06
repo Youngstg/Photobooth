@@ -194,3 +194,71 @@ export function renderDynamicFrame(targetCtx, photos, templateConfig, targetWidt
         }
     });
 }
+
+/**
+ * Injects JFIF APP0 metadata into JPEG data URL to specify physical print resolution (DPI).
+ * Complies with JFIF 1.02 standard (units: 1 = dots per inch).
+ * @param {string} dataUrl - Standard data:image/jpeg;base64,...
+ * @param {number} dpi - Target resolution in dots per inch (default 300)
+ * @returns {string} - Modified JPEG data URL with 300 DPI metadata header
+ */
+export function insertJpegDpi(dataUrl, dpi = 300) {
+    if (!dataUrl || !dataUrl.startsWith('data:image/jpeg;base64,')) {
+        return dataUrl;
+    }
+    const base64Data = dataUrl.split(',')[1];
+    const binStr = atob(base64Data);
+    const bytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) {
+        bytes[i] = binStr.charCodeAt(i);
+    }
+
+    // Verify JPEG SOI marker (0xFF 0xD8)
+    if (bytes[0] !== 0xFF || bytes[1] !== 0xD8) {
+        return dataUrl;
+    }
+
+    const dpiX = (dpi >> 8) & 0xFF;
+    const dpiY = dpi & 0xFF;
+
+    // Check if JFIF APP0 marker (0xFF 0xE0) already exists at offset 2
+    if (bytes[2] === 0xFF && bytes[3] === 0xE0) {
+        // Verify identifier 'JFIF\0' (0x4A 0x46 0x49 0x46 0x00)
+        if (bytes[6] === 0x4A && bytes[7] === 0x46 && bytes[8] === 0x49 && bytes[9] === 0x46 && bytes[10] === 0x00) {
+            bytes[13] = 1; // 1 = dots per inch
+            bytes[14] = dpiX;
+            bytes[15] = dpiY;
+            bytes[16] = dpiX;
+            bytes[17] = dpiY;
+
+            let modifiedStr = '';
+            for (let i = 0; i < bytes.length; i++) {
+                modifiedStr += String.fromCharCode(bytes[i]);
+            }
+            return 'data:image/jpeg;base64,' + btoa(modifiedStr);
+        }
+    }
+
+    // If no JFIF APP0, insert standard 18-byte JFIF APP0 marker after SOI
+    const jfifHeader = new Uint8Array([
+        0xFF, 0xE0, // Marker
+        0x00, 0x10, // Length = 16 bytes
+        0x4A, 0x46, 0x49, 0x46, 0x00, // 'JFIF\0'
+        0x01, 0x01, // Version 1.01
+        0x01,       // Units: 1 = dots per inch
+        dpiX, dpiY, // Xdensity
+        dpiX, dpiY, // Ydensity
+        0x00, 0x00  // Thumbnail size 0x0
+    ]);
+
+    const newBytes = new Uint8Array(bytes.length + jfifHeader.length);
+    newBytes.set(bytes.subarray(0, 2), 0);
+    newBytes.set(jfifHeader, 2);
+    newBytes.set(bytes.subarray(2), 2 + jfifHeader.length);
+
+    let modifiedStr = '';
+    for (let i = 0; i < newBytes.length; i++) {
+        modifiedStr += String.fromCharCode(newBytes[i]);
+    }
+    return 'data:image/jpeg;base64,' + btoa(modifiedStr);
+}
