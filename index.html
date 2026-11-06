@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CuteSnaps</title>
-    <meta name="description" content="CuteSnaps Photobooth Online — Aplikasi web photobooth Y2K interaktif dengan fitur duo collab real-time WebRTC, filter AI, dan puluhan frame estetik langsung dari browser.">
+    <meta name="description" content="CuteSnaps Photobooth Online — Aplikasi web photobooth Y2K interaktif dengan fitur duo collab real-time WebRTC, filter foto estetik retro, properti AR, dan template photostrip estetik langsung dari browser.">
     <meta name="keywords" content="photobooth online, photobooth web, duo collab photobooth, photobooth webrtc, cutesnaps, filter foto online, photo strip y2k, virtual photobooth indonesia">
     <link rel="canonical" href="https://cutesnaps.us.ci/">
     
@@ -548,22 +548,29 @@
                 <div class="privacy-item">
                     <div class="privacy-item-icon">📷</div>
                     <div class="privacy-item-text">
-                        <strong>Kamera & Aliran Video</strong>
-                        <p>Pada <strong>Mode Solo</strong>, kamera diproses 100% lokal di browser perangkat Anda. Pada <strong>Mode Duo</strong>, video dikirimkan secara langsung <em>peer-to-peer (WebRTC)</em> hanya kepada partner di room Anda tanpa perantara server.</p>
+                        <strong>Kamera & Transmisi Video</strong>
+                        <p>Pada <strong>Mode Solo</strong>, kamera diproses 100% lokal di browser perangkat Anda. Pada <strong>Mode Duo</strong>, video ditransmisikan secara langsung (<em>WebRTC P2P</em>) antar-peserta, atau melalui server relay TURN terenkripsi jika jaringan salah satu peserta berada di balik firewall/NAT seluler. Alamat IP publik dapat terlihat oleh rekan di room Anda.</p>
+                    </div>
+                </div>
+                <div class="privacy-item">
+                    <div class="privacy-item-icon">🌐</div>
+                    <div class="privacy-item-text">
+                        <strong>Pihak Ketiga & Infrastruktur</strong>
+                        <p>Kami menggunakan pihak ketiga terpercaya sebatas untuk infrastruktur transmisi: broker signaling (<em>PeerJS</em>) untuk pembuatan koneksi room, relay <em>STUN/TURN</em> untuk penembusan jaringan, dan CDN publik (<em>Google Fonts, jsDelivr</em>) untuk memuat library pustaka open-source. Tidak ada video atau foto yang dialihkan ke pihak ketiga.</p>
                     </div>
                 </div>
                 <div class="privacy-item">
                     <div class="privacy-item-icon">🛡️</div>
                     <div class="privacy-item-text">
                         <strong>Tanpa Penyimpanan di Server</strong>
-                        <p><strong>Tidak ada foto atau rekaman video yang diunggah atau disimpan di server kami.</strong> Semua foto hanya berada di memori perangkat Anda selama sesi dan otomatis terhapus saat sesi selesai atau browser ditutup.</p>
+                        <p><strong>Tidak ada foto atau rekaman video yang diunggah atau disimpan di server kami.</strong> Seluruh foto hanya tersimpan di memori sementara (RAM) perangkat Anda dan otomatis terhapus saat sesi selesai atau browser ditutup.</p>
                     </div>
                 </div>
                 <div class="privacy-item">
                     <div class="privacy-item-icon">👥</div>
                     <div class="privacy-item-text">
                         <strong>Nama Panggilan & Avatar</strong>
-                        <p>Nama dan avatar hanya digunakan sementara untuk membedakan kursor Anda dan partner saat memilih foto dan frame bersama.</p>
+                        <p>Nama dan avatar hanya digunakan sementara untuk membedakan kursor dan pilihan foto bersama selama sesi.</p>
                     </div>
                 </div>
             </div>

@@ -108,17 +108,33 @@ function mapTemplates(data) {
 }
 
 export async function fetchTemplates() {
+    // 1. Primary: load static templates.json directly (cleanest, fast, zero 404 errors)
     try {
-        const res = await fetch(`${API_BASE_URL}/api/templates`);
-        if (!res.ok) throw new Error('API templates fallback');
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-            allFrameThemes = mapTemplates(data);
-            return allFrameThemes;
+        const res = await fetch('templates.json', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                allFrameThemes = mapTemplates(data);
+                return allFrameThemes;
+            }
         }
-    } catch (e) {
-        console.warn("Using fallback templates:", e);
+    } catch (_) {}
+
+    // 2. Secondary: backend API if available
+    if (API_BASE_URL) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/templates`);
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    allFrameThemes = mapTemplates(data);
+                    return allFrameThemes;
+                }
+            }
+        } catch (_) {}
     }
+
+    // 3. Built-in fallback
     allFrameThemes = mapTemplates(FALLBACK_TEMPLATES);
     return allFrameThemes;
 }

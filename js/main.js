@@ -36,6 +36,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateSessionCount();
 
     setupButtonListeners();
+
+    // FIX Task #8: Warn before page reload/leave if photos exist in session
+    window.addEventListener('beforeunload', (e) => {
+        if (state.capturedPhotos && state.capturedPhotos.length > 0 && !window._isRestartingSession) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    });
 });
 
 /**

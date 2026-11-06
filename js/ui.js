@@ -84,13 +84,22 @@ export function updateSessionCount() {
     }
 }
 
-// Screen Navigation
-export function showScreen(screenId) {
+// Screen Navigation with History pushState (Back/Forward browser support)
+export function showScreen(screenId, pushHistory = true) {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
     const target = document.getElementById(screenId);
-    if (target) target.classList.add('active');
+    if (target) {
+        target.classList.add('active');
+        if (pushHistory && typeof window !== 'undefined' && window.history && window.history.pushState) {
+            const currentHash = window.location.hash;
+            const targetHash = '#' + screenId.replace('screen-', '');
+            if (currentHash !== targetHash) {
+                window.history.pushState({ screenId }, '', targetHash);
+            }
+        }
+    }
 }
 
 export function setupUIListeners() {
@@ -99,6 +108,23 @@ export function setupUIListeners() {
         quoteEl.addEventListener('click', changeQuote);
         quoteEl.textContent = motivationalQuotes[0];
     }
+
+    // Handle Browser Back / Forward buttons via popstate
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.screenId) {
+            showScreen(e.state.screenId, false);
+        } else {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const screenId = 'screen-' + hash;
+                if (document.getElementById(screenId)) {
+                    showScreen(screenId, false);
+                    return;
+                }
+            }
+            showScreen('screen-welcome', false);
+        }
+    });
     
     initTheme();
 }

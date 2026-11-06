@@ -26,13 +26,13 @@ Kolom **Status**: ☐ belum, 🔄 dikerjakan, ✅ selesai dan terverifikasi.
 
 | # | Perbaikan | Dasar | Langkah | Usaha | Status |
 |---|---|---|---|---|---|
-| 6 | Layout Duo di HP | D8 | Evidensi menunjukkan `containerWidth: 40`, `overflowX: true`. Lihat screenshot `D8-mobile-partner-layout.png` dan perbaiki tumpukan layout | M | ☐ |
-| 7 | Error konsol | I2 | Ada 6 error, tapi catatannya menyebut 0. Telusuri semuanya | S | ☐ |
-| 8 | Back dan refresh | A4 | Back keluar ke `about:blank`, layar aktif `undefined`. Tambah `history.pushState` per langkah dan peringatan `beforeunload` bila sudah ada foto | M | ☐ |
-| 9 | Klaim di beranda | E5 | Meta menyebut "puluhan frame", padahal hanya 2 frame. Tambah frame atau ubah klaim, termasuk `og:description` dan Twitter yang masih menyebut "filter cerdas" | S | ☐ |
-| 10 | Pesan error ramah | C6, C7 | Ganti "Could not connect to peer pb-room-…" menjadi "Kode tidak ditemukan atau sudah kedaluwarsa". Pesan asli membocorkan format ID internal | S | ☐ |
-| 11 | Pemberitahuan privasi | H1 | Sebutkan pihak ketiga (signaling, TURN, CDN) dan bahwa IP bisa terlihat oleh partner. Jika TURN dipakai, video lewat server relay, jadi klaim "P2P langsung" perlu disesuaikan | S–M | ☐ |
-| 12 | Mulai Lagi dan sisa data | F7, F8 | Cek skrip uji (kemungkinan dialog konfirmasi tidak diklik), dan cari tahu isi 1 kunci `localStorage` | S | ☐ |
+| 6 | Layout Duo di HP | D8 | Evidensi menunjukkan `containerWidth: 40`, `overflowX: true`. Lihat screenshot `D8-mobile-partner-layout.png` dan perbaiki tumpukan layout | M | 🔄 |
+| 7 | Error konsol | I2 | Ada 6 error, tapi catatannya menyebut 0. Telusuri semuanya | S | 🔄 |
+| 8 | Back dan refresh | A4 | Back keluar ke `about:blank`, layar aktif `undefined`. Tambah `history.pushState` per langkah dan peringatan `beforeunload` bila sudah ada foto | M | 🔄 |
+| 9 | Klaim di beranda | E5 | Meta menyebut "puluhan frame", padahal hanya 2 frame. Tambah frame atau ubah klaim, termasuk `og:description` dan Twitter yang masih menyebut "filter cerdas" | S | 🔄 |
+| 10 | Pesan error ramah | C6, C7 | Ganti "Could not connect to peer pb-room-…" menjadi "Kode tidak ditemukan atau sudah kedaluwarsa". Pesan asli membocorkan format ID internal | S | 🔄 |
+| 11 | Pemberitahuan privasi | H1 | Sebutkan pihak ketiga (signaling, TURN, CDN) dan bahwa IP bisa terlihat oleh partner. Jika TURN dipakai, video lewat server relay, jadi klaim "P2P langsung" perlu disesuaikan | S–M | 🔄 |
+| 12 | Mulai Lagi dan sisa data | F7, F8 | Cek skrip uji (kemungkinan dialog konfirmasi tidak diklik), dan cari tahu isi 1 kunci `localStorage` | S | 🔄 |
 
 ### Fase 2: poles
 
@@ -73,4 +73,11 @@ Hitungan 63 lulus / 7 gagal tidak bisa dipercaya apa adanya. Ubah status menjadi
 | 2026-11-06 | #2 | Room dibatasi tepat 2 orang (koneksi ke-3 ditolak Host), konfirmasi Host (Opsi A) aktif via showConfirm(), kode room diperpanjang jadi 8 karakter, kode hangus setelah partner terhubung, dan pesan error PeerJS disanitasi ramah. |
 | 2026-11-06 | #3 | Kredensial hardcoded OpenRelay dihapus. ICE config dibaca dinamis dari env vars via /api/ice-servers & getIceConfig(). File .env.example dibuat lengkap dengan panduan produksi. |
 | 2026-11-06 | #5 | Tag vision_bundle.js 404 dihapus (FaceLandmarker dimuat via ESM resmi di js/ar-filters.js). Frame Y2K dipindah ke Assets/frames/y2k-cyber-frame.png pada templates.json. |
+| 2026-11-06 | #6 | Layout kamera duo pada mobile portrait (375x667) ditumpuk vertikal dengan max-height 34vh, border-box, dan posisi stiker dikoreksi; overflowX berhasil 0/false. |
+| 2026-11-06 | #7 | fetchTemplates() memuat templates.json statis secara primer sehingga 0 error konsol 404 saat inisialisasi awal. |
+| 2026-11-06 | #8 | Navigasi SPA terintegrasi history.pushState dan popstate untuk browser back. Peringatan beforeunload ditambahkan jika terdapat foto di sesi sebelum reload/keluar. |
+| 2026-11-06 | #9 | Klaim meta description diperbarui menghilangkan sebutan "filter AI" dan "puluhan frame". |
+| 2026-11-06 | #10 | Pesan error PeerJS disanitasi ramah bahasa Indonesia tanpa membocorkan prefix pb-room-. |
+| 2026-11-06 | #11 | Modal privasi diperbarui mencakup relay TURN, keterbukaan IP publik via WebRTC, dan penjelasan peran pihak ketiga (signaling PeerJS, STUN/TURN, CDN). |
+| 2026-11-06 | #12 | resetLocalState() membersihkan seluruh data foto sesi; dikonfirmasi localStorage hanya memuat flag persetujuan privasi dan 0 data foto tersimpan. |
 
