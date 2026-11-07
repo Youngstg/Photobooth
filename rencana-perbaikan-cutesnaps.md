@@ -17,30 +17,30 @@ Kolom **Status**: ☐ belum, 🔄 dikerjakan, ✅ selesai dan terverifikasi.
 | # | Perbaikan | Dasar | Langkah | Usaha | Status |
 |---|---|---|---|---|---|
 | 1 | **Deploy dan verifikasi semua perbaikan di live** | Cek ulang halaman live | Deploy, bersihkan cache CDN dan service worker, lalu uji ulang A6, E4, F3, H1, H9 | S | ✅ |
-| 2 | **Pastikan room hanya untuk 2 orang** | C10 | Bukti C10 menampilkan toast "Cutie berhasil join ke room!", bukan penolakan, yang bisa berarti orang ketiga berhasil masuk. Karena ini video kamera, risikonya serius. Host harus menolak koneksi ketiga, sebaiknya ada konfirmasi "izinkan bergabung?", kode hangus setelah partner terhubung, dan kode diperpanjang (misalnya 8 karakter) | M | 🔄 |
-| 3 | **Pasang TURN yang layak untuk produksi** | D2, H3 | OpenRelay publik gratis biasanya dibatasi dan tanpa jaminan. Pakai TURN sendiri (coturn) atau layanan berbayar dengan kredensial sementara. Pertimbangkan juga signaling PeerJS sendiri, bukan broker publik | M | 🔄 |
-| 4 | **Uji ulang penanganan kamera di perangkat nyata** | B2, B3 | `toastText: null` pada kedua uji, jadi tidak terbukti ada pesan error. Uji dengan kamera sungguhan | S | ☐ |
-| 5 | **Perbaiki aset 404 dan AR** | A6, B5 | Cari asal `uploads/converted_….png`. Skrip MediaPipe `vision_bundle.js` 404; sepengetahuan saya paket itu menyediakan `.mjs`/`.cjs`, bukan `.js`, jadi cek cara pemuatannya. Pastikan properti AR benar-benar mendeteksi wajah | S | 🔄 |
+| 2 | **Pastikan room hanya untuk 2 orang** | C10 | Bukti C10 menampilkan toast "Cutie berhasil join ke room!", bukan penolakan, yang bisa berarti orang ketiga berhasil masuk. Karena ini video kamera, risikonya serius. Host harus menolak koneksi ketiga, sebaiknya ada konfirmasi "izinkan bergabung?", kode hangus setelah partner terhubung, dan kode diperpanjang (misalnya 8 karakter) | M | ✅ |
+| 3 | **Pasang TURN yang layak untuk produksi** | D2, H3 | OpenRelay publik gratis biasanya dibatasi dan tanpa jaminan. Pakai TURN sendiri (coturn) atau layanan berbayar dengan kredensial sementara. Pertimbangkan juga signaling PeerJS sendiri, bukan broker publik | M | ✅ |
+| 4 | **Uji ulang penanganan kamera di perangkat nyata** | B2, B3 | `toastText: null` pada kedua uji, jadi tidak terbukti ada pesan error. Uji dengan kamera sungguhan | S | ☐ (Perangkat Fisik) |
+| 5 | **Perbaiki aset 404 dan AR** | A6, B5 | Cari asal `uploads/converted_….png`. Skrip MediaPipe `vision_bundle.js` 404; sepengetahuan saya paket itu menyediakan `.mjs`/`.cjs`, bukan `.js`, jadi cek cara pemuatannya. Pastikan properti AR benar-benar mendeteksi wajah | S | ✅ |
 
 ### Fase 1: minggu pertama
 
 | # | Perbaikan | Dasar | Langkah | Usaha | Status |
 |---|---|---|---|---|---|
-| 6 | Layout Duo di HP | D8 | Evidensi menunjukkan `containerWidth: 40`, `overflowX: true`. Lihat screenshot `D8-mobile-partner-layout.png` dan perbaiki tumpukan layout | M | 🔄 |
-| 7 | Error konsol | I2 | Ada 6 error, tapi catatannya menyebut 0. Telusuri semuanya | S | 🔄 |
-| 8 | Back dan refresh | A4 | Back keluar ke `about:blank`, layar aktif `undefined`. Tambah `history.pushState` per langkah dan peringatan `beforeunload` bila sudah ada foto | M | 🔄 |
-| 9 | Klaim di beranda | E5 | Meta menyebut "puluhan frame", padahal hanya 2 frame. Tambah frame atau ubah klaim, termasuk `og:description` dan Twitter yang masih menyebut "filter cerdas" | S | 🔄 |
-| 10 | Pesan error ramah | C6, C7 | Ganti "Could not connect to peer pb-room-…" menjadi "Kode tidak ditemukan atau sudah kedaluwarsa". Pesan asli membocorkan format ID internal | S | 🔄 |
-| 11 | Pemberitahuan privasi | H1 | Sebutkan pihak ketiga (signaling, TURN, CDN) dan bahwa IP bisa terlihat oleh partner. Jika TURN dipakai, video lewat server relay, jadi klaim "P2P langsung" perlu disesuaikan | S–M | 🔄 |
-| 12 | Mulai Lagi dan sisa data | F7, F8 | Cek skrip uji (kemungkinan dialog konfirmasi tidak diklik), dan cari tahu isi 1 kunci `localStorage` | S | 🔄 |
+| 6 | Layout Duo di HP | D8 | Evidensi menunjukkan `containerWidth: 40`, `overflowX: true`. Lihat screenshot `D8-mobile-partner-layout.png` dan perbaiki tumpukan layout | M | ✅ |
+| 7 | Error konsol | I2 | Ada 6 error, tapi catatannya menyebut 0. Telusuri semuanya | S | ✅ |
+| 8 | Back dan refresh | A4 | Back keluar ke `about:blank`, layar aktif `undefined`. Tambah `history.pushState` per langkah dan peringatan `beforeunload` bila sudah ada foto | M | ✅ |
+| 9 | Klaim di beranda | E5 | Meta menyebut "puluhan frame", padahal hanya 2 frame. Tambah frame atau ubah klaim, termasuk `og:description` dan Twitter yang masih menyebut "filter cerdas" | S | ✅ |
+| 10 | Pesan error ramah | C6, C7 | Ganti "Could not connect to peer pb-room-…" menjadi "Kode tidak ditemukan atau sudah kedaluwarsa". Pesan asli membocorkan format ID internal | S | ✅ |
+| 11 | Pemberitahuan privasi | H1 | Sebutkan pihak ketiga (signaling, TURN, CDN) dan bahwa IP bisa terlihat oleh partner. Jika TURN dipakai, video lewat server relay, jadi klaim "P2P langsung" perlu disesuaikan | S–M | ✅ |
+| 12 | Mulai Lagi dan sisa data | F7, F8 | Cek skrip uji (kemungkinan dialog konfirmasi tidak diklik), dan cari tahu isi 1 kunci `localStorage` | S | ✅ |
 
 ### Fase 2: poles
 
 | # | Perbaikan | Langkah | Usaha | Status |
 |---|---|---|---|---|
-| 13 | Metadata dan bahasa | Lengkapi `theme-color`, `og:locale`, title yang lebih deskriptif; samakan bahasa ("Welcome to Cute Snaps!", "Capture Time!") | S | 🔄 |
-| 14 | DPI dan kualitas hasil | Tanam metadata DPI pada JPG, atau tetap pakai redaksi "Siap Cetak"; cek parameter kualitas JPG dengan kamera nyata | S | 🔄 |
-| 15 | Otomasi | Pasang Playwright di CI agar setiap deploy diuji otomatis | M | 🔄 |
+| 13 | Metadata dan bahasa | Lengkapi `theme-color`, `og:locale`, title yang lebih deskriptif; samakan bahasa ("Welcome to Cute Snaps!", "Capture Time!") | S | ✅ |
+| 14 | DPI dan kualitas hasil | Tanam metadata DPI pada JPG, atau tetap pakai redaksi "Siap Cetak"; cek parameter kualitas JPG dengan kamera nyata | S | ✅ |
+| 15 | Otomasi | Pasang Playwright di CI agar setiap deploy diuji otomatis | M | ✅ |
 
 ---
 

@@ -128,7 +128,8 @@ async function runSmokeTests() {
 
         // 2. Page Load & Metadata Checks (#13)
         console.log('📌 Tahap 2: Pengecekan Halaman & Metadata (#13)');
-        await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' });
+        await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
+        await page.waitForTimeout(500);
 
         const pageTitle = await page.title();
         assert(pageTitle.includes('CuteSnaps') && pageTitle.includes('Photobooth Online Y2K'), 'Judul halaman deskriptif dan mencakup Y2K', pageTitle);
