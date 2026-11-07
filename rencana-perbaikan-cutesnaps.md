@@ -16,7 +16,7 @@ Kolom **Status**: ☐ belum, 🔄 dikerjakan, ✅ selesai dan terverifikasi.
 
 | # | Perbaikan | Dasar | Langkah | Usaha | Status |
 |---|---|---|---|---|---|
-| 1 | **Deploy dan verifikasi semua perbaikan di live** | Cek ulang halaman live | Deploy, bersihkan cache CDN dan service worker, lalu uji ulang A6, E4, F3, H1, H9 | S | ☐ |
+| 1 | **Deploy dan verifikasi semua perbaikan di live** | Cek ulang halaman live | Deploy, bersihkan cache CDN dan service worker, lalu uji ulang A6, E4, F3, H1, H9 | S | ✅ |
 | 2 | **Pastikan room hanya untuk 2 orang** | C10 | Bukti C10 menampilkan toast "Cutie berhasil join ke room!", bukan penolakan, yang bisa berarti orang ketiga berhasil masuk. Karena ini video kamera, risikonya serius. Host harus menolak koneksi ketiga, sebaiknya ada konfirmasi "izinkan bergabung?", kode hangus setelah partner terhubung, dan kode diperpanjang (misalnya 8 karakter) | M | 🔄 |
 | 3 | **Pasang TURN yang layak untuk produksi** | D2, H3 | OpenRelay publik gratis biasanya dibatasi dan tanpa jaminan. Pakai TURN sendiri (coturn) atau layanan berbayar dengan kredensial sementara. Pertimbangkan juga signaling PeerJS sendiri, bukan broker publik | M | 🔄 |
 | 4 | **Uji ulang penanganan kamera di perangkat nyata** | B2, B3 | `toastText: null` pada kedua uji, jadi tidak terbukti ada pesan error. Uji dengan kamera sungguhan | S | ☐ |
@@ -83,3 +83,4 @@ Hitungan 63 lulus / 7 gagal tidak bisa dipercaya apa adanya. Ubah status menjadi
 | 2026-11-06 | #13 | Menambahkan meta theme-color (#FFEAA7), og:locale (id_ID), title deskriptif Y2K, dan menyeragamkan antarmuka menjadi bahasa Indonesia konsisten (Selamat Datang, Mulai Sekarang, Gabung Room, Kamu (Host), Waktunya Foto, Unduh Foto). |
 | 2026-11-06 | #14 | Menambahkan fungsi insertJpegDpi() untuk menginjeksi metadata standar JFIF APP0 (300 DPI) ke dalam ekspor JPG berkualitas 0.95 dan menjaga redaksi akurat HD Siap Cetak. |
 | 2026-11-06 | #15 | Memasang workflow GitHub Actions Playwright (.github/workflows/playwright.yml) dan skrip smoke test otomatis (tests/ci-smoke.js) dengan tingkat kelulusan 100% (17/17 uji). |
+| 2026-11-07 | #1 | Merge seluruh perbaikan Fase 0, 1, dan 2 ke branch main, deploy ke Tencent Cloud VPS (43.157.241.115), dan verifikasi live service cutesnaps.us.ci. |
