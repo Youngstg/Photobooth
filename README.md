@@ -35,47 +35,64 @@
 * Pengalaman antarmuka interaktif yang dapat berganti instan antara tema **Cyber Y2K** (gradien futuristik & font distingtif) dan **Classic 90s Polaroid**.
 * Efek audio interaktif dan transisi visual responsif di perangkat desktop maupun smartphone.
 
-### 3. 🖼️ Automated Photo Strip Stitching & OpenCV Processing
+### 3. 👥 Duo Collab Multiplayer (WebRTC + Coturn STUN/TURN)
+* Kolaborasi photobooth jarak jauh 2 orang secara *real-time* via WebRTC & PeerJS.
+* Sinkronisasi kursor lawan secara langsung, emoji reaction bar interaktif, dan hitung mundur pemotretan bersama.
+* Didukung oleh infrastruktur **Coturn STUN/TURN** mandiri di VPS untuk penembusan Symmetric NAT / CGNAT pada jaringan seluler (Telkomsel/Indosat/XL).
+* Sistem keamanan room: pembatasan ketat tepat 2 orang, konfirmasi persetujuan Host, kode room 8-karakter acak, dan kode langsung hangus setelah partner terhubung.
+
+### 4. 🖼️ Automated Photo Strip Stitching & OpenCV Processing
 * Mode pemotretan otomatis 4 pose dengan visual countdown interaktif.
 * Pemrosesan citra tingkat lanjut menggunakan **OpenCV**: Grayscale, Warm Sepia, Vintage Grain, dan Distortion Filters.
-* Penggabungan otomatis menjadi strip foto polaroid beresolusi tinggi yang siap diunduh atau dibagikan.
+* Injeksi metadata standar **JFIF APP0 (300 DPI)** pada berkas JPG hasil ekspor untuk standar kualitas cetak profesional HD.
 
-### 4. 🎛️ Dynamic Frame & Template Management
-* Dashboard khusus untuk mengunggah, mengonfigurasi dimensi, serta mengatur layout bingkai kustom secara dinamis tanpa mengubah kode sumber.
-* Sistem penyimpanan modular yang mendukung penyimpanan lokal berkecepatan tinggi maupun sinkronisasi cloud NoSQL.
+### 5. 🔒 Privasi Terjamin (Zero Server Storage)
+* Seluruh proses pengolahan foto dan photostrip berlangsung 100% lokal di browser pengguna (HTML5 Canvas).
+* Server tidak menyimpan foto atau rekaman video pengguna, menjaga privasi penuh tanpa jejak di database backend.
 
 ---
 
 ## 🏗️ Arsitektur Sistem
 
 ```
-[ Pengguna Web (Kamera) ]
-          │
-          ├──> [ Client Layer (MediaPipe JS) ] ──> Pelacakan Landmark Wajah Real-Time
-          │                                        Rendering Efek AR Canvas 60 FPS
-          │
-          └──> [ HTTP POST /api/filter ] ────────> [ Nginx Reverse Proxy (SSL) ]
-                                                            │
-                                                            ▼
-                                                   [ Gunicorn WSGI ]
-                                                            │
-                                                            ▼
-                                                [ Flask Application Core ]
-                                                            ├── Pemrosesan OpenCV
-                                                            ├── Stitching Strip Foto
-                                                            └── Penyimpanan Foto
+[ Pengguna A (Host) ] <═══════════ WebRTC P2P (Media & Data) ═══════════> [ Pengguna B (Guest) ]
+         │                                      ▲                                    │
+         │ (Jika terhalang NAT Seluler)         │                                    │
+         └───────────> [ Coturn Server (TURN Relay :3478/:5349) ] <──────────────────┘
+                                                ▲
+                                                │ Konfigurasi ICE Dinamis
+                                                │
+[ Nginx Reverse Proxy (SSL 443) ] ──> [ Gunicorn WSGI ] ──> [ Flask API Core ]
+                                                               ├── GET /api/ice-servers
+                                                               └── POST /api/filter (OpenCV)
+```
+
+---
+
+## 🧪 Pengujian Otomatis (CI/CD Quality Assurance)
+
+Proyek ini telah melalui pengujian menyeluruh menggunakan suite pengujian otomatis **Playwright**:
+
+```bash
+# Jalankan smoke test CI (17 pengujian)
+npm test
+
+# Jalankan pengujian komprehensif 14 perbaikan UAT
+node tests/retest-all.js
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** HTML5 Canvas, Vanilla Modern CSS, JavaScript (ES6+), Audio Web API
-* **Computer Vision (Client):** [Google MediaPipe Face Mesh](https://developers.google.com/mediapipe)
+* **Frontend:** HTML5 Canvas, Vanilla Modern CSS (Y2K Metallic Chrome Aesthetics), JavaScript (ES6+), Audio Web API
+* **Real-Time Multiplayer:** WebRTC, PeerJS, Coturn STUN/TURN (Ubuntu VPS)
+* **Computer Vision (Client):** [Google MediaPipe Face Mesh ESM](https://developers.google.com/mediapipe)
 * **Backend Core:** [Python 3.12](https://www.python.org/), [Flask 3.0](https://flask.palletsprojects.com/)
 * **Image Processing Engine:** [OpenCV (opencv-python-headless)](https://opencv.org/), [NumPy](https://numpy.org/)
 * **WSGI & Process Management:** [Gunicorn](https://gunicorn.org/), [PM2](https://pm2.io/)
-* **Server Infrastructure:** Ubuntu Linux, Nginx, Let's Encrypt SSL, GitHub Actions CI/CD
+* **Testing & CI/CD:** Playwright, GitHub Actions Workflow (.github/workflows/deploy.yml, playwright.yml)
+* **Server Infrastructure:** Tencent Cloud Lighthouse VPS (Ubuntu 24.04), Nginx, Let's Encrypt SSL, Coturn
 
 ---
 

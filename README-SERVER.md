@@ -24,11 +24,16 @@ Tekan `Ctrl+C` di jendela CMD untuk menghentikan server.
 
 ## Cara Manual
 
-Jika file `.bat` tidak bekerja, buka CMD dan jalankan:
+Jika file `.bat` tidak bekerja, buka CMD/PowerShell di folder proyek dan jalankan:
 
 ```bash
-cd D:\Download\Photobooth
+# Opsi 1: Menjalankan server Flask lengkap (API + Fitur Filter + ICE WebRTC)
+python server.py
+# Akses di browser: http://localhost:5000
+
+# Opsi 2: Menjalankan server statis sederhana
 python -m http.server 8000
+# Akses di browser: http://localhost:8000
 ```
 
 ---

@@ -39,19 +39,14 @@ Jika Anda menggunakan OS Windows, cara paling mudah adalah dengan menggunakan *b
 
 Untuk membuat web ini bisa diakses publik (dan agar kamera berfungsi pada browser pengguna lain), aplikasi **wajib** di-deploy menggunakan protokol `HTTPS`. 
 
-Kabar baiknya, repositori ini sudah 100% siap untuk lingkungan produksi (*Production Ready*) karena sudah dilengkapi dengan:
+Aplikasi ini telah diproduksi dan di-deploy secara aktif di **Tencent Cloud Lighthouse VPS** dengan domain resmi: **[https://cutesnaps.us.ci](https://cutesnaps.us.ci)**.
+
+Repositori ini sudah 100% siap untuk lingkungan produksi (*Production Ready*) karena dilengkapi dengan:
 - `requirements.txt` (menggunakan `opencv-python-headless` yang aman untuk server Linux).
-- `Procfile` (menggunakan server `gunicorn`).
-- Dinamisasi binding Port di `server.py`.
+- `.github/workflows/deploy.yml` (CI/CD otomatis ke Tencent Cloud VPS via GitHub Actions).
+- `.github/workflows/playwright.yml` (Pengujian kualitas otomatis Playwright di CI).
+- Server STUN/TURN mandiri berbasis **Coturn** untuk transmisi Mode Duo tanpa batas.
+- Dinamisasi binding Port di `server.py` dan auto-load `.env`.
 
-### Cara Deploy Menggunakan Render (render.com) atau Railway (railway.app)
-Ini adalah platform termudah untuk menjalankan aplikasi Flask secara gratis/murah.
-
-1. **Upload ke GitHub**: Pastikan semua file di folder ini sudah di-push ke repositori GitHub Anda.
-2. **Login ke Platform**: Masuk ke dasbor [Render.com](https://render.com) atau [Railway.app](https://railway.app).
-3. **Pilih Deploy from GitHub**: Buat "New Web Service" (Render) atau "New Project" (Railway).
-4. **Pilih Repositori**: Pilih repositori Photobooth Anda.
-5. **Konfigurasi Otomatis**: Platform akan mendeteksi `requirements.txt` dan `Procfile` secara otomatis.
-6. **Selesai!**: Tunggu 1-2 menit hingga proses *build* selesai. Platform akan memberikan URL aman (`https://...`) yang bisa langsung Anda bagikan ke orang lain!
-
-> **Penting**: Pastikan Anda tidak menghapus atau mengubah file `Procfile` karena file tersebut memberi tahu server *cloud* cara menjalankan aplikasi Anda (`gunicorn server:app`).
+### Panduan Deployment Lengkap ke VPS
+Untuk instruksi teknis setup Nginx, Certbot SSL, PM2 daemon, dan Coturn di VPS Linux, silakan baca **[INSTALLATION_GUIDE.md](file:///d:/2026%20-%20Tugas%20Akhir%20dan%20Proyek%20Aktif/Photobooth/INSTALLATION_GUIDE.md)**.
