@@ -4064,12 +4064,12 @@ svg {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(5px);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    padding: 16px;
+    padding: 24px 20px;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 }
@@ -4081,9 +4081,9 @@ svg {
     border: 4px solid #2C2416;
     border-radius: 24px;
     box-shadow: 8px 8px 0px #2C2416;
-    max-width: 520px;
+    max-width: 860px;
     width: 100%;
-    padding: 24px;
+    padding: 28px 32px;
     transform: scale(0.95);
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-family: 'Fredoka', sans-serif;
@@ -4097,55 +4097,118 @@ svg {
 .privacy-modal-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
+    gap: 12px;
+    margin-bottom: 20px;
     border-bottom: 3px dashed #E2D9C8;
-    padding-bottom: 12px;
+    padding-bottom: 14px;
 }
 .privacy-modal-header h3 {
     font-family: 'Titan One', cursive;
-    font-size: 22px;
+    font-size: 24px;
     color: #2C2416;
     margin: 0;
+    letter-spacing: 0.5px;
+}
+.privacy-modal-body {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
 }
 .privacy-item {
     display: flex;
     gap: 14px;
-    margin-bottom: 16px;
     align-items: flex-start;
+    background: #FFF9ED;
+    border: 2px solid #2C2416;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 3px 3px 0px #2C2416;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.privacy-item:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #2C2416;
 }
 .privacy-item-icon {
     font-size: 24px;
     background: #FFEAA7;
     border: 2px solid #2C2416;
     border-radius: 12px;
-    padding: 6px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     box-shadow: 2px 2px 0px #2C2416;
 }
+.privacy-item-text {
+    flex: 1;
+    text-align: left;
+}
 .privacy-item-text strong {
     display: block;
-    font-size: 15px;
-    margin-bottom: 4px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    margin-bottom: 6px;
+    color: #2C2416;
+    text-align: left;
+}
+/* Force override body p global styling */
+.privacy-modal-box p,
+.privacy-item-text p {
+    font-family: 'Fredoka', sans-serif !important;
+    font-size: 13.5px !important;
+    line-height: 1.55 !important;
+    color: #5A4E3D !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    text-align: left !important;
+    box-shadow: none !important;
+}
+.privacy-item-text p strong,
+.privacy-item-text p em {
     color: #2C2416;
 }
-.privacy-item-text p {
-    font-size: 13.5px;
-    line-height: 1.45;
-    color: #5A4E3D;
-    margin: 0;
-}
 .privacy-modal-footer {
-    margin-top: 20px;
+    margin-top: 24px;
     text-align: center;
 }
 .privacy-modal-footer .btn-primary {
-    width: 100%;
-    padding: 13px 20px;
+    min-width: 280px;
+    max-width: 360px;
+    width: auto;
+    padding: 14px 28px;
     font-size: 16px;
+    display: inline-block;
+}
+
+/* Responsive adjustments for tablet and mobile */
+@media (max-width: 768px) {
+    .privacy-modal-box {
+        max-width: 95%;
+        padding: 20px 16px;
+        border-radius: 20px;
+    }
+    .privacy-modal-header h3 {
+        font-size: 20px;
+    }
+    .privacy-modal-body {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .privacy-item {
+        padding: 14px;
+    }
+    .privacy-modal-footer .btn-primary {
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 /* Privacy link on welcome screen */
