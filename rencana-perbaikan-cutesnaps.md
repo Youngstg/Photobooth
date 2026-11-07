@@ -84,3 +84,5 @@ Hitungan 63 lulus / 7 gagal tidak bisa dipercaya apa adanya. Ubah status menjadi
 | 2026-11-06 | #14 | Menambahkan fungsi insertJpegDpi() untuk menginjeksi metadata standar JFIF APP0 (300 DPI) ke dalam ekspor JPG berkualitas 0.95 dan menjaga redaksi akurat HD Siap Cetak. |
 | 2026-11-06 | #15 | Memasang workflow GitHub Actions Playwright (.github/workflows/playwright.yml) dan skrip smoke test otomatis (tests/ci-smoke.js) dengan tingkat kelulusan 100% (17/17 uji). |
 | 2026-11-07 | #1 | Merge seluruh perbaikan Fase 0, 1, dan 2 ke branch main, deploy ke Tencent Cloud VPS (43.157.241.115), dan verifikasi live service cutesnaps.us.ci. |
+| 2026-11-07 | Poles UI | Melebarkan modal privasi di desktop (max-width 860px) dengan layout grid 2-kolom, membersihkan interferensi body p, dan merapikan tipografi kartu. |
+| 2026-11-07 | Poles UI | Mengubah semua heading berwarna hitam pekat (-webkit-text-stroke tebal) menjadi Y2K metallic silver chrome gradient dengan multi-layer drop shadow. |
